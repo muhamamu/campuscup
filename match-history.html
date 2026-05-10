@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Match History - Campus Cup</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #fdf2f8; }
+        
+        .nav-link { color: #fef2f8; font-weight: 500; font-size: 0.875rem; padding: 0.5rem 1rem; transition: all 0.2s; cursor: pointer; border: 1px solid transparent; }
+        .nav-link:hover { color: #f472b6; }
+        .nav-link-active { color: #1a061e; border: 1px solid #f472b6; border-radius: 8px; background-color: white; }
+
+        .card { background-color: white; border-radius: 24px; padding: 32px; box-shadow: 0 4px 20px rgba(0,0,0,0.02); }
+        
+        #mobile-menu { transition: transform 0.3s ease-in-out; transform: translateX(-100%); }
+        #mobile-menu.active { transform: translateX(0); }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+    <!-- Navigation -->
+    <nav class="sticky top-0 z-50" style="background-color: #1a061e;">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex-shrink-0">
+                    <a href="index.html" class="text-xl font-bold tracking-tight" style="color: #fef2f8;">
+                        CAMPUS <span style="color: #f472b6;">CUP</span>
+                    </a>
+                </div>
+                <div class="hidden md:flex items-center space-x-1">
+                    <a href="index.html" class="text-[#fef2f8] hover:text-[#f472b6] text-sm font-medium px-4 py-2">Dashboard</a>
+                    <a href="teams.html" class="text-[#fef2f8] hover:text-[#f472b6] text-sm font-medium px-4 py-2">Teams</a>
+                    <a href="standings.html" class="text-[#fef2f8] hover:text-[#f472b6] text-sm font-medium px-4 py-2">Standings</a>
+                    <a href="match-history.html" class="text-[#f472b6] text-sm font-medium px-4 py-2 font-bold">Match History</a>
+                    <a href="profile.html" class="text-[#fef2f8] hover:text-[#f472b6] text-sm font-medium px-4 py-2">Profile</a>
+                    <button onclick="logout()" class="text-[#fef2f8] hover:text-[#f472b6] text-sm font-medium ml-4">Logout</button>
+                </div>
+                <div class="md:hidden">
+                    <button onclick="toggleMobileMenu()" class="text-[#fef2f8] hover:text-[#f472b6] p-2" style="background: none; border: none; cursor: pointer;">
+                        <svg id="menu-icon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                        </svg>
+                        <svg id="close-icon" class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div id="mobile-menu" class="md:hidden hidden" style="background-color: #2d0a33; border-top: 1px solid rgba(244, 114, 182, 0.2);">
+            <div class="px-4 py-4 space-y-2">
+                <a href="index.html" class="block text-[#fef2f8] hover:text-[#f472b6] text-sm font-medium px-4 py-3">Dashboard</a>
+                <a href="teams.html" class="block text-[#fef2f8] hover:text-[#f472b6] text-sm font-medium px-4 py-3">Teams</a>
+                <a href="standings.html" class="block text-[#fef2f8] hover:text-[#f472b6] text-sm font-medium px-4 py-3">Standings</a>
+                <a href="match-history.html" class="block text-[#f472b6] text-sm font-medium px-4 py-3 font-bold">Match History</a>
+                <a href="profile.html" class="block text-[#fef2f8] hover:text-[#f472b6] text-sm font-medium px-4 py-3">Profile</a>
+                <hr style="border-color: rgba(244, 114, 182, 0.2); margin: 1rem 0;">
+                <button onclick="logout()" class="block w-full text-left text-[#fef2f8] hover:text-[#f472b6] text-sm font-medium px-4 py-3" style="background: none; border: none; cursor: pointer;">Logout</button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="flex-grow p-4 md:p-12 max-w-7xl mx-auto w-full">
+        <header class="mb-12">
+            <h1 class="text-4xl md:text-5xl font-black text-[#1a061e] uppercase tracking-tighter mb-2">Match History</h1>
+            <p class="text-gray-500 font-medium">View all upcoming fixtures and past matches</p>
+        </header>
+
+        <!-- Upcoming Fixtures -->
+        <div class="card mb-8">
+            <h2 class="text-2xl font-black text-[#1a061e] mb-6"><i class="fas fa-calendar-check mr-2 text-blue-500"></i> Upcoming Fixture</h2>
+            <div id="upcoming-fixture">
+                <p class="text-gray-500 text-sm">Loading...</p>
+            </div>
+        </div>
+
+        <!-- Past Games -->
+        <div class="card">
+            <h2 class="text-2xl font-black text-[#1a061e] mb-6"><i class="fas fa-history mr-2 text-green-500"></i> Past Games</h2>
+            <div id="past-games" class="space-y-4">
+                <p class="text-gray-500 text-sm">No past games yet</p>
+            </div>
+        </div>
+    </main>
+
+    <script src="supabase.js"></script>
+    <script src="game-manager.js"></script>
+    <script>
+        function checkAuth() {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            if (!currentUser) {
+                window.location.href = 'login.html';
+                return false;
+            }
+            return currentUser;
+        }
+
+        function logout() {
+            localStorage.removeItem('currentUser');
+            window.location.href = 'login.html';
+        }
+
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            const menuIcon = document.getElementById('menu-icon');
+            const closeIcon = document.getElementById('close-icon');
+            if (menu && menuIcon && closeIcon) {
+                menu.classList.toggle('hidden');
+                menuIcon.classList.toggle('hidden');
+                closeIcon.classList.toggle('hidden');
+            }
+        }
+
+        function formatDate(dateStr) {
+            if (!dateStr) return '';
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'short', 
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        function renderUpcomingFixture(match) {
+            const container = document.getElementById('upcoming-fixture');
+            if (!container) return;
+            
+            if (!match) {
+                container.innerHTML = '<p class="text-gray-400 text-sm">No upcoming fixture scheduled</p>';
+                return;
+            }
+
+            container.innerHTML = `
+                <div class="bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl p-8">
+                    <div class="flex justify-between items-center">
+                        <div class="text-center flex-1">
+                            <h3 class="text-xl font-bold text-[#1a061e]">${match.homeTeam?.name || match.home_team_name}</h3>
+                        </div>
+                        <div class="text-3xl font-black text-gray-400 px-4">VS</div>
+                        <div class="text-center flex-1">
+                            <h3 class="text-xl font-bold text-[#1a061e]">${match.awayTeam?.name || match.away_team_name}</h3>
+                        </div>
+                    </div>
+                    <div class="text-center mt-4">
+                        <span class="text-blue-600 font-bold text-sm uppercase">
+                            <i class="fas fa-clock mr-1"></i> ${match.status || 'SCHEDULED'}
+                        </span>
+                        ${match.createdAt || match.created_at ? `<p class="text-gray-500 text-xs mt-2">${formatDate(match.createdAt || match.created_at)}</p>` : ''}
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderPastGames(history) {
+            const container = document.getElementById('past-games');
+            if (!container) return;
+            
+            if (!history || history.length === 0) {
+                container.innerHTML = '<p class="text-gray-400 text-sm">No past games yet</p>';
+                return;
+            }
+
+            container.innerHTML = history.map(match => `
+                <div class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl p-6">
+                    <div class="flex justify-between items-center">
+                        <div class="text-center flex-1">
+                            <h3 class="text-lg font-bold text-[#1a061e]">${match.homeTeam?.name || match.home_team_name}</h3>
+                            <div class="text-3xl font-black text-[#1a061e]">${match.homeScore}</div>
+                        </div>
+                        <div class="text-center px-4">
+                            <span class="text-gray-500 font-bold text-sm">${match.status || 'FULL TIME'}</span>
+                            <p class="text-gray-400 text-xs mt-1">${formatDate(match.createdAt || match.created_at)}</p>
+                        </div>
+                        <div class="text-center flex-1">
+                            <h3 class="text-lg font-bold text-[#1a061e]">${match.awayTeam?.name || match.away_team_name}</h3>
+                            <div class="text-3xl font-black text-[#1a061e]">${match.awayScore}</div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        document.documentElement.classList.remove('dark-mode');
+        localStorage.removeItem('darkMode');
+
+        checkAuth();
+
+        let initInterval = setInterval(() => {
+            if (window.gameManager) {
+                clearInterval(initInterval);
+                gameManager.subscribe((standings, match, history) => {
+                    if (match && (match.status === 'SCHEDULED' || match.status === 'LIVE')) {
+                        renderUpcomingFixture(match);
+                    } else {
+                        renderUpcomingFixture(null);
+                    }
+                    renderPastGames(history);
+                });
+            }
+        }, 100);
+    </script>
+</body>
+</html>

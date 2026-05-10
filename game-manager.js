@@ -1,4 +1,3 @@
-// Team Data
 const teams = [
     { id: 'software200l', name: 'Software 200L', shortCode: 'S2', logoBg: '#1a061e', logoText: 'S2' },
     { id: 'software100l', name: 'Software 100L', shortCode: 'S1', logoBg: '#c2410c', logoText: 'S1' },
@@ -10,21 +9,45 @@ const teams = [
     { id: 'theatre', name: 'Theatre Art 200L', shortCode: 'EAG', logoBg: '#581c87', logoText: 'EAG' }
 ];
 
-// Match Periods
 const MATCH_PERIODS = {
     FIRST_HALF: 'FIRST_HALF',
     SECOND_HALF: 'SECOND_HALF',
     FIRST_EXTRA_HALF: 'FIRST_EXTRA_HALF',
     SECOND_EXTRA_HALF: 'SECOND_EXTRA_HALF',
-    PENALTIES: 'PENALTIES'
+    PENALTIES: 'PENALTIES',
+    FULL_TIME: 'FULL_TIME'
+};
+
+const EVENT_TYPES = {
+    GOAL: 'goal',
+    PENALTY_GOAL: 'penalty-goal',
+    PENALTY_MISS: 'penalty-miss',
+    YELLOW_CARD: 'yellow-card',
+    RED_CARD: 'red-card',
+    SUBSTITUTION: 'substitution',
+    OFFSIDE: 'offside',
+    FOUL: 'foul',
+    SAVE: 'save'
+};
+
+const GOAL_TYPES = {
+    REGULAR: 'Regular',
+    PENALTY: 'Penalty',
+    FREE_KICK: 'Free Kick',
+    OWN_GOAL: 'Own Goal',
+    HEADER: 'Header'
 };
 
 class GameManager {
     constructor() {
         this.standings = [];
         this.match = null;
+        this.matchHistory = [];
         this.subscribers = [];
         this.sb = null;
+        this.stopwatchInterval = null;
+        this.stopwatchElapsed = 0;
+        this.stopwatchRunning = false;
         this.init();
     }
 
@@ -41,7 +64,8 @@ class GameManager {
     loadFallbackData() {
         const localStorageStandings = localStorage.getItem('standings');
         const localStorageMatch = localStorage.getItem('liveMatch');
-        
+        const localStorageHistory = localStorage.getItem('matchHistory');
+
         if (localStorageStandings) {
             this.standings = JSON.parse(localStorageStandings);
         } else {
@@ -57,30 +81,47 @@ class GameManager {
         if (localStorageMatch) {
             this.match = JSON.parse(localStorageMatch);
         } else {
-            this.match = {
-                homeTeam: teams[1],
-                awayTeam: teams[3],
-                homeScore: 0,
-                awayScore: 0,
-                homePenalties: 0,
-                awayPenalties: 0,
-                minute: "0'",
-                period: MATCH_PERIODS.FIRST_HALF,
-                isLive: false,
-                status: 'SCHEDULED',
-                stats: { 
-                    homePossession: 50,
-                    awayPossession: 50,
-                    homeShots: 0,
-                    awayShots: 0,
-                    homeShotsOnTarget: 0,
-                    awayShotsOnTarget: 0
-                },
-                events: []
-            };
+            this.match = this.createDefaultMatch();
         }
-        
+
+        if (localStorageHistory) {
+            this.matchHistory = JSON.parse(localStorageHistory);
+        } else {
+            this.matchHistory = [];
+        }
+
         this.notifySubscribers();
+    }
+
+    createDefaultMatch() {
+        return {
+            homeTeam: teams[1],
+            awayTeam: teams[3],
+            homeScore: 0,
+            awayScore: 0,
+            homePenalties: 0,
+            awayPenalties: 0,
+            minute: "0'",
+            period: MATCH_PERIODS.FIRST_HALF,
+            isLive: false,
+            status: 'SCHEDULED',
+            stopwatch: 0,
+            stats: {
+                homePossession: 50,
+                awayPossession: 50,
+                homeShots: 0,
+                awayShots: 0,
+                homeShotsOnTarget: 0,
+                awayShotsOnTarget: 0,
+                homeFouls: 0,
+                awayFouls: 0,
+                homeSaves: 0,
+                awaySaves: 0,
+                homeCorners: 0,
+                awayCorners: 0
+            },
+            events: []
+        };
     }
 
     async loadFromSupabase() {
@@ -147,12 +188,21 @@ class GameManager {
                     period: matchData.period,
                     isLive: matchData.is_live,
                     status: matchData.status,
+                    stopwatch: matchData.stopwatch || 0,
                     stats: matchData.stats || {},
                     events: matchData.events || []
                 };
             } else {
-                this.loadFallbackData();
-                return;
+                this.match = this.createDefaultMatch();
+            }
+
+            const { data: historyData } = await this.sb
+                .from('match_history')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            if (historyData) {
+                this.matchHistory = historyData;
             }
 
             this.notifySubscribers();
@@ -165,12 +215,12 @@ class GameManager {
     subscribe(callback) {
         this.subscribers.push(callback);
         if (this.standings.length > 0 && this.match) {
-            callback(this.standings, this.match);
+            callback(this.standings, this.match, this.matchHistory);
         }
     }
 
     notifySubscribers() {
-        this.subscribers.forEach(callback => callback(this.standings, this.match));
+        this.subscribers.forEach(callback => callback(this.standings, this.match, this.matchHistory));
     }
 
     async saveToSupabase() {
@@ -223,8 +273,35 @@ class GameManager {
                         period: this.match.period,
                         is_live: this.match.isLive,
                         status: this.match.status,
+                        stopwatch: this.match.stopwatch,
                         stats: this.match.stats,
                         events: this.match.events,
+                        updated_at: new Date().toISOString()
+                    });
+            }
+
+            for (const histMatch of this.matchHistory) {
+                await this.sb
+                    .from('match_history')
+                    .upsert({
+                        id: histMatch.id,
+                        home_team_id: histMatch.homeTeam?.id || histMatch.home_team_id,
+                        home_team_name: histMatch.homeTeam?.name || histMatch.home_team_name,
+                        home_team_short_code: histMatch.homeTeam?.shortCode || histMatch.home_team_short_code,
+                        home_team_logo_bg: histMatch.homeTeam?.logoBg || histMatch.home_team_logo_bg,
+                        home_team_logo_text: histMatch.homeTeam?.logoText || histMatch.home_team_logo_text,
+                        away_team_id: histMatch.awayTeam?.id || histMatch.away_team_id,
+                        away_team_name: histMatch.awayTeam?.name || histMatch.away_team_name,
+                        away_team_short_code: histMatch.awayTeam?.shortCode || histMatch.away_team_short_code,
+                        away_team_logo_bg: histMatch.awayTeam?.logoBg || histMatch.away_team_logo_bg,
+                        away_team_logo_text: histMatch.awayTeam?.logoText || histMatch.away_team_logo_text,
+                        home_score: histMatch.homeScore,
+                        away_score: histMatch.awayScore,
+                        home_penalties: histMatch.homePenalties,
+                        away_penalties: histMatch.awayPenalties,
+                        status: histMatch.status,
+                        events: histMatch.events,
+                        created_at: histMatch.createdAt || histMatch.created_at,
                         updated_at: new Date().toISOString()
                     });
             }
@@ -236,18 +313,62 @@ class GameManager {
     saveData() {
         localStorage.setItem('standings', JSON.stringify(this.standings));
         localStorage.setItem('liveMatch', JSON.stringify(this.match));
+        localStorage.setItem('matchHistory', JSON.stringify(this.matchHistory));
         this.saveToSupabase();
     }
 
-    getStandings() {
-        return this.standings;
+    startStopwatch() {
+        if (this.stopwatchRunning) return;
+        this.stopwatchRunning = true;
+        const startTime = Date.now() - this.match.stopwatch;
+        this.stopwatchInterval = setInterval(() => {
+            this.match.stopwatch = Date.now() - startTime;
+            this.updateMatchMinuteFromStopwatch();
+            this.saveData();
+            this.notifySubscribers();
+        }, 100);
     }
 
-    getMatch() {
-        return this.match;
+    pauseStopwatch() {
+        this.stopwatchRunning = false;
+        if (this.stopwatchInterval) {
+            clearInterval(this.stopwatchInterval);
+            this.stopwatchInterval = null;
+        }
     }
 
-    addGoal(team, player, assist, isPenalty = false) {
+    resetStopwatch() {
+        this.pauseStopwatch();
+        this.match.stopwatch = 0;
+    }
+
+    updateMatchMinuteFromStopwatch() {
+        const totalSeconds = Math.floor(this.match.stopwatch / 1000);
+        let minute;
+
+        if (this.match.period === MATCH_PERIODS.FIRST_HALF) {
+            minute = Math.min(45, Math.floor(totalSeconds / 60) + 1);
+        } else if (this.match.period === MATCH_PERIODS.SECOND_HALF) {
+            minute = 45 + Math.min(45, Math.floor(totalSeconds / 60) + 1);
+        } else if (this.match.period === MATCH_PERIODS.FIRST_EXTRA_HALF) {
+            minute = 90 + Math.min(15, Math.floor(totalSeconds / 60) + 1);
+        } else if (this.match.period === MATCH_PERIODS.SECOND_EXTRA_HALF) {
+            minute = 105 + Math.min(15, Math.floor(totalSeconds / 60) + 1);
+        } else {
+            minute = this.match.minute;
+        }
+
+        this.match.minute = minute + "'";
+    }
+
+    formatStopwatch(ms) {
+        const totalSeconds = Math.floor(ms / 1000);
+        const minutes = Math.floor(totalSeconds / 60).toString().padStart(2, '0');
+        const seconds = (totalSeconds % 60).toString().padStart(2, '0');
+        return `${minutes}:${seconds}`;
+    }
+
+    addGoal(team, player, assist, goalType = 'Regular') {
         if (this.match.period === MATCH_PERIODS.PENALTIES) {
             if (team === 'home') {
                 this.match.homePenalties++;
@@ -265,13 +386,17 @@ class GameManager {
                 this.match.stats.awayShotsOnTarget++;
             }
         }
+
         this.match.events.unshift({
             minute: this.match.minute,
-            type: isPenalty ? 'penalty-goal' : 'goal',
+            stopwatchTime: this.match.stopwatch,
+            type: goalType === 'Penalty' ? EVENT_TYPES.PENALTY_GOAL : EVENT_TYPES.GOAL,
+            goalType: goalType,
             team,
             player,
             assist
         });
+
         this.saveData();
         this.notifySubscribers();
     }
@@ -279,7 +404,8 @@ class GameManager {
     addPenaltyMiss(team, player) {
         this.match.events.unshift({
             minute: this.match.minute,
-            type: 'penalty-miss',
+            stopwatchTime: this.match.stopwatch,
+            type: EVENT_TYPES.PENALTY_MISS,
             team,
             player
         });
@@ -287,8 +413,99 @@ class GameManager {
         this.notifySubscribers();
     }
 
+    addYellowCard(team, player) {
+        this.match.events.unshift({
+            minute: this.match.minute,
+            stopwatchTime: this.match.stopwatch,
+            type: EVENT_TYPES.YELLOW_CARD,
+            team,
+            player
+        });
+        this.saveData();
+        this.notifySubscribers();
+    }
+
+    addRedCard(team, player) {
+        this.match.events.unshift({
+            minute: this.match.minute,
+            stopwatchTime: this.match.stopwatch,
+            type: EVENT_TYPES.RED_CARD,
+            team,
+            player
+        });
+        this.saveData();
+        this.notifySubscribers();
+    }
+
+    addSubstitution(team, inPlayer, outPlayer) {
+        this.match.events.unshift({
+            minute: this.match.minute,
+            stopwatchTime: this.match.stopwatch,
+            type: EVENT_TYPES.SUBSTITUTION,
+            team,
+            inPlayer,
+            outPlayer
+        });
+        this.saveData();
+        this.notifySubscribers();
+    }
+
+    addOffside(team) {
+        this.match.events.unshift({
+            minute: this.match.minute,
+            stopwatchTime: this.match.stopwatch,
+            type: EVENT_TYPES.OFFSIDE,
+            team
+        });
+        this.saveData();
+        this.notifySubscribers();
+    }
+
+    addFoul(team) {
+        if (team === 'home') {
+            this.match.stats.homeFouls++;
+        } else {
+            this.match.stats.awayFouls++;
+        }
+        this.match.events.unshift({
+            minute: this.match.minute,
+            stopwatchTime: this.match.stopwatch,
+            type: EVENT_TYPES.FOUL,
+            team
+        });
+        this.saveData();
+        this.notifySubscribers();
+    }
+
+    addSave(team) {
+        if (team === 'home') {
+            this.match.stats.homeSaves++;
+        } else {
+            this.match.stats.awaySaves++;
+        }
+        this.match.events.unshift({
+            minute: this.match.minute,
+            stopwatchTime: this.match.stopwatch,
+            type: EVENT_TYPES.SAVE,
+            team
+        });
+        this.saveData();
+        this.notifySubscribers();
+    }
+
+    addCorner(team) {
+        if (team === 'home') {
+            this.match.stats.homeCorners++;
+        } else {
+            this.match.stats.awayCorners++;
+        }
+        this.saveData();
+        this.notifySubscribers();
+    }
+
     updatePeriod(period) {
         this.match.period = period;
+        this.resetStopwatch();
         if (period === MATCH_PERIODS.FIRST_HALF) {
             this.match.minute = "1'";
         } else if (period === MATCH_PERIODS.SECOND_HALF) {
@@ -304,65 +521,36 @@ class GameManager {
         this.notifySubscribers();
     }
 
-    addYellowCard(team, player) {
-        this.match.events.unshift({
-            minute: this.match.minute,
-            type: 'yellow-card',
-            team,
-            player
-        });
-        this.saveData();
-        this.notifySubscribers();
-    }
-
-    addRedCard(team, player) {
-        this.match.events.unshift({
-            minute: this.match.minute,
-            type: 'red-card',
-            team,
-            player
-        });
-        this.saveData();
-        this.notifySubscribers();
-    }
-
-    addSubstitution(team, inPlayer, outPlayer) {
-        this.match.events.unshift({
-            minute: this.match.minute,
-            type: 'substitution',
-            team,
-            player: outPlayer,
-            inPlayer,
-            outPlayer
-        });
-        this.saveData();
-        this.notifySubscribers();
-    }
-
     updateMinute(minute) {
         this.match.minute = minute;
         this.saveData();
         this.notifySubscribers();
     }
 
-    updateStats(homePossession, awayPossession, homeShots, awayShots, homeShotsOnTarget, awayShotsOnTarget) {
+    updateStats(homePossession, awayPossession, homeShots, awayShots, homeShotsOnTarget, awayShotsOnTarget, homeFouls, awayFouls, homeSaves, awaySaves, homeCorners, awayCorners) {
         let validHomePossession = homePossession !== undefined ? homePossession : this.match.stats.homePossession;
         let validAwayPossession = awayPossession !== undefined ? awayPossession : this.match.stats.awayPossession;
-        
+
         const totalPossession = validHomePossession + validAwayPossession;
         if (totalPossession !== 100) {
             const ratio = validHomePossession / totalPossession;
             validHomePossession = Math.round(ratio * 100);
             validAwayPossession = 100 - validHomePossession;
         }
-        
+
         this.match.stats = {
             homePossession: validHomePossession,
             awayPossession: validAwayPossession,
             homeShots: homeShots !== undefined ? homeShots : this.match.stats.homeShots,
             awayShots: awayShots !== undefined ? awayShots : this.match.stats.awayShots,
             homeShotsOnTarget: homeShotsOnTarget !== undefined ? homeShotsOnTarget : this.match.stats.homeShotsOnTarget,
-            awayShotsOnTarget: awayShotsOnTarget !== undefined ? awayShotsOnTarget : this.match.stats.awayShotsOnTarget
+            awayShotsOnTarget: awayShotsOnTarget !== undefined ? awayShotsOnTarget : this.match.stats.awayShotsOnTarget,
+            homeFouls: homeFouls !== undefined ? homeFouls : this.match.stats.homeFouls,
+            awayFouls: awayFouls !== undefined ? awayFouls : this.match.stats.awayFouls,
+            homeSaves: homeSaves !== undefined ? homeSaves : this.match.stats.homeSaves,
+            awaySaves: awaySaves !== undefined ? awaySaves : this.match.stats.awaySaves,
+            homeCorners: homeCorners !== undefined ? homeCorners : this.match.stats.homeCorners,
+            awayCorners: awayCorners !== undefined ? awayCorners : this.match.stats.awayCorners
         };
         this.saveData();
         this.notifySubscribers();
@@ -373,25 +561,10 @@ class GameManager {
         const awayTeam = teams.find(t => t.id === awayTeamId);
         if (homeTeam && awayTeam) {
             this.match = {
+                ...this.createDefaultMatch(),
                 homeTeam,
                 awayTeam,
-                homeScore: 0,
-                awayScore: 0,
-                homePenalties: 0,
-                awayPenalties: 0,
-                minute: "0'",
-                period: MATCH_PERIODS.FIRST_HALF,
-                isLive: false,
-                status: 'SCHEDULED',
-                stats: { 
-                    homePossession: 50,
-                    awayPossession: 50,
-                    homeShots: 0,
-                    awayShots: 0,
-                    homeShotsOnTarget: 0,
-                    awayShotsOnTarget: 0
-                },
-                events: []
+                createdAt: new Date().toISOString()
             };
             this.saveData();
             this.notifySubscribers();
@@ -402,61 +575,65 @@ class GameManager {
         this.match.isLive = true;
         this.match.status = 'LIVE';
         this.match.period = MATCH_PERIODS.FIRST_HALF;
-        this.match.minute = "1'";
         this.match.homeScore = 0;
         this.match.awayScore = 0;
         this.match.homePenalties = 0;
         this.match.awayPenalties = 0;
         this.match.events = [];
-        this.match.stats = { 
+        this.match.stats = {
             homePossession: 50,
             awayPossession: 50,
             homeShots: 0,
             awayShots: 0,
             homeShotsOnTarget: 0,
-            awayShotsOnTarget: 0
+            awayShotsOnTarget: 0,
+            homeFouls: 0,
+            awayFouls: 0,
+            homeSaves: 0,
+            awaySaves: 0,
+            homeCorners: 0,
+            awayCorners: 0
         };
+        this.resetStopwatch();
+        this.startStopwatch();
+        this.saveData();
+        this.notifySubscribers();
+    }
+
+    pauseMatch() {
+        this.pauseStopwatch();
+        this.match.isLive = false;
+        this.saveData();
+        this.notifySubscribers();
+    }
+
+    resumeMatch() {
+        this.match.isLive = true;
+        this.startStopwatch();
         this.saveData();
         this.notifySubscribers();
     }
 
     endMatch() {
+        this.pauseStopwatch();
         this.match.isLive = false;
         this.match.status = 'FULL TIME';
+        this.match.period = MATCH_PERIODS.FULL_TIME;
+
+        this.matchHistory.unshift({
+            id: Date.now().toString(),
+            ...this.match,
+            createdAt: this.match.createdAt || new Date().toISOString()
+        });
+
         this.updateStandings();
         this.saveData();
         this.notifySubscribers();
     }
 
     resetMatch() {
-        this.match = {
-            homeTeam: teams[1],
-            awayTeam: teams[3],
-            homeScore: 0,
-            awayScore: 0,
-            homePenalties: 0,
-            awayPenalties: 0,
-            minute: "0'",
-            period: MATCH_PERIODS.FIRST_HALF,
-            isLive: false,
-            status: 'SCHEDULED',
-            stats: { 
-                homePossession: 50,
-                awayPossession: 50,
-                homeShots: 0,
-                awayShots: 0,
-                homeShotsOnTarget: 0,
-                awayShotsOnTarget: 0
-            },
-            events: []
-        };
-        this.standings = teams.map((team, index) => ({
-            team,
-            pos: index + 1,
-            mp: 0, w: 0, d: 0, l: 0,
-            gf: 0, ga: 0, gd: 0, pts: 0,
-            form: []
-        }));
+        this.pauseStopwatch();
+        this.match = this.createDefaultMatch();
         this.saveData();
         this.notifySubscribers();
     }
@@ -545,8 +722,5 @@ async function initGameManager() {
     return gameManager;
 }
 
-// Initialize when the script loads
 initGameManager();
-
-// Expose globally
 window.initGameManager = initGameManager;

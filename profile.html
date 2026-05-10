@@ -97,6 +97,7 @@
                 <a href="index.html" style="color: #fef2f8; text-decoration: none; padding: 0.5rem 1rem; font-size: 0.875rem; font-weight: 500;">Dashboard</a>
                 <a href="teams.html" style="color: #fef2f8; text-decoration: none; padding: 0.5rem 1rem; font-size: 0.875rem; font-weight: 500;">Teams</a>
                 <a href="standings.html" style="color: #fef2f8; text-decoration: none; padding: 0.5rem 1rem; font-size: 0.875rem; font-weight: 500;">Standings</a>
+                <a href="match-history.html" style="color: #fef2f8; text-decoration: none; padding: 0.5rem 1rem; font-size: 0.875rem; font-weight: 500;">Match History</a>
                 <a href="profile.html" style="color: #f472b6; text-decoration: none; padding: 0.5rem 1rem; font-size: 0.875rem; font-weight: 700;">Profile</a>
                 <a href="admin.html" id="admin-link" style="color: #fef2f8; text-decoration: none; padding: 0.5rem 1rem; font-size: 0.875rem; font-weight: 500; display: none;">Admin</a>
                 <button onclick="logout()" style="color: #fef2f8; padding: 0.5rem 1rem; font-size: 0.875rem; font-weight: 500; margin-left: 1rem; background: none; border: none; cursor: pointer;">Logout</button>
@@ -117,6 +118,7 @@
                 <a href="index.html" style="display: block; color: #fef2f8; text-decoration: none; padding: 0.75rem 1rem; font-size: 0.875rem; font-weight: 500;">Dashboard</a>
                 <a href="teams.html" style="display: block; color: #fef2f8; text-decoration: none; padding: 0.75rem 1rem; font-size: 0.875rem; font-weight: 500;">Teams</a>
                 <a href="standings.html" style="display: block; color: #fef2f8; text-decoration: none; padding: 0.75rem 1rem; font-size: 0.875rem; font-weight: 500;">Standings</a>
+                <a href="match-history.html" style="display: block; color: #fef2f8; text-decoration: none; padding: 0.75rem 1rem; font-size: 0.875rem; font-weight: 500;">Match History</a>
                 <a href="profile.html" style="display: block; color: #f472b6; text-decoration: none; padding: 0.75rem 1rem; font-size: 0.875rem; font-weight: 700;">Profile</a>
                 <a href="admin.html" id="admin-link-mobile" style="display: block; color: #fef2f8; text-decoration: none; padding: 0.75rem 1rem; font-size: 0.875rem; font-weight: 500; display: none;">Admin</a>
                 <hr style="border-color: rgba(244, 114, 182, 0.2); margin: 1rem 0;">
@@ -232,6 +234,9 @@
             document.getElementById('profile-username').textContent = currentUser.email.split('@')[0];
             document.getElementById('profile-avatar').textContent = (currentUser.firstName[0] + currentUser.lastName[0]).toUpperCase();
         }
+
+        document.documentElement.classList.remove('dark-mode');
+        localStorage.removeItem('darkMode');
 
         // Run on load
         const user = checkAuth();
