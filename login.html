@@ -73,10 +73,9 @@
         &copy; 2026 Lionsedge Stadium. All rights reserved.
     </footer>
 
+    <script src="supabase.js"></script>
     <script>
-        const SUPABASE_URL = 'https://zpciirbchnejpupgapcr.supabase.co';
-        const SUPABASE_ANON_KEY = 'sb_publishable_b3XbVn4zL26XFCkgg7I5-Q_5J80jsWU';
-        const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        let sb;
 
         function toggleDarkMode() {
             const isDark = document.documentElement.classList.toggle('dark-mode');
@@ -84,6 +83,8 @@
         }
 
         async function doLogin() {
+            sb = await getSupabase();
+            
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
 
