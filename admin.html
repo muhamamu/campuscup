@@ -644,12 +644,14 @@
             
             if (confirm(`Schedule match: ${homeSelect.options[homeSelect.selectedIndex].text} vs ${awaySelect.options[awaySelect.selectedIndex].text}?`)) {
                 gameManager.scheduleMatch(homeTeamId, awayTeamId);
+                updateMatchDisplay(gameManager.match);
                 alert('Match scheduled!');
             }
         }
 
         function startMatch() {
             gameManager.startMatch();
+            updateMatchDisplay(gameManager.match);
             alert('Match started!');
         }
 
@@ -718,6 +720,8 @@
         function endMatch() {
             if (confirm('Are you sure you want to end the match? This will update the standings.')) {
                 gameManager.endMatch();
+                updateMatchDisplay(gameManager.match);
+                renderStandingsManagement();
                 alert('Match ended! Standings have been updated.');
             }
         }
@@ -725,6 +729,8 @@
         function resetMatch() {
             if (confirm('Are you sure you want to reset the match and standings?')) {
                 gameManager.resetMatch();
+                updateMatchDisplay(gameManager.match);
+                renderStandingsManagement();
                 alert('Match and standings reset!');
             }
         }
@@ -984,6 +990,10 @@
 
         if (typeof teams !== 'undefined') {
             populateTeamSelects();
+        }
+
+        if (typeof gameManager !== 'undefined' && gameManager.match) {
+            updateMatchDisplay(gameManager.match);
         }
 
         // Subscribe to game manager updates
