@@ -61,10 +61,9 @@
         </div>
     </main>
 
+    <script src="supabase.js"></script>
     <script>
-        const SUPABASE_URL = 'https://zpciirbchnejpupgapcr.supabase.co';
-        const SUPABASE_ANON_KEY = 'sb_publishable_b3XbVn4zL26XFCkgg7I5-Q_5J80jsWU';
-        const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        let sb;
 
         function toggleDarkMode() {
             const isDark = document.documentElement.classList.toggle('dark-mode');
@@ -73,6 +72,8 @@
 
         async function doSignup() {
             alert('Starting signup...');
+
+            sb = await getSupabase();
 
             const firstName = document.getElementById('first-name').value;
             const lastName = document.getElementById('last-name').value;
