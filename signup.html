@@ -102,8 +102,17 @@
                     is_permanent_admin: isAdmin
                 });
 
-                alert('✅ DONE! Now go to login.html');
-                window.location.href = 'login.html';
+                const userData = {
+                    id: data.user.id,
+                    firstName: firstName,
+                    lastName: lastName,
+                    email: email,
+                    isAdmin: isAdmin
+                };
+                localStorage.setItem('currentUser', JSON.stringify(userData));
+
+                alert('✅ DONE! Welcome!');
+                window.location.href = 'index.html';
 
             } catch (err) {
                 console.error(err);
