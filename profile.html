@@ -70,54 +70,57 @@
         
         #mobile-menu { transition: transform 0.3s ease-in-out; transform: translateX(-100%); }
         #mobile-menu.active { transform: translateX(0); }
+
+        /* Responsive styles */
+        @media (min-width: 768px) {
+            /* Desktop view - show desktop links, hide hamburger */
+            .desktop-links {
+                display: flex !important;
+            }
+            .mobile-menu-button {
+                display: none !important;
+            }
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col overflow-x-hidden">
     <!-- Simple Navigation -->
-    <nav class="sticky top-0 z-50" style="background-color: #1a061e;">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between h-16">
-                <!-- Logo -->
-                <div class="flex-shrink-0">
-                    <a href="index.html" class="text-xl font-bold tracking-tight" style="color: #fef2f8;">
-                        CAMPUS <span style="color: #f472b6;">CUP</span>
-                    </a>
-                </div>
+    <nav style="background-color: #1a061e; padding: 1rem 2rem; position: sticky; top: 0; z-index: 50;">
+        <div style="display: flex; justify-content: space-between; align-items: center; max-width: 80rem; margin: 0 auto;">
+            <!-- Logo -->
+            <a href="index.html" style="font-size: 1.25rem; font-weight: bold; color: #fef2f8; text-decoration: none;">
+                CAMPUS <span style="color: #f472b6;">CUP</span>
+            </a>
 
-                <!-- Desktop Links -->
-                <div class="hidden md:flex items-center space-x-1">
-                    <a href="index.html" class="text-[#fef2f8] hover:text-[#f472b6] text-sm font-medium px-4 py-2">Dashboard</a>
-                    <a href="teams.html" class="text-[#fef2f8] hover:text-[#f472b6] text-sm font-medium px-4 py-2">Teams</a>
-                    <a href="standings.html" class="text-[#fef2f8] hover:text-[#f472b6] text-sm font-medium px-4 py-2">Standings</a>
-                    <a href="profile.html" class="text-[#f472b6] text-sm font-medium px-4 py-2 font-bold">Profile</a>
-                    <a href="admin.html" id="admin-link" class="text-[#fef2f8] hover:text-[#f472b6] text-sm font-medium px-4 py-2 hidden">Admin</a>
-                    <button onclick="logout()" class="text-[#fef2f8] hover:text-[#f472b6] text-sm font-medium ml-4">Logout</button>
-                </div>
+            <!-- Desktop Links -->
+            <div class="desktop-links" style="display: none; gap: 0.25rem; align-items: center;">
+                <a href="index.html" style="color: #fef2f8; text-decoration: none; padding: 0.5rem 1rem; font-size: 0.875rem; font-weight: 500;">Dashboard</a>
+                <a href="teams.html" style="color: #fef2f8; text-decoration: none; padding: 0.5rem 1rem; font-size: 0.875rem; font-weight: 500;">Teams</a>
+                <a href="standings.html" style="color: #fef2f8; text-decoration: none; padding: 0.5rem 1rem; font-size: 0.875rem; font-weight: 500;">Standings</a>
+                <a href="profile.html" style="color: #f472b6; text-decoration: none; padding: 0.5rem 1rem; font-size: 0.875rem; font-weight: 700;">Profile</a>
+                <a href="admin.html" id="admin-link" style="color: #fef2f8; text-decoration: none; padding: 0.5rem 1rem; font-size: 0.875rem; font-weight: 500; display: none;">Admin</a>
+                <button onclick="logout()" style="color: #fef2f8; padding: 0.5rem 1rem; font-size: 0.875rem; font-weight: 500; margin-left: 1rem; background: none; border: none; cursor: pointer;">Logout</button>
+            </div>
 
-                <!-- Mobile Hamburger Button -->
-                <div class="md:hidden">
-                    <button onclick="toggleMobileMenu()" class="text-[#fef2f8] hover:text-[#f472b6] p-2" style="background: none; border: none; cursor: pointer;">
-                        <svg id="menu-icon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-                        </svg>
-                        <svg id="close-icon" class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                        </svg>
-                    </button>
-                </div>
+            <!-- Mobile Hamburger Button -->
+            <div class="mobile-menu-button" style="display: flex;">
+                <button onclick="toggleMobileMenu()" style="color: #fef2f8; padding: 0.5rem; background: none; border: none; cursor: pointer;">
+                    <span id="menu-icon-text" style="font-size: 1.5rem;">☰</span>
+                    <span id="close-icon-text" style="font-size: 1.5rem; display: none;">✕</span>
+                </button>
             </div>
         </div>
 
         <!-- Mobile Menu -->
-        <div id="mobile-menu" class="md:hidden hidden" style="background-color: #2d0a33; border-top: 1px solid rgba(244, 114, 182, 0.2);">
-            <div class="px-4 py-4 space-y-2">
-                <a href="index.html" class="block text-[#fef2f8] hover:text-[#f472b6] text-sm font-medium px-4 py-3">Dashboard</a>
-                <a href="teams.html" class="block text-[#fef2f8] hover:text-[#f472b6] text-sm font-medium px-4 py-3">Teams</a>
-                <a href="standings.html" class="block text-[#fef2f8] hover:text-[#f472b6] text-sm font-medium px-4 py-3">Standings</a>
-                <a href="profile.html" class="block text-[#f472b6] text-sm font-medium px-4 py-3 font-bold">Profile</a>
-                <a href="admin.html" id="admin-link-mobile" class="block text-[#fef2f8] hover:text-[#f472b6] text-sm font-medium px-4 py-3 hidden">Admin</a>
+        <div id="mobile-menu" style="display: none; background-color: #2d0a33; border-top: 1px solid rgba(244, 114, 182, 0.2);">
+            <div style="padding: 1rem;">
+                <a href="index.html" style="display: block; color: #fef2f8; text-decoration: none; padding: 0.75rem 1rem; font-size: 0.875rem; font-weight: 500;">Dashboard</a>
+                <a href="teams.html" style="display: block; color: #fef2f8; text-decoration: none; padding: 0.75rem 1rem; font-size: 0.875rem; font-weight: 500;">Teams</a>
+                <a href="standings.html" style="display: block; color: #fef2f8; text-decoration: none; padding: 0.75rem 1rem; font-size: 0.875rem; font-weight: 500;">Standings</a>
+                <a href="profile.html" style="display: block; color: #f472b6; text-decoration: none; padding: 0.75rem 1rem; font-size: 0.875rem; font-weight: 700;">Profile</a>
+                <a href="admin.html" id="admin-link-mobile" style="display: block; color: #fef2f8; text-decoration: none; padding: 0.75rem 1rem; font-size: 0.875rem; font-weight: 500; display: none;">Admin</a>
                 <hr style="border-color: rgba(244, 114, 182, 0.2); margin: 1rem 0;">
-                <button onclick="logout()" class="block w-full text-left text-[#fef2f8] hover:text-[#f472b6] text-sm font-medium px-4 py-3" style="background: none; border: none; cursor: pointer;">Logout</button>
+                <button onclick="logout()" style="display: block; width: 100%; text-align: left; color: #fef2f8; padding: 0.75rem 1rem; font-size: 0.875rem; font-weight: 500; background: none; border: none; cursor: pointer;">Logout</button>
             </div>
         </div>
     </nav>
@@ -204,13 +207,19 @@
         
         function toggleMobileMenu() {
             const menu = document.getElementById('mobile-menu');
-            const menuIcon = document.getElementById('menu-icon');
-            const closeIcon = document.getElementById('close-icon');
+            const menuIconText = document.getElementById('menu-icon-text');
+            const closeIconText = document.getElementById('close-icon-text');
             
-            if (menu && menuIcon && closeIcon) {
-                menu.classList.toggle('hidden');
-                menuIcon.classList.toggle('hidden');
-                closeIcon.classList.toggle('hidden');
+            if (menu && menuIconText && closeIconText) {
+                if (menu.style.display === 'none' || menu.style.display === '') {
+                    menu.style.display = 'block';
+                    menuIconText.style.display = 'none';
+                    closeIconText.style.display = 'inline';
+                } else {
+                    menu.style.display = 'none';
+                    menuIconText.style.display = 'inline';
+                    closeIconText.style.display = 'none';
+                }
             }
         }
 
