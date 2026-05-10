@@ -94,7 +94,7 @@
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        @media (max-width: 768px) {
+        @media (max-width: 1024px) {
             .score-card {
                 padding: 24px 16px !important;
             }
@@ -124,7 +124,7 @@
 </head>
 <body class="min-h-screen flex flex-col overflow-x-hidden">
 
-    <!-- Simple Navigation -->
+    <!-- Simple Navigation (Always Desktop View) -->
     <nav class="sticky top-0 z-50" style="background-color: #1a061e;">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16">
@@ -135,8 +135,8 @@
                     </a>
                 </div>
 
-                <!-- Desktop Links -->
-                <div class="hidden md:flex items-center space-x-1">
+                <!-- Desktop Links (Always Visible) -->
+                <div class="flex items-center space-x-1">
                     <a href="index.html" class="text-[#f472b6] hover:text-[#f472b6] text-sm font-medium px-4 py-2 font-bold">Dashboard</a>
                     <a href="teams.html" class="text-[#fef2f8] hover:text-[#f472b6] text-sm font-medium px-4 py-2">Teams</a>
                     <a href="standings.html" class="text-[#fef2f8] hover:text-[#f472b6] text-sm font-medium px-4 py-2">Standings</a>
@@ -145,32 +145,6 @@
                     <a href="admin.html" id="admin-link" class="text-[#fef2f8] hover:text-[#f472b6] text-sm font-medium px-4 py-2 hidden">Admin</a>
                     <button onclick="logout()" class="text-[#fef2f8] hover:text-[#f472b6] text-sm font-medium ml-4">Logout</button>
                 </div>
-
-                <!-- Mobile Hamburger Button -->
-                <div class="md:hidden">
-                    <button onclick="toggleMobileMenu()" class="text-[#fef2f8] hover:text-[#f472b6] p-2" style="background: none; border: none; cursor: pointer;">
-                        <svg id="menu-icon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-                        </svg>
-                        <svg id="close-icon" class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                        </svg>
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Mobile Menu -->
-        <div id="mobile-menu" class="md:hidden hidden" style="background-color: #2d0a33; border-top: 1px solid rgba(244, 114, 182, 0.2);">
-            <div class="px-4 py-4 space-y-2">
-                <a href="index.html" class="block text-[#f472b6] text-sm font-medium px-4 py-3 font-bold">Dashboard</a>
-                <a href="teams.html" class="block text-[#fef2f8] hover:text-[#f472b6] text-sm font-medium px-4 py-3">Teams</a>
-                <a href="standings.html" class="block text-[#fef2f8] hover:text-[#f472b6] text-sm font-medium px-4 py-3">Standings</a>
-                <a href="match-history.html" class="block text-[#fef2f8] hover:text-[#f472b6] text-sm font-medium px-4 py-3">Match History</a>
-                <a href="profile.html" class="block text-[#fef2f8] hover:text-[#f472b6] text-sm font-medium px-4 py-3">Profile</a>
-                <a href="admin.html" id="admin-link-mobile" class="block text-[#fef2f8] hover:text-[#f472b6] text-sm font-medium px-4 py-3 hidden">Admin</a>
-                <hr style="border-color: rgba(244, 114, 182, 0.2); margin: 1rem 0;">
-                <button onclick="logout()" class="block w-full text-left text-[#fef2f8] hover:text-[#f472b6] text-sm font-medium px-4 py-3" style="background: none; border: none; cursor: pointer;">Logout</button>
             </div>
         </div>
     </nav>
@@ -187,6 +161,7 @@
                         <span id="match-period-display" class="font-bold">1st Half</span>
                     </div>
                     <span id="live-minute">LIVE - 0'</span>
+                    <span id="stopwatch-display" class="text-pink-600 font-black text-sm">00:00</span>
                 </div>
                 <div class="flex flex-col md:flex-row items-center justify-between w-full max-w-4xl space-y-8 md:space-y-0">
                     <div class="flex flex-col items-center space-y-4">
@@ -196,6 +171,7 @@
                         <h2 id="home-team-name" class="text-lg md:text-2xl font-extrabold text-[#1a061e] text-center">Architecture 100L</h2>
                         <span class="bg-pink-100 text-pink-500 text-[10px] font-bold px-4 py-1 rounded-full uppercase">Home</span>
                         <div id="home-penalty-display" class="text-sm font-bold text-gray-500 hidden">0 pens</div>
+                        <div id="home-penalty-circles" class="flex flex-wrap gap-2 justify-center"></div>
                     </div>
                     <div class="text-6xl md:text-8xl font-black text-[#1a061e] flex flex-col items-center space-y-2">
                         <div class="flex items-center space-x-4">
@@ -212,6 +188,7 @@
                         <h2 id="away-team-name" class="text-lg md:text-2xl font-extrabold text-[#1a061e] text-center">Theatre Art 200L</h2>
                         <span class="bg-pink-50 text-pink-300 text-[10px] font-bold px-4 py-1 rounded-full uppercase">Away</span>
                         <div id="away-penalty-display" class="text-sm font-bold text-gray-500 hidden">0 pens</div>
+                        <div id="away-penalty-circles" class="flex flex-wrap gap-2 justify-center"></div>
                     </div>
                 </div>
             </section>
@@ -267,7 +244,6 @@
             if (!currentUser) return;
             
             const adminLink = document.getElementById('admin-link');
-            const adminLinkMobile = document.getElementById('admin-link-mobile');
             
             if (adminLink) {
                 if (currentUser.isAdmin) {
@@ -276,31 +252,52 @@
                     adminLink.classList.add('hidden');
                 }
             }
-            
-            if (adminLinkMobile) {
-                if (currentUser.isAdmin) {
-                    adminLinkMobile.classList.remove('hidden');
-                } else {
-                    adminLinkMobile.classList.add('hidden');
-                }
-            }
-        }
-
-        function toggleMobileMenu() {
-            const menu = document.getElementById('mobile-menu');
-            const menuIcon = document.getElementById('menu-icon');
-            const closeIcon = document.getElementById('close-icon');
-            
-            if (menu && menuIcon && closeIcon) {
-                menu.classList.toggle('hidden');
-                menuIcon.classList.toggle('hidden');
-                closeIcon.classList.toggle('hidden');
-            }
         }
 
         function logout() {
             localStorage.removeItem('currentUser');
             window.location.href = 'login.html';
+        }
+
+        function renderPenaltyCircles(match) {
+            const homeCirclesContainer = document.getElementById('home-penalty-circles');
+            const awayCirclesContainer = document.getElementById('away-penalty-circles');
+            if (!homeCirclesContainer || !awayCirclesContainer) return;
+            
+            const homeAttempts = match.homePenaltyAttempts || [];
+            const awayAttempts = match.awayPenaltyAttempts || [];
+            
+            const maxAttempts = Math.max(homeAttempts.length, awayAttempts.length, 5);
+            const numCircles = Math.ceil(maxAttempts / 5) * 5;
+            
+            let homeCirclesHTML = '';
+            let awayCirclesHTML = '';
+            
+            for (let i = 0; i < numCircles; i++) {
+                const homeAttempt = homeAttempts[i];
+                const awayAttempt = awayAttempts[i];
+                
+                let homeClass = 'border-2 border-gray-300 bg-gray-100';
+                let awayClass = 'border-2 border-gray-300 bg-gray-100';
+                
+                if (homeAttempt) {
+                    homeClass = homeAttempt.scored 
+                        ? 'border-2 border-green-500 bg-green-500' 
+                        : 'border-2 border-red-500 bg-red-500';
+                }
+                
+                if (awayAttempt) {
+                    awayClass = awayAttempt.scored 
+                        ? 'border-2 border-green-500 bg-green-500' 
+                        : 'border-2 border-red-500 bg-red-500';
+                }
+                
+                homeCirclesHTML += `<div class="w-6 h-6 rounded-full ${homeClass}"></div>`;
+                awayCirclesHTML += `<div class="w-6 h-6 rounded-full ${awayClass}"></div>`;
+            }
+            
+            homeCirclesContainer.innerHTML = homeCirclesHTML;
+            awayCirclesContainer.innerHTML = awayCirclesHTML;
         }
 
         function updateLiveMatch(match) {
@@ -318,6 +315,7 @@
             const penaltyScores = document.getElementById('penalty-scores');
             const homePenaltyScore = document.getElementById('home-penalty-score');
             const awayPenaltyScore = document.getElementById('away-penalty-score');
+            const stopwatchDisplay = document.getElementById('stopwatch-display');
 
             const periodNames = {
                 'FIRST_HALF': '1st Half',
@@ -373,6 +371,12 @@
                 }
             }
 
+            if (stopwatchDisplay && window.gameManager && window.gameManager.formatStopwatch && window.gameManager.getCurrentStopwatchTime) {
+                const currentTime = window.gameManager.getCurrentStopwatchTime();
+                stopwatchDisplay.textContent = window.gameManager.formatStopwatch(currentTime);
+            }
+
+            renderPenaltyCircles(match);
             renderMatchFeed(match.events);
             renderMatchStats(match.stats);
         }
@@ -479,6 +483,16 @@
         document.documentElement.classList.remove('dark-mode');
         localStorage.removeItem('darkMode');
 
+        // Set default account (your account)
+        const testUser = {
+            id: 'default-123',
+            firstName: 'Muhammad',
+            lastName: 'User',
+            email: 'muhammad@example.com',
+            isAdmin: true
+        };
+        localStorage.setItem('currentUser', JSON.stringify(testUser));
+
         const user = checkAuth();
         if (user) {
             checkAdmin();
@@ -500,6 +514,15 @@
             }
         }
         trySubscribeAndUpdate();
+
+        // Update stopwatch display continuously every 100ms
+        setInterval(() => {
+            const stopwatchDisplay = document.getElementById('stopwatch-display');
+            if (stopwatchDisplay && window.gameManager && window.gameManager.formatStopwatch && window.gameManager.getCurrentStopwatchTime) {
+                const currentTime = window.gameManager.getCurrentStopwatchTime();
+                stopwatchDisplay.textContent = window.gameManager.formatStopwatch(currentTime);
+            }
+        }, 100);
     </script>
 </body>
 </html>

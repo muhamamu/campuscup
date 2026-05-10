@@ -84,45 +84,27 @@
     </style>
 </head>
 <body class="min-h-screen flex flex-col overflow-x-hidden">
-    <!-- Simple Navigation -->
-    <nav style="background-color: #1a061e; padding: 1rem 2rem; position: sticky; top: 0; z-index: 50;">
-        <div style="display: flex; justify-content: space-between; align-items: center; max-width: 80rem; margin: 0 auto;">
-            <!-- Logo -->
-            <a href="index.html" style="font-size: 1.25rem; font-weight: bold; color: #fef2f8; text-decoration: none;">
-                CAMPUS <span style="color: #f472b6;">CUP</span>
-            </a>
+    <!-- Simple Navigation (Always Desktop View) -->
+    <nav class="sticky top-0 z-50" style="background-color: #1a061e;">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <!-- Logo -->
+                <div class="flex-shrink-0">
+                    <a href="index.html" class="text-xl font-bold tracking-tight" style="color: #fef2f8;">
+                        CAMPUS <span style="color: #f472b6;">CUP</span>
+                    </a>
+                </div>
 
-            <!-- Desktop Links -->
-            <div class="desktop-links" style="display: none; gap: 0.25rem; align-items: center;">
-                <a href="index.html" style="color: #fef2f8; text-decoration: none; padding: 0.5rem 1rem; font-size: 0.875rem; font-weight: 500;">Dashboard</a>
-                <a href="teams.html" style="color: #fef2f8; text-decoration: none; padding: 0.5rem 1rem; font-size: 0.875rem; font-weight: 500;">Teams</a>
-                <a href="standings.html" style="color: #fef2f8; text-decoration: none; padding: 0.5rem 1rem; font-size: 0.875rem; font-weight: 500;">Standings</a>
-                <a href="match-history.html" style="color: #fef2f8; text-decoration: none; padding: 0.5rem 1rem; font-size: 0.875rem; font-weight: 500;">Match History</a>
-                <a href="profile.html" style="color: #f472b6; text-decoration: none; padding: 0.5rem 1rem; font-size: 0.875rem; font-weight: 700;">Profile</a>
-                <a href="admin.html" id="admin-link" style="color: #fef2f8; text-decoration: none; padding: 0.5rem 1rem; font-size: 0.875rem; font-weight: 500; display: none;">Admin</a>
-                <button onclick="logout()" style="color: #fef2f8; padding: 0.5rem 1rem; font-size: 0.875rem; font-weight: 500; margin-left: 1rem; background: none; border: none; cursor: pointer;">Logout</button>
-            </div>
-
-            <!-- Mobile Hamburger Button -->
-            <div class="mobile-menu-button" style="display: flex;">
-                <button onclick="toggleMobileMenu()" style="color: #fef2f8; padding: 0.5rem; background: none; border: none; cursor: pointer;">
-                    <span id="menu-icon-text" style="font-size: 1.5rem;">☰</span>
-                    <span id="close-icon-text" style="font-size: 1.5rem; display: none;">✕</span>
-                </button>
-            </div>
-        </div>
-
-        <!-- Mobile Menu -->
-        <div id="mobile-menu" style="display: none; background-color: #2d0a33; border-top: 1px solid rgba(244, 114, 182, 0.2);">
-            <div style="padding: 1rem;">
-                <a href="index.html" style="display: block; color: #fef2f8; text-decoration: none; padding: 0.75rem 1rem; font-size: 0.875rem; font-weight: 500;">Dashboard</a>
-                <a href="teams.html" style="display: block; color: #fef2f8; text-decoration: none; padding: 0.75rem 1rem; font-size: 0.875rem; font-weight: 500;">Teams</a>
-                <a href="standings.html" style="display: block; color: #fef2f8; text-decoration: none; padding: 0.75rem 1rem; font-size: 0.875rem; font-weight: 500;">Standings</a>
-                <a href="match-history.html" style="display: block; color: #fef2f8; text-decoration: none; padding: 0.75rem 1rem; font-size: 0.875rem; font-weight: 500;">Match History</a>
-                <a href="profile.html" style="display: block; color: #f472b6; text-decoration: none; padding: 0.75rem 1rem; font-size: 0.875rem; font-weight: 700;">Profile</a>
-                <a href="admin.html" id="admin-link-mobile" style="display: block; color: #fef2f8; text-decoration: none; padding: 0.75rem 1rem; font-size: 0.875rem; font-weight: 500; display: none;">Admin</a>
-                <hr style="border-color: rgba(244, 114, 182, 0.2); margin: 1rem 0;">
-                <button onclick="logout()" style="display: block; width: 100%; text-align: left; color: #fef2f8; padding: 0.75rem 1rem; font-size: 0.875rem; font-weight: 500; background: none; border: none; cursor: pointer;">Logout</button>
+                <!-- Desktop Links (Always Visible) -->
+                <div class="flex items-center space-x-1">
+                    <a href="index.html" class="text-[#fef2f8] hover:text-[#f472b6] text-sm font-medium px-4 py-2">Dashboard</a>
+                    <a href="teams.html" class="text-[#fef2f8] hover:text-[#f472b6] text-sm font-medium px-4 py-2">Teams</a>
+                    <a href="standings.html" class="text-[#fef2f8] hover:text-[#f472b6] text-sm font-medium px-4 py-2">Standings</a>
+                    <a href="match-history.html" class="text-[#fef2f8] hover:text-[#f472b6] text-sm font-medium px-4 py-2">Match History</a>
+                    <a href="profile.html" class="text-[#f472b6] text-sm font-medium px-4 py-2 font-bold">Profile</a>
+                    <a href="admin.html" id="admin-link" class="text-[#fef2f8] hover:text-[#f472b6] text-sm font-medium px-4 py-2 hidden">Admin</a>
+                    <button onclick="logout()" class="text-[#fef2f8] hover:text-[#f472b6] text-sm font-medium ml-4">Logout</button>
+                </div>
             </div>
         </div>
     </nav>
@@ -237,6 +219,16 @@
 
         document.documentElement.classList.remove('dark-mode');
         localStorage.removeItem('darkMode');
+
+        // Set default account (your account)
+        const testUser = {
+            id: 'mamu',
+            firstName: 'Muhammad',
+            lastName: 'User',
+            email: 'muha.mamu12@gmail.com',
+            isAdmin: true
+        };
+        localStorage.setItem('currentUser', JSON.stringify(testUser));
 
         // Run on load
         const user = checkAuth();

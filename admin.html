@@ -30,7 +30,7 @@
     </style>
 </head>
 <body class="min-h-screen flex flex-col overflow-x-hidden">
-    <!-- Navigation -->
+    <!-- Simple Navigation (Always Desktop View) -->
     <nav class="sticky top-0 z-50" style="background-color: #1a061e;">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16">
@@ -39,7 +39,7 @@
                         CAMPUS <span style="color: #f472b6;">CUP</span>
                     </a>
                 </div>
-                <div class="hidden md:flex items-center space-x-1">
+                <div class="flex items-center space-x-1">
                     <a href="index.html" class="text-[#fef2f8] hover:text-[#f472b6] text-sm font-medium px-4 py-2">Dashboard</a>
                     <a href="teams.html" class="text-[#fef2f8] hover:text-[#f472b6] text-sm font-medium px-4 py-2">Teams</a>
                     <a href="standings.html" class="text-[#fef2f8] hover:text-[#f472b6] text-sm font-medium px-4 py-2">Standings</a>
@@ -48,28 +48,6 @@
                     <a href="admin.html" class="text-[#f472b6] text-sm font-medium px-4 py-2 font-bold">Admin</a>
                     <button onclick="logout()" class="text-[#fef2f8] hover:text-[#f472b6] text-sm font-medium ml-4">Logout</button>
                 </div>
-                <div class="md:hidden">
-                    <button onclick="toggleMobileMenu()" class="text-[#fef2f8] hover:text-[#f472b6] p-2" style="background: none; border: none; cursor: pointer;">
-                        <svg id="menu-icon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-                        </svg>
-                        <svg id="close-icon" class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                        </svg>
-                    </button>
-                </div>
-            </div>
-        </div>
-        <div id="mobile-menu" class="md:hidden hidden" style="background-color: #2d0a33; border-top: 1px solid rgba(244, 114, 182, 0.2);">
-            <div class="px-4 py-4 space-y-2">
-                <a href="index.html" class="block text-[#fef2f8] hover:text-[#f472b6] text-sm font-medium px-4 py-3">Dashboard</a>
-                <a href="teams.html" class="block text-[#fef2f8] hover:text-[#f472b6] text-sm font-medium px-4 py-3">Teams</a>
-                <a href="standings.html" class="block text-[#fef2f8] hover:text-[#f472b6] text-sm font-medium px-4 py-3">Standings</a>
-                <a href="match-history.html" class="block text-[#fef2f8] hover:text-[#f472b6] text-sm font-medium px-4 py-3">Match History</a>
-                <a href="profile.html" class="block text-[#fef2f8] hover:text-[#f472b6] text-sm font-medium px-4 py-3">Profile</a>
-                <a href="admin.html" class="block text-[#f472b6] text-sm font-medium px-4 py-3 font-bold">Admin</a>
-                <hr style="border-color: rgba(244, 114, 182, 0.2); margin: 1rem 0;">
-                <button onclick="logout()" class="block w-full text-left text-[#fef2f8] hover:text-[#f472b6] text-sm font-medium px-4 py-3" style="background: none; border: none; cursor: pointer;">Logout</button>
             </div>
         </div>
     </nav>
@@ -224,8 +202,8 @@
                 <div class="card">
                     <h2 class="text-2xl font-black text-[#1a061e] mb-8"><i class="fas fa-plus-circle mr-2"></i> Add Event</h2>
                     
-                    <!-- Goal Section -->
-                    <div class="mb-6">
+                    <!-- Goal Section (Regular Play) -->
+                    <div id="goal-section" class="mb-6">
                         <label class="label-text mb-4 block">Goal</label>
                         <div class="space-y-2">
                             <button onclick="openGoalModal('home')" class="event-btn w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg text-sm font-bold">
@@ -234,6 +212,39 @@
                             <button onclick="openGoalModal('away')" class="event-btn w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg text-sm font-bold">
                                 <i class="fas fa-futbol mr-2"></i> Away Goal
                             </button>
+                        </div>
+                    </div>
+
+                    <!-- Penalty Shootout Section -->
+                    <div id="penalty-section" class="mb-6 hidden">
+                        <label class="label-text mb-4 block">Penalty Shootout</label>
+                        <div class="space-y-4">
+                            <div class="grid grid-cols-2 gap-4 mb-4">
+                                <div class="text-center">
+                                    <div id="home-penalty-circles" class="flex flex-wrap gap-2 justify-center mb-2"></div>
+                                    <span class="text-xs font-bold text-[#1a061e]" id="penalty-home-label">Home</span>
+                                </div>
+                                <div class="text-center">
+                                    <div id="away-penalty-circles" class="flex flex-wrap gap-2 justify-center mb-2"></div>
+                                    <span class="text-xs font-bold text-[#1a061e]" id="penalty-away-label">Away</span>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-2">
+                                <button onclick="openPenaltyGoalModal('home')" class="event-btn bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg text-sm font-bold">
+                                    <i class="fas fa-bullseye mr-1"></i> Home Score
+                                </button>
+                                <button onclick="openPenaltyGoalModal('away')" class="event-btn bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg text-sm font-bold">
+                                    <i class="fas fa-bullseye mr-1"></i> Away Score
+                                </button>
+                            </div>
+                            <div class="grid grid-cols-2 gap-2">
+                                <button onclick="openPenaltyMissModal('home')" class="event-btn bg-red-600 hover:bg-red-700 text-white py-3 rounded-lg text-sm font-bold">
+                                    <i class="fas fa-times mr-1"></i> Home Miss
+                                </button>
+                                <button onclick="openPenaltyMissModal('away')" class="event-btn bg-red-600 hover:bg-red-700 text-white py-3 rounded-lg text-sm font-bold">
+                                    <i class="fas fa-times mr-1"></i> Away Miss
+                                </button>
+                            </div>
                         </div>
                     </div>
 
@@ -304,7 +315,10 @@
                 <!-- Standings Management -->
                 <div class="card">
                     <h2 class="text-2xl font-black text-[#1a061e] mb-8"><i class="fas fa-table mr-2"></i> Standings</h2>
-                    <div class="space-y-2">
+                    <div class="space-y-2 mb-4">
+                        <button onclick="openDeductPointsModal()" class="w-full bg-yellow-600 hover:bg-yellow-700 text-white py-2 rounded-lg text-xs font-bold">
+                            <i class="fas fa-minus-circle mr-1"></i> Deduct Points
+                        </button>
                         <button onclick="resetStandingsToZero()" class="w-full bg-orange-500 hover:bg-orange-600 text-white py-2 rounded-lg text-xs font-bold">
                             <i class="fas fa-eraser mr-1"></i> Zero All Standings
                         </button>
@@ -364,6 +378,61 @@
                 <div class="flex space-x-2 pt-4">
                     <button onclick="closeSubModal()" class="flex-1 border-2 border-gray-300 text-gray-600 py-2 rounded-lg font-bold">Cancel</button>
                     <button onclick="confirmSub()" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-lg font-bold">Confirm Sub</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Penalty Goal Modal -->
+    <div id="penalty-goal-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="card w-full max-w-md mx-4">
+            <h3 class="text-2xl font-black text-[#1a061e] mb-6">Penalty Scored</h3>
+            <div class="space-y-4">
+                <div>
+                    <label class="label-text">Player</label>
+                    <input type="text" id="penalty-goal-player" class="input-box" placeholder="Player name">
+                </div>
+                <div class="flex space-x-2 pt-4">
+                    <button onclick="closePenaltyGoalModal()" class="flex-1 border-2 border-gray-300 text-gray-600 py-2 rounded-lg font-bold">Cancel</button>
+                    <button onclick="confirmPenaltyGoal()" class="flex-1 bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg font-bold">Confirm</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Penalty Miss Modal -->
+    <div id="penalty-miss-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="card w-full max-w-md mx-4">
+            <h3 class="text-2xl font-black text-[#1a061e] mb-6">Penalty Missed</h3>
+            <div class="space-y-4">
+                <div>
+                    <label class="label-text">Player</label>
+                    <input type="text" id="penalty-miss-player" class="input-box" placeholder="Player name">
+                </div>
+                <div class="flex space-x-2 pt-4">
+                    <button onclick="closePenaltyMissModal()" class="flex-1 border-2 border-gray-300 text-gray-600 py-2 rounded-lg font-bold">Cancel</button>
+                    <button onclick="confirmPenaltyMiss()" class="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg font-bold">Confirm</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Deduct Points Modal -->
+    <div id="deduct-points-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="card w-full max-w-md mx-4">
+            <h3 class="text-2xl font-black text-[#1a061e] mb-6">Deduct Points</h3>
+            <div class="space-y-4">
+                <div>
+                    <label class="label-text">Team</label>
+                    <select id="deduct-team-select" class="input-box"></select>
+                </div>
+                <div>
+                    <label class="label-text">Points to Deduct</label>
+                    <input type="number" id="deduct-points-amount" class="input-box" min="1" value="1">
+                </div>
+                <div class="flex space-x-2 pt-4">
+                    <button onclick="closeDeductPointsModal()" class="flex-1 border-2 border-gray-300 text-gray-600 py-2 rounded-lg font-bold">Cancel</button>
+                    <button onclick="confirmDeductPoints()" class="flex-1 bg-yellow-600 hover:bg-yellow-700 text-white py-2 rounded-lg font-bold">Deduct</button>
                 </div>
             </div>
         </div>
@@ -463,19 +532,50 @@
         function populateTeamSelects() {
             const homeSelect = document.getElementById('home-team-select');
             const awaySelect = document.getElementById('away-team-select');
-            if (!homeSelect || !awaySelect || !teams) return;
+            const deductSelect = document.getElementById('deduct-team-select');
+            if (!homeSelect || !awaySelect || !deductSelect || !teams) return;
             homeSelect.innerHTML = '';
             awaySelect.innerHTML = '';
+            deductSelect.innerHTML = '';
             teams.forEach(team => {
                 const option1 = document.createElement('option');
                 option1.value = team.id;
                 option1.textContent = team.name;
                 homeSelect.appendChild(option1);
+                
                 const option2 = document.createElement('option');
                 option2.value = team.id;
                 option2.textContent = team.name;
                 awaySelect.appendChild(option2);
+                
+                const option3 = document.createElement('option');
+                option3.value = team.id;
+                option3.textContent = team.name;
+                deductSelect.appendChild(option3);
             });
+        }
+
+        function openDeductPointsModal() {
+            document.getElementById('deduct-points-modal').classList.remove('hidden');
+            document.getElementById('deduct-points-amount').value = 1;
+        }
+
+        function closeDeductPointsModal() {
+            document.getElementById('deduct-points-modal').classList.add('hidden');
+        }
+
+        function confirmDeductPoints() {
+            const teamId = document.getElementById('deduct-team-select').value;
+            const points = parseInt(document.getElementById('deduct-points-amount').value, 10);
+            if (!teamId || isNaN(points) || points < 1) {
+                alert('Please select a team and enter valid points!');
+                return;
+            }
+            if (gameManager) {
+                gameManager.deductPoints(teamId, points);
+                alert('Points deducted!');
+            }
+            closeDeductPointsModal();
         }
 
         function scheduleMatch() {
@@ -540,6 +640,75 @@
                 gameManager.addSubstitution(currentSubTeam, inPlayer, outPlayer);
             }
             closeSubModal();
+        }
+
+        let currentPenaltyTeam = null;
+
+        function openPenaltyGoalModal(team) {
+            currentPenaltyTeam = team;
+            document.getElementById('penalty-goal-modal').classList.remove('hidden');
+            document.getElementById('penalty-goal-player').value = '';
+        }
+
+        function closePenaltyGoalModal() {
+            document.getElementById('penalty-goal-modal').classList.add('hidden');
+            currentPenaltyTeam = null;
+        }
+
+        function confirmPenaltyGoal() {
+            const player = document.getElementById('penalty-goal-player').value;
+            if (!player) {
+                alert('Please enter player name!');
+                return;
+            }
+            if (gameManager) {
+                if (currentPenaltyTeam === 'home') {
+                    gameManager.match.homePenalties++;
+                } else {
+                    gameManager.match.awayPenalties++;
+                }
+                gameManager.match.events.unshift({
+                    minute: 'PEN',
+                    stopwatchTime: gameManager.match.stopwatch,
+                    type: 'penalty-goal',
+                    team: currentPenaltyTeam,
+                    player
+                });
+                gameManager.saveData();
+                gameManager.notifySubscribers();
+            }
+            closePenaltyGoalModal();
+        }
+
+        function openPenaltyMissModal(team) {
+            currentPenaltyTeam = team;
+            document.getElementById('penalty-miss-modal').classList.remove('hidden');
+            document.getElementById('penalty-miss-player').value = '';
+        }
+
+        function closePenaltyMissModal() {
+            document.getElementById('penalty-miss-modal').classList.add('hidden');
+            currentPenaltyTeam = null;
+        }
+
+        function confirmPenaltyMiss() {
+            const player = document.getElementById('penalty-miss-player').value;
+            if (!player) {
+                alert('Please enter player name!');
+                return;
+            }
+            if (gameManager) {
+                gameManager.match.events.unshift({
+                    minute: 'PEN',
+                    stopwatchTime: gameManager.match.stopwatch,
+                    type: 'penalty-miss',
+                    team: currentPenaltyTeam,
+                    player
+                });
+                gameManager.saveData();
+                gameManager.notifySubscribers();
+            }
+            closePenaltyMissModal();
         }
 
         function addYellowCard(team) {
@@ -669,12 +838,57 @@
             }
         }
 
+        function renderPenaltyCircles() {
+            if (!gameManager || !gameManager.match) return;
+            const match = gameManager.match;
+            
+            const homeCirclesContainer = document.getElementById('home-penalty-circles');
+            const awayCirclesContainer = document.getElementById('away-penalty-circles');
+            if (!homeCirclesContainer || !awayCirclesContainer) return;
+            
+            const homeAttempts = match.homePenaltyAttempts || [];
+            const awayAttempts = match.awayPenaltyAttempts || [];
+            
+            const maxAttempts = Math.max(homeAttempts.length, awayAttempts.length, 5);
+            const numCircles = Math.ceil(maxAttempts / 5) * 5;
+            
+            let homeCirclesHTML = '';
+            let awayCirclesHTML = '';
+            
+            for (let i = 0; i < numCircles; i++) {
+                const homeAttempt = homeAttempts[i];
+                const awayAttempt = awayAttempts[i];
+                
+                let homeClass = 'border-2 border-gray-300 bg-gray-100';
+                let awayClass = 'border-2 border-gray-300 bg-gray-100';
+                
+                if (homeAttempt) {
+                    homeClass = homeAttempt.scored 
+                        ? 'border-2 border-green-500 bg-green-500' 
+                        : 'border-2 border-red-500 bg-red-500';
+                }
+                
+                if (awayAttempt) {
+                    awayClass = awayAttempt.scored 
+                        ? 'border-2 border-green-500 bg-green-500' 
+                        : 'border-2 border-red-500 bg-red-500';
+                }
+                
+                homeCirclesHTML += `<div class="w-6 h-6 rounded-full ${homeClass}"></div>`;
+                awayCirclesHTML += `<div class="w-6 h-6 rounded-full ${awayClass}"></div>`;
+            }
+            
+            homeCirclesContainer.innerHTML = homeCirclesHTML;
+            awayCirclesContainer.innerHTML = awayCirclesHTML;
+        }
+
         function updateUI() {
             if (!gameManager || !gameManager.match) return;
             const match = gameManager.match;
             
-            if (gameManager.formatStopwatch) {
-                document.getElementById('stopwatch-display').textContent = gameManager.formatStopwatch(match.stopwatch || 0);
+            if (gameManager.formatStopwatch && gameManager.getCurrentStopwatchTime) {
+                const currentTime = gameManager.getCurrentStopwatchTime();
+                document.getElementById('stopwatch-display').textContent = gameManager.formatStopwatch(currentTime);
             }
             
             document.getElementById('home-score').textContent = match.homeScore;
@@ -700,6 +914,20 @@
             } else {
                 document.getElementById('stopwatch-btn').innerHTML = '<i class="fas fa-play mr-2"></i> ' + (match.status === 'SCHEDULED' ? 'Start' : 'Resume');
             }
+            
+            // Show/hide sections based on period
+            const goalSection = document.getElementById('goal-section');
+            const penaltySection = document.getElementById('penalty-section');
+            if (match.period === 'PENALTIES') {
+                if (goalSection) goalSection.classList.add('hidden');
+                if (penaltySection) penaltySection.classList.remove('hidden');
+            } else {
+                if (goalSection) goalSection.classList.remove('hidden');
+                if (penaltySection) penaltySection.classList.add('hidden');
+            }
+            
+            // Render penalty circles
+            renderPenaltyCircles();
             
             updateStatsInputs();
             renderEvents();
@@ -753,6 +981,16 @@
 
         document.documentElement.classList.remove('dark-mode');
         localStorage.removeItem('darkMode');
+
+        // Set test admin user for testing
+        const testUser = {
+            id: 'test-123',
+            firstName: 'Admin',
+            lastName: 'User',
+            email: 'admin@test.com',
+            isAdmin: true
+        };
+        localStorage.setItem('currentUser', JSON.stringify(testUser));
 
         const user = checkAuth();
         if (user) {
