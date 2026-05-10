@@ -1,5 +1,5 @@
-const SUPABASE_URL = 'https://zpciirbchnejpupgapcr.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_b3XbVn4zL26XFCkgg7I5-Q_5J80jsWU';
+const SUPABASE_URL = 'https://zpcijrbchnejpupgapcr.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpwY2lqcmJjaG5lanB1cGdhcGNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzMzI2MzIsImV4cCI6MjA5MzkwODYzMn0.bgYeWIvdjwnBcPGJb3JAlqSmpW18p2Mkxf_R6P1Sz0k';
 
 let supabaseClient;
 let isSupabaseReady = false;
