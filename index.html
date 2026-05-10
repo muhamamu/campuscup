@@ -353,8 +353,11 @@
         }
 
         // Run on load
-        loadNavbar('dashboard');
-        checkAdmin();
+        const user = checkAuth();
+        if (user) {
+            loadNavbar('dashboard');
+            checkAdmin();
+        }
 
         function updateLiveMatch(match) {
             const homeTeamNameEl = document.getElementById('home-team-name');

@@ -13,10 +13,9 @@ function loadNavbar(currentPage) {
     const navLinksHTML = navLinks.map(link => {
         const isActive = link.id === currentPage;
         const activeClass = isActive ? 'bg-white text-[#1a061e]' : 'text-[#fef2f8] hover:text-[#f472b6]';
-        const adminClass = link.adminOnly ? 'admin-nav-link hidden' : '';
         
         return `
-            <a href="${link.href}" class="${activeClass} ${adminClass} px-4 py-2 rounded-lg font-semibold transition-colors">
+            <a href="${link.href}" class="${activeClass} ${link.adminOnly ? 'admin-nav-link' : ''} px-4 py-2 rounded-lg font-semibold transition-colors">
                 ${link.label}
             </a>
         `;
@@ -25,10 +24,9 @@ function loadNavbar(currentPage) {
     const mobileNavLinksHTML = navLinks.map(link => {
         const isActive = link.id === currentPage;
         const activeClass = isActive ? 'bg-[#f472b6] text-white' : 'text-white hover:bg-[#2d0a33]';
-        const adminClass = link.adminOnly ? 'admin-nav-link hidden' : '';
         
         return `
-            <a href="${link.href}" class="${activeClass} ${adminClass} block px-4 py-3 rounded-lg font-semibold transition-colors">
+            <a href="${link.href}" class="${activeClass} ${link.adminOnly ? 'admin-nav-link' : ''} block px-4 py-3 rounded-lg font-semibold transition-colors">
                 ${link.label}
             </a>
         `;
