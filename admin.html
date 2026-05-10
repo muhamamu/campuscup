@@ -472,8 +472,11 @@
         }
 
         // Run on load
-        loadNavbar('admin');
-        checkAdmin();
+        const user = checkAuth();
+        if (user) {
+            loadNavbar('admin');
+            checkAdmin();
+        }
 
         function populateTeamSelects() {
             const homeSelect = document.getElementById('home-team-select');

@@ -146,8 +146,11 @@
         }
 
         // Run on load
-        loadNavbar('standings');
-        checkAdmin();
+        const user = checkAuth();
+        if (user) {
+            loadNavbar('standings');
+            checkAdmin();
+        }
 
         function renderStandings(standings) {
             const tbody = document.getElementById('standings-body');

@@ -259,8 +259,11 @@
         }
 
         // Run on load
-        loadNavbar('teams');
-        checkAdmin();
+        const user = checkAuth();
+        if (user) {
+            loadNavbar('teams');
+            checkAdmin();
+        }
 
         // Subscribe to game manager updates
         const checkGameManager = setInterval(() => {

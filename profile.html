@@ -148,8 +148,11 @@
         }
 
         // Run on load
-        loadNavbar('profile');
-        loadProfile();
+        const user = checkAuth();
+        if (user) {
+            loadNavbar('profile');
+            loadProfile();
+        }
     </script>
 </body>
 </html>
