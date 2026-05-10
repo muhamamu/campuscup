@@ -7,15 +7,15 @@ function loadNavbar(currentPage) {
         { id: 'teams', label: 'Teams', href: 'teams.html' },
         { id: 'standings', label: 'Standings', href: 'standings.html' },
         { id: 'profile', label: 'Profile', href: 'profile.html' },
-        { id: 'admin', label: 'Admin Portal', href: 'admin.html', adminOnly: true }
+        { id: 'admin', label: 'Admin', href: 'admin.html', adminOnly: true }
     ];
 
     const navLinksHTML = navLinks.map(link => {
         const isActive = link.id === currentPage;
-        const activeClass = isActive ? 'bg-white text-[#1a061e]' : 'text-[#fef2f8] hover:text-[#f472b6]';
+        const activeClass = isActive ? 'text-[#f472b6] font-bold' : 'text-[#fef2f8] hover:text-[#f472b6]';
         
         return `
-            <a href="${link.href}" class="${activeClass} ${link.adminOnly ? 'admin-nav-link' : ''} px-4 py-2 rounded-lg font-semibold transition-colors">
+            <a href="${link.href}" class="${activeClass} ${link.adminOnly ? 'admin-nav-link' : ''} px-4 py-2 text-sm font-medium transition-colors">
                 ${link.label}
             </a>
         `;
@@ -23,10 +23,10 @@ function loadNavbar(currentPage) {
 
     const mobileNavLinksHTML = navLinks.map(link => {
         const isActive = link.id === currentPage;
-        const activeClass = isActive ? 'bg-[#f472b6] text-white' : 'text-white hover:bg-[#2d0a33]';
+        const activeClass = isActive ? 'text-[#f472b6] font-bold' : 'text-white hover:text-[#f472b6]';
         
         return `
-            <a href="${link.href}" class="${activeClass} ${link.adminOnly ? 'admin-nav-link' : ''} block px-4 py-3 rounded-lg font-semibold transition-colors">
+            <a href="${link.href}" class="${activeClass} ${link.adminOnly ? 'admin-nav-link' : ''} block px-4 py-3 text-sm font-medium transition-colors">
                 ${link.label}
             </a>
         `;
@@ -35,61 +35,44 @@ function loadNavbar(currentPage) {
     navbarContainer.innerHTML = `
         <nav class="bg-[#1a061e] sticky top-0 z-50 shadow-lg">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="flex items-center justify-between h-20">
-                    <!-- Logo -->
+                <div class="flex items-center justify-between h-16">
                     <div class="flex-shrink-0">
-                        <a href="index.html" class="text-2xl font-black text-[#fef2f8] uppercase tracking-tight">
+                        <a href="index.html" class="text-xl font-bold text-[#fef2f8] tracking-tight">
                             CAMPUS <span class="text-[#f472b6]">CUP</span>
                         </a>
                     </div>
 
-                    <!-- Desktop Navigation -->
-                    <div class="hidden md:flex items-center space-x-2">
+                    <div class="hidden md:flex items-center space-x-1">
                         ${navLinksHTML}
                     </div>
 
-                    <!-- Desktop Right Side -->
                     <div class="hidden md:flex items-center space-x-4">
-                        <button id="theme-toggle" onclick="toggleDarkMode()" class="text-[#fef2f8] hover:text-[#f472b6] p-2 rounded-full transition-colors">
-                            <i class="fas fa-cog text-xl"></i>
-                        </button>
-                        <button class="text-[#fef2f8] hover:text-[#f472b6] p-2 rounded-full transition-colors">
-                            <i class="fas fa-bell text-xl"></i>
-                        </button>
-                        <button onclick="logout()" class="bg-[#f472b6] hover:bg-[#be185d] text-white px-5 py-2 rounded-lg font-semibold transition-colors">
-                            <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                        <button onclick="logout()" class="text-[#fef2f8] hover:text-[#f472b6] text-sm font-medium transition-colors">
+                            Logout
                         </button>
                     </div>
 
-                    <!-- Mobile Menu Button -->
                     <div class="md:hidden">
                         <button id="mobile-menu-btn" onclick="toggleMobileMenu()" class="text-[#fef2f8] hover:text-[#f472b6] p-2">
-                            <i class="fas fa-bars text-2xl"></i>
+                            <i class="fas fa-bars text-xl"></i>
                         </button>
                     </div>
                 </div>
             </div>
 
-            <!-- Mobile Menu -->
             <div id="mobile-menu" class="md:hidden hidden bg-[#2d0a33] border-t border-[#f472b6]/20">
-                <div class="px-4 py-6 space-y-3">
+                <div class="px-4 py-4 space-y-2">
                     ${mobileNavLinksHTML}
                     <hr class="border-[#f472b6]/20 my-4">
-                    <div class="flex items-center justify-between space-x-4">
-                        <button id="mobile-theme-toggle" onclick="toggleDarkMode()" class="flex items-center text-[#fef2f8] hover:text-[#f472b6] p-2 rounded-lg transition-colors">
-                            <i class="fas fa-cog text-xl mr-2"></i>Theme
-                        </button>
-                        <button onclick="logout()" class="flex items-center bg-[#f472b6] hover:bg-[#be185d] text-white px-5 py-2 rounded-lg font-semibold transition-colors">
-                            <i class="fas fa-sign-out-alt mr-2"></i>Logout
-                        </button>
-                    </div>
+                    <button onclick="logout()" class="text-[#fef2f8] hover:text-[#f472b6] text-sm font-medium transition-colors px-4 py-2">
+                        Logout
+                    </button>
                 </div>
             </div>
         </nav>
     `;
 
     updateAdminLinks();
-    updateThemeToggleIcon();
 }
 
 function toggleMobileMenu() {
@@ -101,9 +84,9 @@ function toggleMobileMenu() {
         if (btn) {
             const icon = btn.querySelector('i');
             if (menu.classList.contains('hidden')) {
-                icon.className = 'fas fa-bars text-2xl';
+                icon.className = 'fas fa-bars text-xl';
             } else {
-                icon.className = 'fas fa-times text-2xl';
+                icon.className = 'fas fa-times text-xl';
             }
         }
     }
@@ -113,19 +96,6 @@ function toggleDarkMode() {
     document.documentElement.classList.toggle('dark-mode');
     const isDark = document.documentElement.classList.contains('dark-mode');
     localStorage.setItem('darkMode', isDark ? 'true' : 'false');
-    updateThemeToggleIcon();
-}
-
-function updateThemeToggleIcon() {
-    const isDark = localStorage.getItem('darkMode') === 'true';
-    const desktopToggle = document.getElementById('theme-toggle');
-    const mobileToggle = document.getElementById('mobile-theme-toggle');
-    
-    if (isDark) {
-        if (desktopToggle) desktopToggle.innerHTML = '<i class="fas fa-sun text-xl"></i>';
-    } else {
-        if (desktopToggle) desktopToggle.innerHTML = '<i class="fas fa-moon text-xl"></i>';
-    }
 }
 
 function loadTheme() {
