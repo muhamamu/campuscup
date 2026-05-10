@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>League Teams - Campus Cup</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #fdf2f8; }
+        
+        /* Dark Mode Styles */
+        .dark-mode body {
+            background-color: #000000;
+        }
+        
+        .dark-mode .dark-bg-white {
+            background-color: #111111 !important;
+        }
+        
+        .dark-mode .dark-text-primary {
+            color: #ffffff !important;
+        }
+        
+        .dark-mode .dark-text-secondary {
+            color: #9ca3af !important;
+        }
+        
+        .dark-mode .dark-card-bg {
+            background-color: #1f1f1f !important;
+        }
+        
+        .dark-mode .dark-input-bg {
+            background-color: #2a2a2a !important;
+        }
+        
+        .dark-mode .team-card-v2 {
+            background: #111111;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+        
+        .dark-mode .team-logo-overlay {
+            background: #1f1f1f;
+        }
+        
+        .dark-mode .stats-grid-bg {
+            background-color: #1f1f1f;
+        }
+        
+        .nav-link { color: #64748b; font-weight: 500; font-size: 0.875rem; padding: 0.5rem 1rem; transition: all 0.2s; cursor: pointer; border: 1px solid transparent; }
+        .nav-link:hover { color: #1a061e; }
+        .nav-link-active { color: #1a061e; border: 1px solid #f472b6; border-radius: 8px; background-color: white; }
+        
+        .dark-mode .nav-link {
+            color: #9ca3af;
+        }
+        .dark-mode .nav-link:hover {
+            color: #ffffff;
+        }
+        .dark-mode .nav-link-active {
+            color: #ffffff;
+            border-color: #f472b6;
+            background-color: #2a2a4a;
+        }
+        
+        .search-input { background-color: #fce7f3; }
+        .dark-mode .search-input { background-color: #2a2a4a; color: #ffffff; }
+
+        /* Team Card Styles from Figma */
+        .team-card-v2 {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+            transition: transform 0.3s ease;
+        }
+        .team-card-v2:hover { transform: translateY(-5px); }
+        .dark-mode .team-card-v2 {
+            background: #1a1a2e;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+        
+        .card-gradient-software { background: linear-gradient(to bottom, #1a061e, #f472b6); height: 100px; }
+        .card-gradient-mechatronics { background: linear-gradient(to bottom, #fce7f3, #fae8ff); height: 100px; }
+        .card-gradient-civil { background: linear-gradient(to bottom, #fecaca, #ffffff); height: 100px; }
+
+        .team-logo-overlay {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            background: white;
+            padding: 2px;
+            position: absolute;
+            top: 75px;
+            left: 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        .dark-mode .team-logo-overlay {
+            background: #2a2a4a;
+        }
+
+        .stats-grid-bg { background-color: #fff1f2; border-radius: 12px; }
+        .dark-mode .stats-grid-bg {
+            background-color: #2a2a4a;
+        }
+        
+        .rank-badge {
+            font-size: 9px;
+            font-weight: 900;
+            padding: 2px 8px;
+            border-radius: 10px;
+            text-transform: uppercase;
+        }
+        .rank-green { background-color: #dcfce7; color: #16a34a; }
+        .rank-purple { background-color: #f3e8ff; color: #9333ea; }
+        .rank-pink { background-color: #fce7f3; color: #db2777; }
+
+        .my-team-tag {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background-color: #be185d;
+            color: white;
+            font-size: 8px;
+            font-weight: 900;
+            padding: 2px 8px;
+            border-radius: 4px;
+            text-transform: uppercase;
+        }
+
+        .filter-btn {
+            font-size: 11px;
+            font-weight: 700;
+            padding: 6px 16px;
+            border-radius: 20px;
+            transition: all 0.2s;
+        }
+        .filter-btn-active { background-color: #1a061e; color: white; }
+        .filter-btn-inactive { background-color: #f3e8ff; color: #9333ea; }
+
+        #mobile-menu { transition: transform 0.3s ease-in-out; transform: translateX(-100%); }
+        #mobile-menu.active { transform: translateX(0); }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col overflow-x-hidden">
+    <!-- Navbar Container -->
+    <div id="navbar-container"></div>
+
+    <main class="flex-grow p-4 md:p-12 max-w-7xl mx-auto w-full">
+        <!-- Header Section -->
+        <header class="mb-10">
+            <h1 class="text-5xl md:text-6xl font-black text-[#1a061e] uppercase tracking-tighter mb-4">
+                LEAGUE <span class="text-[#be185d]">TEAMS</span>
+            </h1>
+            <p class="text-gray-500 max-w-2xl font-medium leading-relaxed">
+                Explore the current roster of teams competing in the Lion's Edge premier league. Analyze performance, view standings, and track your favorites.
+            </p>
+        </header>
+
+        <!-- Filters & Sorting Bar -->
+        <div class="bg-white/50 backdrop-blur-sm p-4 rounded-2xl flex flex-col md:flex-row justify-between items-center mb-10 gap-4 shadow-sm">
+            <div class="flex space-x-3">
+                <button class="filter-btn filter-btn-active">All Teams</button>
+                <button class="filter-btn filter-btn-inactive">Group A</button>
+                <button class="filter-btn filter-btn-inactive">Group B</button>
+            </div>
+            <div class="flex items-center space-x-4 text-xs font-bold text-gray-400">
+                <span>Sort by:</span>
+                <div class="flex items-center space-x-2 text-[#1a061e] cursor-pointer">
+                    <span>Rank</span>
+                    <i class="fas fa-chevron-down text-[10px]"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Teams Grid -->
+        <div id="teams-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        </div>
+    </main>
+
+    <script src="supabase.js"></script>
+    <script src="navbar.js"></script>
+    <script src="game-manager.js"></script>
+    <script>
+        function checkAuth() {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            if (!currentUser) {
+                window.location.href = 'login.html';
+                return false;
+            }
+            return currentUser;
+        }
+
+        function checkAdmin() {
+            const currentUser = checkAuth();
+            if (!currentUser) return;
+            
+            const adminLinks = document.querySelectorAll('[href="admin.html"]');
+            adminLinks.forEach(link => {
+                if (!currentUser.isAdmin) {
+                    link.classList.add('hidden');
+                } else {
+                    link.classList.remove('hidden');
+                }
+            });
+        }
+
+        function renderTeamCard(standing) {
+            const rankColors = ['rank-green', 'rank-purple', 'rank-pink', 'rank-pink', 'rank-pink', 'rank-pink', 'rank-pink', 'rank-pink'];
+            const rankColor = rankColors[standing.pos - 1] || 'rank-pink';
+            const gradientColor = standing.team.logoBg || '#1a061e';
+            
+            return `
+                <div class="team-card-v2 relative">
+                    <div style="background: linear-gradient(to bottom, ${gradientColor}, #f472b6); height: 100px;"></div>
+                    <div class="team-logo-overlay">
+                        <div class="w-full h-full rounded-full flex items-center justify-center text-white font-black text-xs" style="background-color: ${gradientColor};">
+                            ${standing.team.shortCode || standing.team.name.substring(0, 2).toUpperCase()}
+                        </div>
+                    </div>
+                    <div class="px-6 pt-12 pb-6">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="text-xl font-black text-[#1a061e] dashboard-text-primary">${standing.team.name}</h3>
+                            <span class="rank-badge ${rankColor}">Rank #${standing.pos}</span>
+                        </div>
+                        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-6">
+                            Division • ${standing.w}-${standing.d}-${standing.l}
+                        </p>
+                        
+                        <div class="stats-grid-bg p-4 flex justify-between text-center">
+                            <div>
+                                <p class="text-[9px] font-bold text-gray-400 uppercase mb-1">PTS</p>
+                                <p class="text-lg font-black text-[#1a061e] dashboard-text-primary">${standing.pts}</p>
+                            </div>
+                            <div>
+                                <p class="text-[9px] font-bold text-gray-400 uppercase mb-1">GF</p>
+                                <p class="text-lg font-black text-[#1a061e] dashboard-text-primary">${standing.gf}</p>
+                            </div>
+                            <div>
+                                <p class="text-[9px] font-bold text-gray-400 uppercase mb-1">GA</p>
+                                <p class="text-lg font-black text-[#1a061e] dashboard-text-primary">${standing.ga}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderTeams(standings) {
+            const grid = document.getElementById('teams-grid');
+            if (!grid) return;
+            
+            grid.innerHTML = standings.map(standing => renderTeamCard(standing)).join('');
+        }
+
+        // Run on load
+        loadNavbar('teams');
+        checkAdmin();
+
+        // Subscribe to game manager updates
+        const checkGameManager = setInterval(() => {
+            if (window.gameManager) {
+                clearInterval(checkGameManager);
+                window.gameManager.subscribe((standings, match) => {
+                    renderTeams(standings);
+                });
+            }
+        }, 100);
+    </script>
+</body>
+</html>

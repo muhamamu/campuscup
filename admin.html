@@ -1,0 +1,981 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>League Rules Configuration - Admin Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+        * {
+            box-sizing: border-box;
+        }
+        html, body, nav, main, div, section {
+            overflow-x: hidden !important;
+            max-width: 100vw !important;
+        }
+        body { font-family: 'Inter', sans-serif; background-color: #fdf2f8; }
+        
+        /* Dark Mode Styles */
+        .dark-mode body {
+            background-color: #000000;
+        }
+        
+        .dark-mode .dark-bg-white {
+            background-color: #111111 !important;
+        }
+        
+        .dark-mode .dark-text-primary {
+            color: #ffffff !important;
+        }
+        
+        .dark-mode .dark-text-secondary {
+            color: #9ca3af !important;
+        }
+        
+        .dark-mode .dark-card-bg {
+            background-color: #1f1f1f !important;
+        }
+        
+        .dark-mode .config-card {
+            background-color: #111111;
+        }
+        
+        .dark-mode .input-box {
+            background-color: #2a2a2a;
+            color: #ffffff;
+        }
+        
+        .dark-mode .hierarchy-item {
+            background-color: #111111;
+            border-color: #2a2a2a;
+        }
+        
+        .dark-mode .simulation-panel {
+            background-color: #111111;
+        }
+        
+        .nav-link { color: #fef2f8; font-weight: 500; font-size: 0.875rem; padding: 0.5rem 1rem; transition: all 0.2s; cursor: pointer; border: 1px solid transparent; }
+        .nav-link:hover { color: #f472b6; }
+        .nav-link-active { color: #1a061e; border: 1px solid #f472b6; border-radius: 8px; background-color: white; }
+        
+        .dark-mode .nav-link {
+            color: #9ca3af;
+        }
+        .dark-mode .nav-link:hover {
+            color: #ffffff;
+        }
+        .dark-mode .nav-link-active {
+            color: #ffffff;
+            border-color: #f472b6;
+            background-color: #2a2a4a;
+        }
+        
+        .config-card { background-color: white; border-radius: 24px; padding: 32px; box-shadow: 0 4px 20px rgba(0,0,0,0.02); }
+        .dark-mode .config-card {
+            background-color: #1a1a2e;
+        }
+        
+        .input-box { background-color: #fce7f3; border-radius: 8px; padding: 12px 16px; font-weight: 700; color: #1a061e; border: none; width: 100%; }
+        .dark-mode .input-box {
+            background-color: #2a2a4a;
+            color: #ffffff;
+        }
+        
+        .label-text { font-size: 10px; font-weight: 800; color: #be185d; text-transform: uppercase; margin-bottom: 8px; display: block; }
+        
+        .hierarchy-item { background-color: white; border: 1px solid #f3f4f6; border-radius: 12px; padding: 16px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+        .dark-mode .hierarchy-item {
+            background-color: #1a1a2e;
+            border-color: #2a2a4a;
+        }
+        
+        .number-circle { width: 24px; height: 24px; background-color: #1a061e; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 800; }
+        
+        .simulation-panel { background-color: white; border-radius: 24px; padding: 32px; height: 100%; border-left: 1px solid #f3f4f6; }
+        .dark-mode .simulation-panel {
+            background-color: #1a1a2e;
+        }
+        
+        .preview-badge { background-color: #dcfce7; color: #16a34a; font-size: 9px; font-weight: 900; padding: 2px 8px; border-radius: 10px; text-transform: uppercase; }
+        
+        #mobile-menu { transition: transform 0.3s ease-in-out; transform: translateX(-100%); }
+        #mobile-menu.active { transform: translateX(0); }
+        
+        /* Ensure all text is readable on mobile */
+        @media (max-width: 768px) {
+            .config-card {
+                padding: 20px !important;
+            }
+            
+            .text-4xl {
+                font-size: 28px !important;
+            }
+            
+            .text-xl {
+                font-size: 18px !important;
+            }
+            
+
+            
+            /* Ensure container doesn't overflow */
+            body, html {
+                overflow-x: hidden !important;
+            }
+            
+            /* Make grid items stack on mobile */
+            .grid-cols-2,
+            .grid-cols-3 {
+                grid-template-columns: 1fr !important;
+            }
+            
+            .lg\\:grid-cols-3 {
+                grid-template-columns: 1fr !important;
+            }
+            
+            /* Make hierarchy items stack properly */
+            .hierarchy-item {
+                padding: 12px !important;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col overflow-x-hidden">
+    <!-- Navbar Container -->
+    <div id="navbar-container"></div>
+
+    <main class="flex-grow p-4 md:p-12 max-w-7xl mx-auto w-full">
+        <header class="mb-12">
+            <h1 class="text-4xl md:text-5xl font-black text-[#1a061e] uppercase tracking-tighter mb-2">Admin Portal</h1>
+            <p class="text-gray-500 font-medium max-w-3xl">Manage users, configure league rules, and control live matches.</p>
+        </header>
+
+        <!-- User Management Section -->
+        <section class="config-card mb-8">
+            <div class="flex items-center space-x-3 mb-8">
+                <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center text-blue-600"><i class="fas fa-users"></i></div>
+                <h2 class="text-xl font-black text-[#1a061e] uppercase">User Management</h2>
+            </div>
+            <div class="space-y-4" id="users-container">
+                <p class="text-gray-500 text-sm">Loading users...</p>
+            </div>
+        </section>
+
+        <!-- Standings Management Section -->
+        <section class="config-card mb-8">
+            <div class="flex items-center justify-between mb-8 flex-wrap gap-4">
+                <div class="flex items-center space-x-3">
+                    <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center text-green-600"><i class="fas fa-table"></i></div>
+                    <h2 class="text-xl font-black text-[#1a061e] uppercase">Standings Management</h2>
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="resetAllStandingsToZero()" class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-xs font-bold">
+                        <i class="fas fa-eraser mr-1"></i> Zero All Standings
+                    </button>
+                    <button onclick="resetAllStandings()" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-xs font-bold">
+                        <i class="fas fa-redo mr-1"></i> Reset to Default
+                    </button>
+                </div>
+            </div>
+            <div class="space-y-4" id="standings-management-container">
+                <p class="text-gray-500 text-sm">Loading standings...</p>
+            </div>
+        </section>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div class="lg:col-span-2 space-y-8">
+                <!-- Match Point Allocation -->
+                <section class="config-card">
+                    <div class="flex items-center space-x-3 mb-8">
+                        <div class="w-8 h-8 bg-pink-100 rounded-lg flex items-center justify-center text-[#be185d]"><i class="fas fa-trophy"></i></div>
+                        <h2 class="text-xl font-black text-[#1a061e] uppercase">Match Point Allocation</h2>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div>
+                            <label class="label-text">Win Points</label>
+                            <input type="text" value="3" class="input-box">
+                        </div>
+                        <div>
+                            <label class="label-text">Draw Points</label>
+                            <input type="text" value="1" class="input-box">
+                        </div>
+                        <div>
+                            <label class="label-text">Loss Points</label>
+                            <input type="text" value="0" class="input-box">
+                        </div>
+                        <div>
+                            <label class="label-text">Bonus Points (Goal Diff > 3)</label>
+                            <input type="text" value="0" class="input-box">
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Tie-Breaker Hierarchy -->
+                <section class="config-card">
+                    <div class="flex items-center space-x-3 mb-8">
+                        <div class="w-8 h-8 bg-pink-100 rounded-lg flex items-center justify-center text-[#be185d]"><i class="fas fa-list-ol"></i></div>
+                        <h2 class="text-xl font-black text-[#1a061e] uppercase">Tie-Breaker Hierarchy</h2>
+                    </div>
+                    <div class="space-y-3">
+                        <div class="hierarchy-item">
+                            <div class="flex items-center space-x-4">
+                                <i class="fas fa-grip-vertical text-gray-300 cursor-move"></i>
+                                <div class="number-circle">1</div>
+                                <span class="font-bold text-[#1a061e]">Goal Difference</span>
+                            </div>
+                            <i class="fas fa-cog text-gray-300 cursor-pointer"></i>
+                        </div>
+                        <div class="hierarchy-item">
+                            <div class="flex items-center space-x-4">
+                                <i class="fas fa-grip-vertical text-gray-300 cursor-move"></i>
+                                <div class="number-circle">2</div>
+                                <span class="font-bold text-[#1a061e]">Goals Scored</span>
+                            </div>
+                            <i class="fas fa-cog text-gray-300 cursor-pointer"></i>
+                        </div>
+                        <div class="hierarchy-item">
+                            <div class="flex items-center space-x-4">
+                                <i class="fas fa-grip-vertical text-gray-300 cursor-move"></i>
+                                <div class="number-circle">3</div>
+                                <span class="font-bold text-[#1a061e]">Head-to-Head Record</span>
+                            </div>
+                            <i class="fas fa-cog text-gray-300 cursor-pointer"></i>
+                        </div>
+                        <button class="w-full border-2 border-dashed border-pink-200 rounded-xl py-4 text-pink-500 font-bold text-xs uppercase tracking-widest hover:bg-pink-50 transition-colors">
+                            <i class="fas fa-plus mr-2"></i> Add Tie-Breaker Criteria
+                        </button>
+                    </div>
+                </section>
+                
+                <div class="flex justify-end space-x-4 pt-4">
+                    <button class="px-8 py-4 text-pink-500 font-black text-xs uppercase tracking-widest">Reset</button>
+                    <button class="px-8 py-4 bg-gray-100 text-gray-400 font-black text-xs uppercase tracking-widest rounded-xl cursor-not-allowed">Save Configuration</button>
+                </div>
+            </div>
+
+            <!-- Live Game Control -->
+            <div class="lg:col-span-1 space-y-6">
+                <section class="simulation-panel">
+                    <div class="flex justify-between items-center mb-6">
+                        <div class="flex items-center space-x-3">
+                            <div id="live-indicator" class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></div>
+                            <h2 class="text-xl font-black text-[#1a061e] uppercase">Live Game Control</h2>
+                        </div>
+                        <span id="match-status" class="text-xs font-bold text-red-500 uppercase">Live</span>
+                    </div>
+
+                    <!-- Match Score Display -->
+                    <div id="match-display" class="bg-pink-50 rounded-xl p-4 mb-6">
+                        <div class="text-center mb-2">
+                            <span id="match-period" class="text-[9px] font-bold text-gray-400 uppercase mb-1 block">1st Half</span>
+                            <span id="match-minute" class="text-xs font-bold text-gray-500">0'</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <div class="text-center flex-1">
+                                <div id="home-team-name" class="text-xs font-bold text-gray-500 uppercase mb-1">Software 100L</div>
+                                <div id="home-score" class="text-3xl font-black text-[#1a061e]">0</div>
+                                <div id="home-penalty-score" class="text-sm font-bold text-gray-400 hidden">(0 pens)</div>
+                            </div>
+                            <div class="text-xl font-bold text-gray-300 px-2">-</div>
+                            <div class="text-center flex-1">
+                                <div id="away-team-name" class="text-xs font-bold text-gray-500 uppercase mb-1">Electrical Eng.</div>
+                                <div id="away-score" class="text-3xl font-black text-[#1a061e]">0</div>
+                                <div id="away-penalty-score" class="text-sm font-bold text-gray-400 hidden">(0 pens)</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Game Scheduling -->
+                    <div class="mb-4">
+                        <label class="label-text">Schedule Match</label>
+                        <div class="grid grid-cols-2 gap-2 mb-2">
+                            <select id="home-team-select" class="input-box text-xs">
+                            </select>
+                            <select id="away-team-select" class="input-box text-xs">
+                            </select>
+                        </div>
+                        <button onclick="scheduleNewMatch()" class="w-full bg-purple-500 hover:bg-purple-600 text-white py-2 rounded-lg text-xs font-bold">
+                            <i class="fas fa-calendar mr-1"></i> Schedule Match
+                        </button>
+                    </div>
+
+                    <!-- Match Period Control -->
+                    <div class="mb-4">
+                        <label class="label-text">Match Period</label>
+                        <div class="grid grid-cols-3 gap-2 mb-2">
+                            <button onclick="setMatchPeriod('FIRST_HALF')" class="bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-lg text-[10px] font-bold" id="btn-first-half">1st Half</button>
+                            <button onclick="setMatchPeriod('SECOND_HALF')" class="bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-lg text-[10px] font-bold" id="btn-second-half">2nd Half</button>
+                            <button onclick="setMatchPeriod('PENALTIES')" class="bg-yellow-600 hover:bg-yellow-700 text-white py-2 rounded-lg text-[10px] font-bold" id="btn-penalties">Penalties</button>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button onclick="setMatchPeriod('FIRST_EXTRA_HALF')" class="bg-orange-500 hover:bg-orange-600 text-white py-2 rounded-lg text-[10px] font-bold" id="btn-extra-first">1st Extra</button>
+                            <button onclick="setMatchPeriod('SECOND_EXTRA_HALF')" class="bg-orange-500 hover:bg-orange-600 text-white py-2 rounded-lg text-[10px] font-bold" id="btn-extra-second">2nd Extra</button>
+                        </div>
+                    </div>
+
+                    <!-- Minute Control -->
+                    <div class="mb-4">
+                        <label class="label-text">Match Minute</label>
+                        <div class="flex space-x-2">
+                            <input type="text" id="minute-input" value="1" class="input-box flex-1" placeholder="1 or 45+2">
+                            <button onclick="updateGameMinute()" class="bg-[#1a061e] text-white px-4 rounded-lg text-xs font-bold">Set</button>
+                        </div>
+                        <div class="text-[8px] text-gray-400 mt-1">
+                            Valid: 1-45, 46-90, 91-105, 106-120, or 45+2, 90+3
+                        </div>
+                    </div>
+
+                    <!-- Stats Control -->
+                    <div class="mb-4">
+                        <label class="label-text">Update Stats</label>
+                        <div class="grid grid-cols-2 gap-2 mb-2">
+                            <div>
+                                <label class="text-[10px] font-bold text-gray-500">Home Possession %</label>
+                                <input type="number" id="home-possession" value="50" class="input-box text-xs py-2" onchange="syncPossession('home')" oninput="syncPossession('home')">
+                            </div>
+                            <div>
+                                <label class="text-[10px] font-bold text-gray-500">Away Possession %</label>
+                                <input type="number" id="away-possession" value="50" class="input-box text-xs py-2" onchange="syncPossession('away')" oninput="syncPossession('away')">
+                            </div>
+                            <div>
+                                <label class="text-[10px] font-bold text-gray-500">Home Shots</label>
+                                <input type="number" id="home-shots" value="0" class="input-box text-xs py-2">
+                            </div>
+                            <div>
+                                <label class="text-[10px] font-bold text-gray-500">Away Shots</label>
+                                <input type="number" id="away-shots" value="0" class="input-box text-xs py-2">
+                            </div>
+                            <div>
+                                <label class="text-[10px] font-bold text-gray-500">Home Shots on Target</label>
+                                <input type="number" id="home-shots-target" value="0" class="input-box text-xs py-2">
+                            </div>
+                            <div>
+                                <label class="text-[10px] font-bold text-gray-500">Away Shots on Target</label>
+                                <input type="number" id="away-shots-target" value="0" class="input-box text-xs py-2">
+                            </div>
+                        </div>
+                        <button onclick="updateGameStats()" class="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-lg text-xs font-bold">
+                            <i class="fas fa-chart-bar mr-1"></i> Update Stats
+                        </button>
+                    </div>
+
+                    <!-- Goal Controls -->
+                    <div class="mb-4">
+                        <label class="label-text">Add Goal</label>
+                        <div class="grid grid-cols-2 gap-2 mb-2">
+                            <button onclick="addGoal('home', false)" class="bg-green-500 hover:bg-green-600 text-white py-2 rounded-lg text-xs font-bold">
+                                <i class="fas fa-futbol mr-1"></i> Home Goal
+                            </button>
+                            <button onclick="addGoal('away', false)" class="bg-green-500 hover:bg-green-600 text-white py-2 rounded-lg text-xs font-bold">
+                                <i class="fas fa-futbol mr-1"></i> Away Goal
+                            </button>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button onclick="addGoal('home', true)" class="bg-yellow-500 hover:bg-yellow-600 text-white py-2 rounded-lg text-xs font-bold">
+                                <i class="fas fa-bullseye mr-1"></i> Home Penalty
+                            </button>
+                            <button onclick="addGoal('away', true)" class="bg-yellow-500 hover:bg-yellow-600 text-white py-2 rounded-lg text-xs font-bold">
+                                <i class="fas fa-bullseye mr-1"></i> Away Penalty
+                            </button>
+                        </div>
+                        <div id="penalty-miss-section" class="mt-2 hidden">
+                            <div class="grid grid-cols-2 gap-2">
+                                <button onclick="addPenaltyMiss('home')" class="bg-red-500 hover:bg-red-600 text-white py-2 rounded-lg text-xs font-bold">
+                                    <i class="fas fa-times mr-1"></i> Home Penalty Miss
+                                </button>
+                                <button onclick="addPenaltyMiss('away')" class="bg-red-500 hover:bg-red-600 text-white py-2 rounded-lg text-xs font-bold">
+                                    <i class="fas fa-times mr-1"></i> Away Penalty Miss
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card Controls -->
+                    <div class="mb-4">
+                        <label class="label-text">Add Card</label>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button onclick="addYellowCard('home')" class="bg-yellow-500 hover:bg-yellow-600 text-white py-2 rounded-lg text-xs font-bold">
+                                <i class="fas fa-square mr-1"></i> Home Yellow
+                            </button>
+                            <button onclick="addYellowCard('away')" class="bg-yellow-500 hover:bg-yellow-600 text-white py-2 rounded-lg text-xs font-bold">
+                                <i class="fas fa-square mr-1"></i> Away Yellow
+                            </button>
+                            <button onclick="addRedCard('home')" class="bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg text-xs font-bold">
+                                <i class="fas fa-square mr-1"></i> Home Red
+                            </button>
+                            <button onclick="addRedCard('away')" class="bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg text-xs font-bold">
+                                <i class="fas fa-square mr-1"></i> Away Red
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Substitution -->
+                    <div class="mb-6">
+                        <label class="label-text">Add Substitution</label>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button onclick="addSubstitution('home')" class="bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-lg text-xs font-bold">
+                                <i class="fas fa-exchange-alt mr-1"></i> Home Sub
+                            </button>
+                            <button onclick="addSubstitution('away')" class="bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-lg text-xs font-bold">
+                                <i class="fas fa-exchange-alt mr-1"></i> Away Sub
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Match Actions -->
+                    <div class="space-y-2">
+                        <button onclick="startMatch()" class="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-xl font-bold text-xs uppercase tracking-widest">
+                            <i class="fas fa-play mr-2"></i> Start Match
+                        </button>
+                        <button onclick="endMatch()" class="w-full bg-[#1a061e] hover:bg-black text-white py-3 rounded-xl font-bold text-xs uppercase tracking-widest">
+                            <i class="fas fa-stop mr-2"></i> End Match & Update Standings
+                        </button>
+                        <button onclick="resetMatch()" class="w-full border-2 border-pink-200 text-pink-500 py-3 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-pink-50">
+                            <i class="fas fa-redo mr-2"></i> Reset Match
+                        </button>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </main>
+
+    <script src="supabase.js"></script>
+    <script src="navbar.js"></script>
+    <script src="game-manager.js"></script>
+    <script>
+        function checkAuth() {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            if (!currentUser) {
+                window.location.href = 'login.html';
+                return false;
+            }
+            return currentUser;
+        }
+
+        function checkAdmin() {
+            const currentUser = checkAuth();
+            if (!currentUser) {
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            const users = JSON.parse(localStorage.getItem('users') || '[]');
+            const userFromStorage = users.find(u => u.id === currentUser.id);
+            
+            if (!userFromStorage || !userFromStorage.isAdmin) {
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            return true;
+        }
+
+        // Run on load
+        loadNavbar('admin');
+        checkAdmin();
+
+        function populateTeamSelects() {
+            const homeSelect = document.getElementById('home-team-select');
+            const awaySelect = document.getElementById('away-team-select');
+            if (!homeSelect || !awaySelect) return;
+
+            teams.forEach(team => {
+                const option1 = document.createElement('option');
+                option1.value = team.id;
+                option1.textContent = team.name;
+                homeSelect.appendChild(option1);
+
+                const option2 = document.createElement('option');
+                option2.value = team.id;
+                option2.textContent = team.name;
+                awaySelect.appendChild(option2);
+            });
+        }
+
+        function syncPossession(changed) {
+            const homePossessionInput = document.getElementById('home-possession');
+            const awayPossessionInput = document.getElementById('away-possession');
+            if (!homePossessionInput || !awayPossessionInput) return;
+
+            let homeValue = parseInt(homePossessionInput.value) || 0;
+            let awayValue = parseInt(awayPossessionInput.value) || 0;
+
+            if (changed === 'home') {
+                homeValue = Math.max(0, Math.min(100, homeValue));
+                awayValue = 100 - homeValue;
+                homePossessionInput.value = homeValue;
+                awayPossessionInput.value = awayValue;
+            } else {
+                awayValue = Math.max(0, Math.min(100, awayValue));
+                homeValue = 100 - awayValue;
+                awayPossessionInput.value = awayValue;
+                homePossessionInput.value = homeValue;
+            }
+        }
+
+        function updateMatchDisplay(match) {
+            const homeScore = document.getElementById('home-score');
+            const awayScore = document.getElementById('away-score');
+            const homeTeamName = document.getElementById('home-team-name');
+            const awayTeamName = document.getElementById('away-team-name');
+            const matchMinute = document.getElementById('match-minute');
+            const matchPeriodEl = document.getElementById('match-period');
+            const liveIndicator = document.getElementById('live-indicator');
+            const matchStatus = document.getElementById('match-status');
+            const homePenaltyScore = document.getElementById('home-penalty-score');
+            const awayPenaltyScore = document.getElementById('away-penalty-score');
+            const penaltyMissSection = document.getElementById('penalty-miss-section');
+
+            if (homeScore) homeScore.textContent = match.homeScore;
+            if (awayScore) awayScore.textContent = match.awayScore;
+            if (homeTeamName) homeTeamName.textContent = match.homeTeam.name.substring(0, 15);
+            if (awayTeamName) awayTeamName.textContent = match.awayTeam.name.substring(0, 15);
+            if (matchMinute) matchMinute.textContent = match.minute;
+            
+            const periodNames = {
+                'FIRST_HALF': '1st Half',
+                'SECOND_HALF': '2nd Half',
+                'FIRST_EXTRA_HALF': '1st Extra',
+                'SECOND_EXTRA_HALF': '2nd Extra',
+                'PENALTIES': 'Penalties'
+            };
+            if (matchPeriodEl) {
+                matchPeriodEl.textContent = periodNames[match.period] || '1st Half';
+            }
+
+            if (homePenaltyScore && awayPenaltyScore) {
+                if (match.period === 'PENALTIES' || (match.homePenalties > 0 || match.awayPenalties > 0)) {
+                    homePenaltyScore.classList.remove('hidden');
+                    awayPenaltyScore.classList.remove('hidden');
+                    homePenaltyScore.textContent = `(${match.homePenalties} pens)`;
+                    awayPenaltyScore.textContent = `(${match.awayPenalties} pens)`;
+                } else {
+                    homePenaltyScore.classList.add('hidden');
+                    awayPenaltyScore.classList.add('hidden');
+                }
+            }
+
+            if (penaltyMissSection) {
+                if (match.period === 'PENALTIES') {
+                    penaltyMissSection.classList.remove('hidden');
+                } else {
+                    penaltyMissSection.classList.add('hidden');
+                }
+            }
+
+            if (liveIndicator) {
+                liveIndicator.className = match.isLive 
+                    ? 'w-2 h-2 rounded-full bg-red-500 animate-pulse' 
+                    : 'w-2 h-2 rounded-full bg-gray-400';
+            }
+            if (matchStatus) {
+                matchStatus.textContent = match.status;
+                matchStatus.className = match.status === 'LIVE' 
+                    ? 'text-xs font-bold text-red-500 uppercase' 
+                    : 'text-xs font-bold text-gray-500 uppercase';
+            }
+
+            if (match.stats) {
+                document.getElementById('home-possession').value = match.stats.homePossession;
+                document.getElementById('away-possession').value = match.stats.awayPossession;
+                document.getElementById('home-shots').value = match.stats.homeShots;
+                document.getElementById('away-shots').value = match.stats.awayShots;
+                document.getElementById('home-shots-target').value = match.stats.homeShotsOnTarget;
+                document.getElementById('away-shots-target').value = match.stats.awayShotsOnTarget;
+            }
+
+            updatePeriodButtons(match.period);
+        }
+
+        function updatePeriodButtons(currentPeriod) {
+            const buttons = {
+                'FIRST_HALF': document.getElementById('btn-first-half'),
+                'SECOND_HALF': document.getElementById('btn-second-half'),
+                'FIRST_EXTRA_HALF': document.getElementById('btn-extra-first'),
+                'SECOND_EXTRA_HALF': document.getElementById('btn-extra-second'),
+                'PENALTIES': document.getElementById('btn-penalties')
+            };
+
+            Object.keys(buttons).forEach(period => {
+                if (buttons[period]) {
+                    if (period === currentPeriod) {
+                        buttons[period].classList.add('ring-2', 'ring-offset-2', 'ring-pink-500');
+                    } else {
+                        buttons[period].classList.remove('ring-2', 'ring-offset-2', 'ring-pink-500');
+                    }
+                }
+            });
+        }
+
+        function setMatchPeriod(period) {
+            gameManager.updatePeriod(period);
+        }
+
+        function scheduleNewMatch() {
+            const homeSelect = document.getElementById('home-team-select');
+            const awaySelect = document.getElementById('away-team-select');
+            if (!homeSelect || !awaySelect) return;
+            
+            const homeTeamId = homeSelect.value;
+            const awayTeamId = awaySelect.value;
+            
+            if (homeTeamId === awayTeamId) {
+                alert('Please select different teams!');
+                return;
+            }
+            
+            if (confirm(`Schedule match: ${homeSelect.options[homeSelect.selectedIndex].text} vs ${awaySelect.options[awaySelect.selectedIndex].text}?`)) {
+                gameManager.scheduleMatch(homeTeamId, awayTeamId);
+                alert('Match scheduled!');
+            }
+        }
+
+        function startMatch() {
+            gameManager.startMatch();
+            alert('Match started!');
+        }
+
+        function addGoal(team, isPenalty) {
+            const player = prompt('Enter player name:');
+            if (!player) return;
+            
+            let assist;
+            if (!isPenalty) {
+                assist = prompt('Enter assist player (optional):');
+            }
+            
+            gameManager.addGoal(team, player, assist || undefined, isPenalty);
+        }
+
+        function addPenaltyMiss(team) {
+            const player = prompt('Enter player name:');
+            if (!player) return;
+            gameManager.addPenaltyMiss(team, player);
+            alert('Penalty miss recorded!');
+        }
+
+        function addYellowCard(team) {
+            const player = prompt('Enter player name:');
+            if (!player) return;
+            gameManager.addYellowCard(team, player);
+            alert('Yellow card added!');
+        }
+
+        function addRedCard(team) {
+            const player = prompt('Enter player name:');
+            if (!player) return;
+            gameManager.addRedCard(team, player);
+            alert('Red card added!');
+        }
+
+        function addSubstitution(team) {
+            const inPlayer = prompt('Enter player coming in:');
+            const outPlayer = prompt('Enter player going out:');
+            if (!inPlayer || !outPlayer) return;
+            gameManager.addSubstitution(team, inPlayer, outPlayer);
+            alert('Substitution added!');
+        }
+
+        function updateGameMinute() {
+            const input = document.getElementById('minute-input');
+            if (input) {
+                let minute = input.value;
+                if (!minute.endsWith("'")) minute += "'";
+                gameManager.updateMinute(minute);
+            }
+        }
+
+        function updateGameStats() {
+            const homePossession = parseInt(document.getElementById('home-possession').value);
+            const awayPossession = parseInt(document.getElementById('away-possession').value);
+            const homeShots = parseInt(document.getElementById('home-shots').value);
+            const awayShots = parseInt(document.getElementById('away-shots').value);
+            const homeShotsTarget = parseInt(document.getElementById('home-shots-target').value);
+            const awayShotsTarget = parseInt(document.getElementById('away-shots-target').value);
+            
+            gameManager.updateStats(homePossession, awayPossession, homeShots, awayShots, homeShotsTarget, awayShotsTarget);
+            alert('Stats updated!');
+        }
+
+        function endMatch() {
+            if (confirm('Are you sure you want to end the match? This will update the standings.')) {
+                gameManager.endMatch();
+                alert('Match ended! Standings have been updated.');
+            }
+        }
+
+        function resetMatch() {
+            if (confirm('Are you sure you want to reset the match and standings?')) {
+                gameManager.resetMatch();
+                alert('Match and standings reset!');
+            }
+        }
+
+        function renderUsers() {
+            const container = document.getElementById('users-container');
+            if (!container) return;
+
+            const users = JSON.parse(localStorage.getItem('users') || '[]');
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+
+            if (users.length === 0) {
+                container.innerHTML = '<p class="text-gray-500 text-sm">No users registered yet.</p>';
+                return;
+            }
+
+            container.innerHTML = users.map(user => {
+                const isCurrentUser = currentUser && currentUser.email === user.email;
+                const isPermanentAdmin = user.isPermanentAdmin;
+                return `
+                    <div class="flex items-center justify-between p-4 bg-pink-50 rounded-lg dark:bg-pink-900/20">
+                        <div class="flex items-center space-x-4">
+                            <div class="w-10 h-10 bg-pink-200 rounded-full flex items-center justify-center text-pink-700 font-bold">
+                                ${user.firstName.charAt(0)}${user.lastName.charAt(0)}
+                            </div>
+                            <div>
+                                <p class="font-bold text-[#1a061e] dark:text-white">
+                                    ${user.firstName} ${user.lastName}
+                                    ${isCurrentUser ? '<span class="text-xs text-pink-500 ml-2">(You)</span>' : ''}
+                                </p>
+                                <p class="text-sm text-gray-500">${user.email}</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            ${user.isAdmin ? `
+                                <span class="text-xs font-bold text-green-600 bg-green-100 px-3 py-1 rounded-full">
+                                    ${isPermanentAdmin ? 'Super Admin' : 'Admin'}
+                                </span>
+                            ` : `
+                                <button onclick="toggleAdminStatus(${user.id})" class="text-xs font-bold text-pink-600 bg-pink-100 px-3 py-1 rounded-full hover:bg-pink-200 transition-colors">
+                                    Make Admin
+                                </button>
+                            `}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+
+
+        function toggleAdminStatus(userId) {
+            if (!confirm('Are you sure you want to change this user\'s admin status?')) return;
+
+            let users = JSON.parse(localStorage.getItem('users') || '[]');
+            const userIndex = users.findIndex(u => u.id === userId);
+            
+            if (userIndex !== -1) {
+                if (users[userIndex].isPermanentAdmin) {
+                    alert('Cannot change Super Admin status!');
+                    return;
+                }
+                users[userIndex].isAdmin = !users[userIndex].isAdmin;
+                localStorage.setItem('users', JSON.stringify(users));
+                renderUsers();
+                alert('User admin status updated!');
+            }
+        }
+
+        function renderStandingsManagement() {
+            const container = document.getElementById('standings-management-container');
+            if (!container || typeof gameManager === 'undefined') return;
+
+            const standings = gameManager.getStandings();
+
+            if (standings.length === 0) {
+                container.innerHTML = '<p class="text-gray-500 text-sm">No standings data available.</p>';
+                return;
+            }
+
+            container.innerHTML = standings.map(standing => `
+                <div class="bg-pink-50 rounded-lg p-4 dark:bg-pink-900/20">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold" style="background-color: ${standing.team.logoBg}">
+                                ${standing.team.logoText}
+                            </div>
+                            <div>
+                                <p class="font-bold text-[#1a061e] dark:text-white">${standing.team.name}</p>
+                                <p class="text-xs text-gray-500">Position: ${standing.pos}</p>
+                            </div>
+                        </div>
+                        <div class="flex flex-col items-end">
+                            <p class="text-2xl font-black text-[#1a061e] dark:text-white">${standing.pts} pts</p>
+                            <p class="text-xs text-gray-500">GD: ${standing.gd > 0 ? '+' : ''}${standing.gd}</p>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-3">
+                        <div>
+                            <label class="text-[10px] font-bold text-gray-500">Points</label>
+                            <input type="number" id="pts-${standing.team.id}" value="${standing.pts}" class="input-box text-xs py-2" onchange="updateTeamStat('${standing.team.id}', 'pts', this.value)">
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-bold text-gray-500">Goals For</label>
+                            <input type="number" id="gf-${standing.team.id}" value="${standing.gf}" class="input-box text-xs py-2" onchange="updateTeamStat('${standing.team.id}', 'gf', this.value)">
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-bold text-gray-500">Goals Against</label>
+                            <input type="number" id="ga-${standing.team.id}" value="${standing.ga}" class="input-box text-xs py-2" onchange="updateTeamStat('${standing.team.id}', 'ga', this.value)">
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-bold text-gray-500">Played</label>
+                            <input type="number" id="mp-${standing.team.id}" value="${standing.mp}" class="input-box text-xs py-2" onchange="updateTeamStat('${standing.team.id}', 'mp', this.value)">
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-3 gap-2">
+                        <button onclick="deductPoints('${standing.team.id}')" class="bg-red-500 hover:bg-red-600 text-white py-2 rounded-lg text-xs font-bold">
+                            <i class="fas fa-minus mr-1"></i> Deduct Points
+                        </button>
+                        <button onclick="resetTeamStanding('${standing.team.id}')" class="bg-yellow-500 hover:bg-yellow-600 text-white py-2 rounded-lg text-xs font-bold">
+                            <i class="fas fa-undo mr-1"></i> Reset Team
+                        </button>
+                        <button onclick="updateTeamForm('${standing.team.id}')" class="bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-lg text-xs font-bold">
+                            <i class="fas fa-history mr-1"></i> Edit Form
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateTeamStat(teamId, stat, value) {
+            if (typeof gameManager === 'undefined') return;
+
+            let standings = [...gameManager.getStandings()];
+            const teamIndex = standings.findIndex(s => s.team.id === teamId);
+            
+            if (teamIndex !== -1) {
+                standings[teamIndex][stat] = parseInt(value) || 0;
+                
+                if (stat === 'gf' || stat === 'ga') {
+                    standings[teamIndex].gd = standings[teamIndex].gf - standings[teamIndex].ga;
+                }
+
+                standings.sort((a, b) => {
+                    if (b.pts !== a.pts) return b.pts - a.pts;
+                    if (b.gd !== a.gd) return b.gd - a.gd;
+                    return b.gf - a.gf;
+                });
+
+                standings.forEach((s, idx) => s.pos = idx + 1);
+
+                localStorage.setItem('standings', JSON.stringify(standings));
+                gameManager.standings = standings;
+                gameManager.notifySubscribers();
+                renderStandingsManagement();
+            }
+        }
+
+        function deductPoints(teamId) {
+            const points = prompt('How many points to deduct?');
+            if (!points) return;
+
+            const deduction = parseInt(points);
+            if (isNaN(deduction) || deduction <= 0) {
+                alert('Please enter a valid positive number');
+                return;
+            }
+
+            if (typeof gameManager === 'undefined') return;
+
+            let standings = [...gameManager.getStandings()];
+            const teamIndex = standings.findIndex(s => s.team.id === teamId);
+            
+            if (teamIndex !== -1) {
+                standings[teamIndex].pts = Math.max(0, standings[teamIndex].pts - deduction);
+
+                standings.sort((a, b) => {
+                    if (b.pts !== a.pts) return b.pts - a.pts;
+                    if (b.gd !== a.gd) return b.gd - a.gd;
+                    return b.gf - a.gf;
+                });
+
+                standings.forEach((s, idx) => s.pos = idx + 1);
+
+                localStorage.setItem('standings', JSON.stringify(standings));
+                gameManager.standings = standings;
+                gameManager.notifySubscribers();
+                renderStandingsManagement();
+                alert(`Deducted ${deduction} points!`);
+            }
+        }
+
+        function resetTeamStanding(teamId) {
+            if (!confirm('Are you sure you want to reset this team\'s standing?')) return;
+
+            if (typeof gameManager === 'undefined') return;
+
+            let standings = [...gameManager.getStandings()];
+            const teamIndex = standings.findIndex(s => s.team.id === teamId);
+            
+            if (teamIndex !== -1) {
+                standings[teamIndex].mp = 0;
+                standings[teamIndex].w = 0;
+                standings[teamIndex].d = 0;
+                standings[teamIndex].l = 0;
+                standings[teamIndex].gf = 0;
+                standings[teamIndex].ga = 0;
+                standings[teamIndex].gd = 0;
+                standings[teamIndex].pts = 0;
+                standings[teamIndex].form = [];
+
+                standings.sort((a, b) => {
+                    if (b.pts !== a.pts) return b.pts - a.pts;
+                    if (b.gd !== a.gd) return b.gd - a.gd;
+                    return b.gf - a.gf;
+                });
+
+                standings.forEach((s, idx) => s.pos = idx + 1);
+
+                localStorage.setItem('standings', JSON.stringify(standings));
+                gameManager.standings = standings;
+                gameManager.notifySubscribers();
+                renderStandingsManagement();
+                alert('Team standing reset!');
+            }
+        }
+
+        function resetAllStandings() {
+            if (!confirm('Are you sure you want to reset ALL standings to default (with random data)? This cannot be undone!')) return;
+
+            if (typeof gameManager !== 'undefined') {
+                gameManager.resetMatch();
+                renderStandingsManagement();
+                alert('All standings reset to default!');
+            }
+        }
+
+        function resetAllStandingsToZero() {
+            if (!confirm('Are you sure you want to zero ALL standings? This will set all stats to 0!')) return;
+
+            if (typeof gameManager !== 'undefined') {
+                gameManager.resetAllStandingsToZero();
+                renderStandingsManagement();
+                alert('All standings set to zero!');
+            }
+        }
+
+        function updateTeamForm(teamId) {
+            alert('Form editing coming soon! For now, you can reset the team.');
+        }
+
+        // Run on load
+        loadTheme();
+        checkAdmin();
+        renderUsers();
+        renderStandingsManagement();
+
+        if (typeof teams !== 'undefined') {
+            populateTeamSelects();
+        }
+
+        // Subscribe to game manager updates
+        if (typeof gameManager !== 'undefined') {
+            gameManager.subscribe((standings, match) => {
+                updateMatchDisplay(match);
+                renderStandingsManagement();
+            });
+        }
+    </script>
+</body>
+</html>

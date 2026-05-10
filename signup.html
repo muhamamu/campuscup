@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - Campus Cup</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #fdf2f8; }
+        .login-card { background-color: #fef2f2; border-top: 4px solid #1a061e; }
+        .input-field { background-color: #fae8ff; }
+        .btn-primary { background-color: #1a061e; }
+        .btn-primary:hover { background-color: #2d0a33; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+    <nav class="bg-[#1a061e] text-white p-4 shadow-md">
+        <div class="container mx-auto flex justify-between items-center">
+            <div class="text-xl font-bold tracking-wider uppercase">CAMPUS CUP</div>
+            <button onclick="toggleDarkMode()" class="text-white hover:opacity-70" id="theme-toggle">
+                <i class="fas fa-moon text-xl"></i>
+            </button>
+        </div>
+    </nav>
+
+    <main class="flex-grow flex items-center justify-center p-6">
+        <div class="login-card w-full max-w-md p-8 rounded-lg shadow-xl">
+            <div class="text-center mb-10">
+                <h1 class="text-2xl md:text-3xl font-bold text-[#1a061e] mb-2 uppercase tracking-tight">Create Account</h1>
+                <p class="text-gray-500 text-sm">Join the Lion's Edge stadium experience.</p>
+            </div>
+
+            <form class="space-y-4" id="signup-form">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-[#1a061e] text-xs font-bold mb-1">First Name</label>
+                        <input class="input-field w-full px-4 py-3 rounded-lg focus:outline-none text-gray-700 text-sm" id="first-name" type="text" placeholder="John" required>
+                    </div>
+                    <div>
+                        <label class="block text-[#1a061e] text-xs font-bold mb-1">Last Name</label>
+                        <input class="input-field w-full px-4 py-3 rounded-lg focus:outline-none text-gray-700 text-sm" id="last-name" type="text" placeholder="Davis" required>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-[#1a061e] text-xs font-bold mb-1">Email</label>
+                    <input class="input-field w-full px-4 py-3 rounded-lg focus:outline-none text-gray-700 text-sm" id="email" type="email" placeholder="user@lionsedge.com" required>
+                </div>
+                <div>
+                    <label class="block text-[#1a061e] text-xs font-bold mb-1">Password</label>
+                    <input class="input-field w-full px-4 py-3 rounded-lg focus:outline-none text-gray-700 text-sm" id="password" type="password" placeholder="••••••••" required>
+                </div>
+                <button class="btn-primary w-full text-white font-bold py-4 rounded-lg shadow-lg hover:shadow-xl transition-all uppercase tracking-widest mt-4" type="button" onclick="doSignup()">Sign Up</button>
+            </form>
+            
+            <div class="mt-8 text-center">
+                <p class="text-sm text-gray-500">Already have an account? <a href="login.html" class="text-[#be185d] font-bold hover:underline">Login</a></p>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const SUPABASE_URL = 'https://zpciirbchnejpupgapcr.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_b3XbVn4zL26XFCkgg7I5-Q_5J80jsWU';
+        const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        function toggleDarkMode() {
+            const isDark = document.documentElement.classList.toggle('dark-mode');
+            localStorage.setItem('darkMode', isDark ? 'true' : 'false');
+        }
+
+        async function doSignup() {
+            alert('Starting signup...');
+
+            const firstName = document.getElementById('first-name').value;
+            const lastName = document.getElementById('last-name').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            try {
+                alert('Checking user count...');
+                const { data: users } = await sb.from('users').select('*');
+                const userCount = users ? users.length : 0;
+                const isAdmin = userCount === 0;
+                alert('User count: ' + userCount + ', isAdmin: ' + isAdmin);
+
+                alert('Signing up auth user...');
+                const { data, error } = await sb.auth.signUp({ email, password });
+                if (error) throw error;
+
+                alert('Saving to users table...');
+                await sb.from('users').insert({
+                    id: data.user.id,
+                    first_name: firstName,
+                    last_name: lastName,
+                    email: email,
+                    password: password,
+                    is_admin: isAdmin,
+                    is_permanent_admin: isAdmin
+                });
+
+                alert('✅ DONE! Now go to login.html');
+                window.location.href = 'login.html';
+
+            } catch (err) {
+                console.error(err);
+                alert('❌ ERROR: ' + err.message);
+            }
+        }
+    </script>
+</body>
+</html>

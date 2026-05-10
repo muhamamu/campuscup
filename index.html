@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Campus Cup</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+        * {
+            box-sizing: border-box;
+        }
+        html, body, nav, main, div, section {
+            overflow-x: hidden !important;
+            max-width: 100vw !important;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: white;
+        }
+        
+        /* Dark Mode Styles */
+        .dark-mode body {
+            background-color: #000000;
+        }
+        
+        .dark-mode .dark-bg-white {
+            background-color: #111111 !important;
+        }
+        
+        .dark-mode .dark-text-primary {
+            color: #ffffff !important;
+        }
+        
+        .dark-mode .dark-text-secondary {
+            color: #9ca3af !important;
+        }
+        
+        .dark-mode .dark-card-bg {
+            background-color: #1f1f1f !important;
+        }
+        
+        .dark-mode .dark-input-bg {
+            background-color: #2a2a2a !important;
+        }
+        
+        .dark-mode .score-card {
+            background: linear-gradient(to bottom, #111111, #1f1f1f);
+        }
+        
+        .dark-mode .team-logo-bg {
+            background-color: #1f1f1f;
+        }
+        
+        .dark-mode .match-event-card {
+            background-color: #111111;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+        }
+        
+        .dark-mode .timeline-line {
+            background-color: #1f1f1f;
+        }
+        
+        .dark-mode .stat-bar-bg {
+            background-color: #1f1f1f;
+        }
+        
+        .dark-mode .commentary-box {
+            background-color: #1f1f1f;
+        }
+        
+        .dark-mode .match-stats-card {
+            background-color: #111111 !important;
+            border-color: #2a2a2a !important;
+        }
+        
+        .dark-mode .dashboard-text-primary {
+            color: #ffffff !important;
+        }
+        
+        .dark-mode .dashboard-text-secondary {
+            color: #9ca3af !important;
+        }
+        
+        /* Dashboard Styles */
+        .nav-link {
+            color: #fef2f8;
+            font-weight: 500;
+            font-size: 0.875rem;
+            padding: 0.5rem 1rem;
+            transition: all 0.2s;
+            cursor: pointer;
+            border: 1px solid transparent;
+        }
+        .nav-link:hover {
+            color: #f472b6;
+        }
+        .nav-link-active {
+            color: #1a061e;
+            border: 1px solid #f472b6;
+            border-radius: 8px;
+            background-color: white;
+        }
+        .dark-mode .nav-link {
+            color: #9ca3af;
+        }
+        .dark-mode .nav-link:hover {
+            color: #ffffff;
+        }
+        .dark-mode .nav-link-active {
+            color: #ffffff;
+            border-color: #f472b6;
+            background-color: #2a2a4a;
+        }
+        .search-input {
+            background-color: #fce7f3;
+        }
+        .dark-mode .search-input {
+            background-color: #2a2a4a;
+            color: #ffffff;
+        }
+        .score-card {
+            background: linear-gradient(to bottom, #fdf2f8, #f5f3ff);
+            border-radius: 24px;
+        }
+        .dark-mode .score-card {
+            background: linear-gradient(to bottom, #1a1a2e, #2a2a4a);
+        }
+        .team-logo-bg {
+            background-color: #fce7f3;
+            border-radius: 20px;
+        }
+        .dark-mode .team-logo-bg {
+            background-color: #2a2a4a;
+        }
+        .match-event-card {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .dark-mode .match-event-card {
+            background-color: #1a1a2e;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+        }
+        .timeline-line {
+            width: 2px;
+            background-color: #fce7f3;
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 20px;
+            z-index: 0;
+        }
+        .dark-mode .timeline-line {
+            background-color: #2a2a4a;
+        }
+        .timeline-dot {
+            width: 40px;
+            height: 40px;
+            background-color: #be185d;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: bold;
+            z-index: 10;
+            position: relative;
+        }
+        .stat-bar-bg {
+            background-color: #f3f4f6;
+            height: 6px;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        .dark-mode .stat-bar-bg {
+            background-color: #2a2a4a;
+        }
+        .commentary-box {
+            background-color: #1a061e;
+            border-radius: 16px;
+            color: white;
+        }
+        .dark-mode .commentary-box {
+            background-color: #2a2a4a;
+        }
+        .hidden {
+            display: none !important;
+        }
+        .page-view {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Mobile Menu Styles */
+        #mobile-menu {
+            transition: transform 0.3s ease-in-out;
+            transform: translateX(-100%);
+        }
+        #mobile-menu.active {
+            transform: translateX(0);
+        }
+        
+        /* Ensure all text is readable on mobile */
+        @media (max-width: 768px) {
+            .score-card {
+                padding: 24px 16px !important;
+            }
+            
+            .team-logo-bg, #away-logo-container {
+                width: 80px !important;
+                height: 80px !important;
+            }
+            
+            .team-logo-bg div, #away-logo-text {
+                width: 56px !important;
+                height: 56px !important;
+                font-size: 16px !important;
+            }
+            
+            .text-6xl {
+                font-size: 48px !important;
+            }
+            
+            .text-4xl {
+                font-size: 28px !important;
+            }
+            
+
+            
+            /* Ensure container doesn't overflow */
+            body, html {
+                overflow-x: hidden !important;
+            }
+            
+            /* Make grid items stack on mobile */
+            .grid-cols-2 {
+                grid-template-columns: 1fr !important;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col overflow-x-hidden">
+
+    <!-- Navbar Container -->
+    <div id="navbar-container"></div>
+
+    <!-- Main Content Area -->
+    <main class="flex-grow p-4 md:p-12 max-w-7xl mx-auto w-full">
+        
+        <div id="dashboard-page" class="page-view">
+            <!-- Score Card -->
+            <section class="score-card w-full p-6 md:p-12 mb-8 md:mb-12 flex flex-col items-center relative overflow-hidden">
+                <div class="absolute top-4 md:top-6 left-1/2 -translate-x-1/2 bg-white px-4 py-1 rounded-full text-[10px] font-bold text-gray-400 flex items-center space-x-2 border border-gray-100 shadow-sm flex-col">
+                    <div class="flex items-center space-x-2">
+                        <span id="live-indicator-dot" class="w-2 h-2 rounded-full bg-pink-500"></span>
+                        <span id="match-period-display" class="font-bold">1st Half</span>
+                    </div>
+                    <span id="live-minute">LIVE - 0'</span>
+                </div>
+                <div class="flex flex-col md:flex-row items-center justify-between w-full max-w-4xl space-y-8 md:space-y-0">
+                    <div class="flex flex-col items-center space-y-4">
+                        <div id="home-logo-container" class="team-logo-bg w-24 h-24 md:w-32 md:h-32 flex items-center justify-center shadow-sm">
+                            <div id="home-logo-text" class="w-16 h-16 md:w-20 md:h-20 bg-[#1a061e] rounded-full flex items-center justify-center text-white font-black text-xl md:text-2xl">LIO</div>
+                        </div>
+                        <h2 id="home-team-name" class="text-lg md:text-2xl font-extrabold text-[#1a061e] text-center">Architecture 100L</h2>
+                        <span class="bg-pink-100 text-pink-500 text-[10px] font-bold px-4 py-1 rounded-full uppercase">Home</span>
+                        <div id="home-penalty-display" class="text-sm font-bold text-gray-500 hidden">0 pens</div>
+                    </div>
+                    <div class="text-6xl md:text-8xl font-black text-[#1a061e] flex flex-col items-center space-y-2">
+                        <div class="flex items-center space-x-4">
+                            <span id="home-score-display">0</span><span class="text-gray-200">-</span><span id="away-score-display">0</span>
+                        </div>
+                        <div id="penalty-scores" class="text-2xl font-bold text-gray-400 hidden">
+                            <span id="home-penalty-score">0</span> - <span id="away-penalty-score">0</span> pens
+                        </div>
+                    </div>
+                    <div class="flex flex-col items-center space-y-4">
+                        <div id="away-logo-container" class="bg-white w-24 h-24 md:w-32 md:h-32 flex items-center justify-center rounded-[20px] shadow-sm">
+                            <div id="away-logo-text" class="w-16 h-16 md:w-20 md:h-20 bg-purple-900 rounded-full flex items-center justify-center text-white font-black text-xl md:text-2xl">EAG</div>
+                        </div>
+                        <h2 id="away-team-name" class="text-lg md:text-2xl font-extrabold text-[#1a061e] text-center">Theatre Art 200L</h2>
+                        <span class="bg-pink-50 text-pink-300 text-[10px] font-bold px-4 py-1 rounded-full uppercase">Away</span>
+                        <div id="away-penalty-display" class="text-sm font-bold text-gray-500 hidden">0 pens</div>
+                    </div>
+                </div>
+            </section>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 md:gap-12">
+                <div class="lg:col-span-2">
+                    <div class="flex items-center justify-between mb-8">
+                        <h3 class="text-xl font-extrabold text-[#1a061e]">Match Feed</h3>
+                        <div class="flex space-x-2 md:space-x-4 text-[10px] md:text-xs font-bold">
+                            <button class="text-gray-400">All Events</button>
+                            <button class="bg-pink-100 text-pink-500 px-3 py-1 rounded-full">Goals Only</button>
+                        </div>
+                    </div>
+
+                    <div id="match-feed-container" class="relative pl-12 space-y-8">
+                        <div class="timeline-line"></div>
+                    </div>
+                </div>
+
+                <div class="space-y-8">
+                    <div id="match-stats-card" class="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-50 match-stats-card">
+                        <h3 class="text-xl font-extrabold text-[#1a061e] mb-8 dashboard-text-primary">Match Stats</h3>
+                        <div id="match-stats-container" class="space-y-8 text-[10px] font-bold uppercase text-gray-400">
+                        </div>
+                    </div>
+                    <div class="commentary-box p-6 md:p-8 relative overflow-hidden">
+                        <div class="relative z-10">
+                            <h3 class="text-xl font-bold mb-2">Join the Commentary</h3>
+                            <p class="text-gray-400 text-xs mb-6">Share your thoughts on the match with other fans in the Live Hub.</p>
+                            <button class="bg-white text-[#1a061e] text-[10px] font-black px-6 py-3 rounded-lg uppercase tracking-widest hover:bg-pink-50 transition-colors">Enter Hub</button>
+                        </div>
+                        <div class="absolute -bottom-10 -right-10 w-32 h-32 border-[12px] border-white/5 rounded-full"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="supabase.js"></script>
+    <script src="navbar.js"></script>
+    <script src="game-manager.js"></script>
+    <script>
+        function checkAuth() {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            if (!currentUser) {
+                window.location.href = 'login.html';
+                return false;
+            }
+            return currentUser;
+        }
+
+        function checkAdmin() {
+            const currentUser = checkAuth();
+            if (!currentUser) return;
+            
+            const adminLinks = document.querySelectorAll('[href="admin.html"]');
+            adminLinks.forEach(link => {
+                if (!currentUser.isAdmin) {
+                    link.classList.add('hidden');
+                } else {
+                    link.classList.remove('hidden');
+                }
+            });
+        }
+
+        // Run on load
+        loadNavbar('dashboard');
+        checkAdmin();
+
+        function updateLiveMatch(match) {
+            const homeTeamNameEl = document.getElementById('home-team-name');
+            const awayTeamNameEl = document.getElementById('away-team-name');
+            const homeScoreEl = document.getElementById('home-score-display');
+            const awayScoreEl = document.getElementById('away-score-display');
+            const liveMinuteEl = document.getElementById('live-minute');
+            const matchPeriodDisplayEl = document.getElementById('match-period-display');
+            const homeLogoTextEl = document.getElementById('home-logo-text');
+            const awayLogoTextEl = document.getElementById('away-logo-text');
+            const liveIndicatorDot = document.getElementById('live-indicator-dot');
+            const homePenaltyDisplay = document.getElementById('home-penalty-display');
+            const awayPenaltyDisplay = document.getElementById('away-penalty-display');
+            const penaltyScores = document.getElementById('penalty-scores');
+            const homePenaltyScore = document.getElementById('home-penalty-score');
+            const awayPenaltyScore = document.getElementById('away-penalty-score');
+
+            const periodNames = {
+                'FIRST_HALF': '1st Half',
+                'SECOND_HALF': '2nd Half',
+                'FIRST_EXTRA_HALF': '1st Extra',
+                'SECOND_EXTRA_HALF': '2nd Extra',
+                'PENALTIES': 'Penalties'
+            };
+
+            if (homeTeamNameEl) homeTeamNameEl.textContent = match.homeTeam.name;
+            if (awayTeamNameEl) awayTeamNameEl.textContent = match.awayTeam.name;
+            if (homeScoreEl) homeScoreEl.textContent = match.homeScore;
+            if (awayScoreEl) awayScoreEl.textContent = match.awayScore;
+            if (matchPeriodDisplayEl) matchPeriodDisplayEl.textContent = periodNames[match.period] || '1st Half';
+            
+            if (liveMinuteEl) {
+                liveMinuteEl.textContent = match.status === 'FULL TIME' 
+                    ? 'FULL TIME' 
+                    : match.period === 'PENALTIES' 
+                    ? 'PENALTIES' 
+                    : `${match.status} - ${match.minute}`;
+            }
+            
+            if (liveIndicatorDot) {
+                liveIndicatorDot.className = match.status === 'LIVE' 
+                    ? 'w-2 h-2 rounded-full bg-pink-500 animate-pulse' 
+                    : 'w-2 h-2 rounded-full bg-gray-400';
+            }
+            
+            if (homeLogoTextEl) {
+                homeLogoTextEl.textContent = match.homeTeam.logoText;
+                homeLogoTextEl.style.backgroundColor = match.homeTeam.logoBg;
+            }
+            
+            if (awayLogoTextEl) {
+                awayLogoTextEl.textContent = match.awayTeam.logoText;
+                awayLogoTextEl.style.backgroundColor = match.awayTeam.logoBg;
+            }
+
+            if (homePenaltyDisplay && awayPenaltyDisplay && penaltyScores) {
+                if (match.period === 'PENALTIES' || (match.homePenalties > 0 || match.awayPenalties > 0)) {
+                    homePenaltyDisplay.classList.remove('hidden');
+                    awayPenaltyDisplay.classList.remove('hidden');
+                    penaltyScores.classList.remove('hidden');
+                    homePenaltyDisplay.textContent = `${match.homePenalties} pens`;
+                    awayPenaltyDisplay.textContent = `${match.awayPenalties} pens`;
+                    if (homePenaltyScore) homePenaltyScore.textContent = match.homePenalties;
+                    if (awayPenaltyScore) awayPenaltyScore.textContent = match.awayPenalties;
+                } else {
+                    homePenaltyDisplay.classList.add('hidden');
+                    awayPenaltyDisplay.classList.add('hidden');
+                    penaltyScores.classList.add('hidden');
+                }
+            }
+
+            renderMatchFeed(match.events);
+            renderMatchStats(match.stats);
+        }
+
+        function renderMatchFeed(events) {
+            const container = document.getElementById('match-feed-container');
+            if (!container) return;
+
+            const eventsHtml = events.map((event, index) => {
+                let icon, color, borderColor, text, eventType;
+                
+                switch(event.type) {
+                    case 'goal':
+                        icon = 'fas fa-futbol';
+                        color = event.team === 'home' ? 'text-pink-500' : 'text-purple-900';
+                        borderColor = event.team === 'home' ? 'border-pink-500' : 'border-purple-900';
+                        eventType = event.team === 'home' ? 'Goal - Home' : 'Goal - Away';
+                        text = `<h4 class="font-bold text-[#1a061e] text-lg mb-1 dashboard-text-primary">${event.player}</h4>
+                                <p class="text-gray-400 text-sm dashboard-text-secondary">${event.assist ? `Assist by ${event.assist}.` : 'Great goal!'}</p>`;
+                        break;
+                    case 'penalty-goal':
+                        icon = 'fas fa-bullseye';
+                        color = event.team === 'home' ? 'text-pink-500' : 'text-purple-900';
+                        borderColor = event.team === 'home' ? 'border-pink-500' : 'border-purple-900';
+                        eventType = event.team === 'home' ? 'Penalty Goal - Home' : 'Penalty Goal - Away';
+                        text = `<h4 class="font-bold text-[#1a061e] text-lg mb-1 dashboard-text-primary">${event.player}</h4>
+                                <p class="text-gray-400 text-sm dashboard-text-secondary">Penalty scored!</p>`;
+                        break;
+                    case 'penalty-miss':
+                        icon = 'fas fa-times';
+                        color = 'text-red-500';
+                        borderColor = '';
+                        eventType = event.team === 'home' ? 'Penalty Miss - Home' : 'Penalty Miss - Away';
+                        text = `<h4 class="font-bold text-[#1a061e] text-lg mb-1 dashboard-text-primary">${event.player}</h4>
+                                <p class="text-gray-400 text-sm dashboard-text-secondary">Penalty missed!</p>`;
+                        break;
+                    case 'yellow-card':
+                        icon = 'fas fa-square';
+                        color = 'text-yellow-500';
+                        borderColor = '';
+                        eventType = 'Yellow Card';
+                        text = `<h4 class="font-bold text-[#1a061e] mb-1 dashboard-text-primary">${event.player}</h4>
+                                <p class="text-gray-400 text-sm dashboard-text-secondary">Booked.</p>`;
+                        break;
+                    case 'red-card':
+                        icon = 'fas fa-square';
+                        color = 'text-red-600';
+                        borderColor = '';
+                        eventType = 'Red Card';
+                        text = `<h4 class="font-bold text-[#1a061e] mb-1 dashboard-text-primary">${event.player}</h4>
+                                <p class="text-gray-400 text-sm dashboard-text-secondary">Sent off!</p>`;
+                        break;
+                    case 'substitution':
+                        icon = 'fas fa-exchange-alt';
+                        color = 'text-gray-400';
+                        borderColor = '';
+                        eventType = 'Substitution';
+                        text = `<div class="space-y-1 text-sm font-bold">
+                                    <p class="text-green-500">In: ${event.inPlayer}</p>
+                                    <p class="text-pink-500">Out: ${event.outPlayer}</p>
+                                </div>`;
+                        break;
+                }
+
+                const isGoalEvent = event.type === 'goal' || event.type === 'penalty-goal';
+                return `
+                    <div class="relative">
+                        <div class="absolute -left-[52px] timeline-dot ${isGoalEvent ? '' : 'bg-white border-2 border-pink-100 text-pink-300'}">${event.minute}</div>
+                        <div class="match-event-card p-6 ${borderColor ? 'border-l-4 ' + borderColor : ''}">
+                            <div class="flex items-center space-x-2 text-[10px] font-bold ${color} uppercase mb-2"><i class="${icon}"></i><span>${eventType}</span></div>
+                            ${text}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            container.innerHTML = `<div class="timeline-line"></div>${eventsHtml}`;
+        }
+
+        function renderMatchStats(stats) {
+            const container = document.getElementById('match-stats-container');
+            if (!container || !stats) return;
+
+            const totalShots = stats.homeShots + stats.awayShots;
+            const homeShotsPercent = totalShots > 0 ? Math.round((stats.homeShots / totalShots) * 100) : 50;
+            const awayShotsPercent = 100 - homeShotsPercent;
+
+            container.innerHTML = `
+                <div class="space-y-2">
+                    <div class="flex justify-between"><span class="dashboard-text-secondary">${stats.homePossession}%</span><span class="dashboard-text-secondary">Possession</span><span class="dashboard-text-secondary">${stats.awayPossession}%</span></div>
+                    <div class="stat-bar-bg flex"><div class="bg-[#1a061e]" style="width: ${stats.homePossession}%"></div><div class="bg-pink-100" style="width: ${stats.awayPossession}%"></div></div>
+                </div>
+                <div class="space-y-2">
+                    <div class="flex justify-between"><span class="dashboard-text-secondary">${stats.homeShots}</span><span class="dashboard-text-secondary">Shots</span><span class="dashboard-text-secondary">${stats.awayShots}</span></div>
+                    <div class="stat-bar-bg flex"><div class="bg-[#1a061e]" style="width: ${homeShotsPercent}%"></div><div class="bg-pink-100" style="width: ${awayShotsPercent}%"></div></div>
+                </div>
+                <div class="space-y-2">
+                    <div class="flex justify-between"><span class="dashboard-text-secondary">${stats.homeShotsOnTarget}</span><span class="dashboard-text-secondary">Shots on Target</span><span class="dashboard-text-secondary">${stats.awayShotsOnTarget}</span></div>
+                    <div class="stat-bar-bg flex"><div class="bg-[#1a061e]" style="width: 66.6%"></div><div class="bg-pink-100" style="width: 33.3%"></div></div>
+                </div>
+            `;
+        }
+
+        // Run on load
+        loadTheme();
+        checkAdmin();
+
+        // Subscribe to game manager updates
+        if (typeof gameManager !== 'undefined') {
+            gameManager.subscribe((standings, match) => {
+                updateLiveMatch(match);
+            });
+        }
+    </script>
+</body>
+</html>

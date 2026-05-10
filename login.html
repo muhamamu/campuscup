@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Campus Cup</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #fdf2f8; }
+        .login-card { background-color: #fef2f2; border-top: 4px solid #1a061e; }
+        .input-field { background-color: #fae8ff; }
+        .btn-primary { background-color: #1a061e; }
+        .btn-primary:hover { background-color: #2d0a33; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+    <nav class="bg-[#1a061e] text-white p-4 shadow-md">
+        <div class="container mx-auto flex justify-between items-center">
+            <div class="text-xl font-bold tracking-wider uppercase">CAMPUS CUP</div>
+            <button onclick="toggleDarkMode()" class="text-white hover:opacity-70" id="theme-toggle">
+                <i class="fas fa-moon text-xl"></i>
+            </button>
+        </div>
+    </nav>
+
+    <main class="flex-grow flex items-center justify-center p-6">
+        <div class="login-card w-full max-w-md p-8 rounded-lg shadow-xl">
+            <div class="text-center mb-10">
+                <h1 class="text-2xl md:text-3xl font-bold text-[#1a061e] mb-2 uppercase tracking-tight">
+                    Secure Access Portal
+                </h1>
+                <p class="text-gray-500 text-sm">
+                    Enter your credentials to enter the stadium.
+                </p>
+            </div>
+
+            <form class="space-y-6">
+                <div>
+                    <label class="block text-[#1a061e] text-sm font-semibold mb-2">Email</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                            <i class="far fa-user text-sm"></i>
+                        </span>
+                        <input class="input-field w-full pl-10 pr-4 py-3 rounded-lg focus:outline-none text-gray-700" id="email" type="email" placeholder="user@lionsedge.com" required>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-[#1a061e] text-sm font-semibold mb-2">Password</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                            <i class="fas fa-lock text-sm"></i>
+                        </span>
+                        <input class="input-field w-full pl-10 pr-4 py-3 rounded-lg focus:outline-none text-gray-700" id="password" type="password" placeholder="••••••••" required>
+                    </div>
+                </div>
+
+                <button class="btn-primary w-full text-white font-bold py-4 rounded-lg shadow-lg hover:shadow-xl transition-all uppercase tracking-widest mt-4" type="button" onclick="doLogin()">
+                    Login
+                </button>
+            </form>
+            
+            <div class="mt-8 text-center">
+                <p class="text-sm text-gray-500">Don't have an account? <a href="signup.html" class="text-[#be185d] font-bold hover:underline">Sign Up</a></p>
+            </div>
+        </div>
+    </main>
+
+    <footer class="text-center p-4 text-gray-400 text-xs">
+        &copy; 2026 Lionsedge Stadium. All rights reserved.
+    </footer>
+
+    <script>
+        const SUPABASE_URL = 'https://zpciirbchnejpupgapcr.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_b3XbVn4zL26XFCkgg7I5-Q_5J80jsWU';
+        const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        function toggleDarkMode() {
+            const isDark = document.documentElement.classList.toggle('dark-mode');
+            localStorage.setItem('darkMode', isDark ? 'true' : 'false');
+        }
+
+        async function doLogin() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            try {
+                alert('Logging in...');
+                const { data, error } = await sb.auth.signInWithPassword({ email, password });
+                if (error) throw error;
+
+                alert('Getting user data...');
+                const { data: usersData } = await sb.from('users').select('*').eq('email', email).single();
+
+                const userData = usersData ? {
+                    id: usersData.id,
+                    firstName: usersData.first_name,
+                    lastName: usersData.last_name,
+                    email: usersData.email,
+                    isAdmin: usersData.is_admin
+                } : {
+                    id: data.user.id,
+                    firstName: email.split('@')[0],
+                    lastName: 'User',
+                    email,
+                    isAdmin: false
+                };
+
+                localStorage.setItem('currentUser', JSON.stringify(userData));
+                alert('✅ Login successful!');
+                window.location.href = 'index.html';
+
+            } catch (err) {
+                console.error(err);
+                alert('❌ Login failed: ' + err.message);
+            }
+        }
+    </script>
+</body>
+</html>

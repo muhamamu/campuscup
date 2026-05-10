@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - Campus Cup</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #fdf2f8; }
+        
+        /* Dark Mode Styles */
+        .dark-mode body {
+            background-color: #000000;
+        }
+        
+        .dark-mode .dark-bg-white {
+            background-color: #111111 !important;
+        }
+        
+        .dark-mode .dark-text-primary {
+            color: #ffffff !important;
+        }
+        
+        .dark-mode .dark-text-secondary {
+            color: #9ca3af !important;
+        }
+        
+        .dark-mode .dark-card-bg {
+            background-color: #1f1f1f !important;
+        }
+        
+        .dark-mode .profile-card {
+            background-color: #111111;
+        }
+        
+        .dark-mode .profile-text-primary {
+            color: #ffffff !important;
+        }
+        
+        .dark-mode .profile-text-secondary {
+            color: #9ca3af !important;
+        }
+        
+        .dark-mode .profile-bg-gray {
+            background-color: #1f1f1f !important;
+        }
+        
+        .nav-link { color: #fef2f8; font-weight: 500; font-size: 0.875rem; padding: 0.5rem 1rem; transition: all 0.2s; border: 1px solid transparent; }
+        .nav-link:hover { color: #f472b6; }
+        .nav-link-active { color: #1a061e; border: 1px solid #f472b6; border-radius: 8px; background-color: white; }
+        
+        .dark-mode .nav-link {
+            color: #9ca3af;
+        }
+        .dark-mode .nav-link:hover {
+            color: #ffffff;
+        }
+        .dark-mode .nav-link-active {
+            color: #ffffff;
+            border-color: #f472b6;
+            background-color: #2a2a4a;
+        }
+        
+        .profile-card { background-color: white; border-radius: 24px; }
+        .dark-mode .profile-card {
+            background-color: #1a1a2e;
+        }
+        
+        #mobile-menu { transition: transform 0.3s ease-in-out; transform: translateX(-100%); }
+        #mobile-menu.active { transform: translateX(0); }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col overflow-x-hidden">
+    <!-- Navbar Container -->
+    <div id="navbar-container"></div>
+
+    <main class="flex-grow p-4 md:p-12 max-w-4xl mx-auto w-full">
+        <div class="profile-card p-8 md:p-12 shadow-xl border border-pink-100">
+            <div class="flex flex-col md:flex-row items-center space-y-6 md:space-y-0 md:space-x-10 mb-12 border-b border-gray-100 pb-12">
+                <div id="profile-avatar" class="w-32 h-32 bg-pink-100 rounded-full flex items-center justify-center text-[#1a061e] text-5xl font-black shadow-inner">JD</div>
+                <div class="text-center md:text-left">
+                    <h2 id="profile-name" class="text-3xl font-black text-[#1a061e] uppercase tracking-tighter profile-text-primary">John Davis</h2>
+                    <p id="profile-email" class="text-gray-400 font-medium profile-text-secondary">user@lionsedge.com</p>
+                    <div class="flex space-x-2 mt-4 justify-center md:justify-start">
+                        <span class="bg-green-100 text-green-600 text-[10px] font-bold px-3 py-1 rounded-full uppercase">Verified Fan</span>
+                        <span class="bg-purple-100 text-purple-600 text-[10px] font-bold px-3 py-1 rounded-full uppercase">Lions Member</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="space-y-4">
+                    <h3 class="text-xs font-black text-gray-400 uppercase tracking-widest mb-4 profile-text-secondary">Account Details</h3>
+                    <div class="bg-gray-50 p-4 rounded-xl profile-bg-gray">
+                        <p class="text-[10px] font-bold text-gray-400 uppercase profile-text-secondary">Username</p>
+                        <p id="profile-username" class="font-bold text-[#1a061e] profile-text-primary">johndavis_26</p>
+                    </div>
+                    <div class="bg-gray-50 p-4 rounded-xl profile-bg-gray">
+                        <p class="text-[10px] font-bold text-gray-400 uppercase profile-text-secondary">Phone Number</p>
+                        <p class="font-bold text-[#1a061e] profile-text-primary">+234 812 345 6789</p>
+                    </div>
+                </div>
+                <div class="space-y-4">
+                    <h3 class="text-xs font-black text-gray-400 uppercase tracking-widest mb-4 profile-text-secondary">Preferences</h3>
+                    <button class="w-full flex justify-between items-center p-4 bg-gray-50 rounded-xl font-bold text-[#1a061e] hover:bg-pink-50 transition-colors profile-bg-gray">
+                        <span class="profile-text-primary">Notifications</span>
+                        <i class="fas fa-chevron-right text-gray-300"></i>
+                    </button>
+                    <button class="w-full flex justify-between items-center p-4 bg-gray-50 rounded-xl font-bold text-[#1a061e] hover:bg-pink-50 transition-colors profile-bg-gray">
+                        <span class="profile-text-primary">Security & Privacy</span>
+                        <i class="fas fa-chevron-right text-gray-300"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="navbar.js"></script>
+    <script>
+        function checkAuth() {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            if (!currentUser) {
+                window.location.href = 'login.html';
+                return false;
+            }
+            return currentUser;
+        }
+
+        function loadProfile() {
+            const currentUser = checkAuth();
+            if (!currentUser) return;
+            
+            document.getElementById('profile-name').textContent = currentUser.firstName + ' ' + currentUser.lastName;
+            document.getElementById('profile-email').textContent = currentUser.email;
+            document.getElementById('profile-username').textContent = currentUser.email.split('@')[0];
+            document.getElementById('profile-avatar').textContent = (currentUser.firstName[0] + currentUser.lastName[0]).toUpperCase();
+            
+            const adminLinks = document.querySelectorAll('[href="admin.html"]');
+            adminLinks.forEach(link => {
+                if (!currentUser.isAdmin) {
+                    link.classList.add('hidden');
+                } else {
+                    link.classList.remove('hidden');
+                }
+            });
+        }
+
+        // Run on load
+        loadNavbar('profile');
+        loadProfile();
+    </script>
+</body>
+</html>
