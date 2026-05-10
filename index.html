@@ -19,129 +19,36 @@
             font-family: 'Inter', sans-serif;
             background-color: white;
         }
-        
-        /* Dark Mode Styles */
-        .dark-mode body {
-            background-color: #000000;
+        .simple-nav {
+            background-color: #1a061e;
+            padding: 1rem 2rem;
         }
-        
-        .dark-mode .dark-bg-white {
-            background-color: #111111 !important;
-        }
-        
-        .dark-mode .dark-text-primary {
-            color: #ffffff !important;
-        }
-        
-        .dark-mode .dark-text-secondary {
-            color: #9ca3af !important;
-        }
-        
-        .dark-mode .dark-card-bg {
-            background-color: #1f1f1f !important;
-        }
-        
-        .dark-mode .dark-input-bg {
-            background-color: #2a2a2a !important;
-        }
-        
-        .dark-mode .score-card {
-            background: linear-gradient(to bottom, #111111, #1f1f1f);
-        }
-        
-        .dark-mode .team-logo-bg {
-            background-color: #1f1f1f;
-        }
-        
-        .dark-mode .match-event-card {
-            background-color: #111111;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
-        }
-        
-        .dark-mode .timeline-line {
-            background-color: #1f1f1f;
-        }
-        
-        .dark-mode .stat-bar-bg {
-            background-color: #1f1f1f;
-        }
-        
-        .dark-mode .commentary-box {
-            background-color: #1f1f1f;
-        }
-        
-        .dark-mode .match-stats-card {
-            background-color: #111111 !important;
-            border-color: #2a2a2a !important;
-        }
-        
-        .dark-mode .dashboard-text-primary {
-            color: #ffffff !important;
-        }
-        
-        .dark-mode .dashboard-text-secondary {
-            color: #9ca3af !important;
-        }
-        
-        /* Dashboard Styles */
-        .nav-link {
+        .simple-nav a {
             color: #fef2f8;
-            font-weight: 500;
-            font-size: 0.875rem;
+            text-decoration: none;
             padding: 0.5rem 1rem;
-            transition: all 0.2s;
-            cursor: pointer;
-            border: 1px solid transparent;
+            font-size: 0.875rem;
+            font-weight: 500;
         }
-        .nav-link:hover {
+        .simple-nav a:hover {
             color: #f472b6;
         }
-        .nav-link-active {
-            color: #1a061e;
-            border: 1px solid #f472b6;
-            border-radius: 8px;
-            background-color: white;
-        }
-        .dark-mode .nav-link {
-            color: #9ca3af;
-        }
-        .dark-mode .nav-link:hover {
-            color: #ffffff;
-        }
-        .dark-mode .nav-link-active {
-            color: #ffffff;
-            border-color: #f472b6;
-            background-color: #2a2a4a;
-        }
-        .search-input {
-            background-color: #fce7f3;
-        }
-        .dark-mode .search-input {
-            background-color: #2a2a4a;
-            color: #ffffff;
+        .simple-nav a.active {
+            color: #f472b6;
+            font-weight: bold;
         }
         .score-card {
             background: linear-gradient(to bottom, #fdf2f8, #f5f3ff);
             border-radius: 24px;
         }
-        .dark-mode .score-card {
-            background: linear-gradient(to bottom, #1a1a2e, #2a2a4a);
-        }
         .team-logo-bg {
             background-color: #fce7f3;
             border-radius: 20px;
-        }
-        .dark-mode .team-logo-bg {
-            background-color: #2a2a4a;
         }
         .match-event-card {
             background-color: white;
             border-radius: 12px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-        }
-        .dark-mode .match-event-card {
-            background-color: #1a1a2e;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
         }
         .timeline-line {
             width: 2px;
@@ -151,9 +58,6 @@
             bottom: 0;
             left: 20px;
             z-index: 0;
-        }
-        .dark-mode .timeline-line {
-            background-color: #2a2a4a;
         }
         .timeline-dot {
             width: 40px;
@@ -175,16 +79,10 @@
             border-radius: 3px;
             overflow: hidden;
         }
-        .dark-mode .stat-bar-bg {
-            background-color: #2a2a4a;
-        }
         .commentary-box {
             background-color: #1a061e;
             border-radius: 16px;
             color: white;
-        }
-        .dark-mode .commentary-box {
-            background-color: #2a2a4a;
         }
         .hidden {
             display: none !important;
@@ -196,49 +94,28 @@
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
-
-        /* Mobile Menu Styles */
-        #mobile-menu {
-            transition: transform 0.3s ease-in-out;
-            transform: translateX(-100%);
-        }
-        #mobile-menu.active {
-            transform: translateX(0);
-        }
-        
-        /* Ensure all text is readable on mobile */
         @media (max-width: 768px) {
             .score-card {
                 padding: 24px 16px !important;
             }
-            
             .team-logo-bg, #away-logo-container {
                 width: 80px !important;
                 height: 80px !important;
             }
-            
             .team-logo-bg div, #away-logo-text {
                 width: 56px !important;
                 height: 56px !important;
                 font-size: 16px !important;
             }
-            
             .text-6xl {
                 font-size: 48px !important;
             }
-            
             .text-4xl {
                 font-size: 28px !important;
             }
-            
-
-            
-            /* Ensure container doesn't overflow */
             body, html {
                 overflow-x: hidden !important;
             }
-            
-            /* Make grid items stack on mobile */
             .grid-cols-2 {
                 grid-template-columns: 1fr !important;
             }
@@ -247,8 +124,22 @@
 </head>
 <body class="min-h-screen flex flex-col overflow-x-hidden">
 
-    <!-- Navbar Container -->
-    <div id="navbar-container"></div>
+    <!-- Simple Navigation -->
+    <nav class="simple-nav flex items-center justify-between">
+        <div class="flex items-center space-x-2">
+            <a href="index.html" class="text-xl font-bold tracking-tight">
+                CAMPUS <span class="text-[#f472b6]">CUP</span>
+            </a>
+        </div>
+        <div class="flex items-center space-x-1">
+            <a href="index.html" class="active">Dashboard</a>
+            <a href="teams.html">Teams</a>
+            <a href="standings.html">Standings</a>
+            <a href="profile.html">Profile</a>
+            <a href="admin.html" id="admin-link" class="hidden">Admin</a>
+            <button onclick="logout()" class="text-[#fef2f8] hover:text-[#f472b6] text-sm font-medium ml-4">Logout</button>
+        </div>
+    </nav>
 
     <!-- Main Content Area -->
     <main class="flex-grow p-4 md:p-12 max-w-7xl mx-auto w-full">
@@ -307,8 +198,8 @@
                 </div>
 
                 <div class="space-y-8">
-                    <div id="match-stats-card" class="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-50 match-stats-card">
-                        <h3 class="text-xl font-extrabold text-[#1a061e] mb-8 dashboard-text-primary">Match Stats</h3>
+                    <div id="match-stats-card" class="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-50">
+                        <h3 class="text-xl font-extrabold text-[#1a061e] mb-8">Match Stats</h3>
                         <div id="match-stats-container" class="space-y-8 text-[10px] font-bold uppercase text-gray-400">
                         </div>
                     </div>
@@ -326,7 +217,6 @@
     </main>
 
     <script src="supabase.js"></script>
-    <script src="navbar.js"></script>
     <script src="game-manager.js"></script>
     <script>
         function checkAuth() {
@@ -342,21 +232,19 @@
             const currentUser = checkAuth();
             if (!currentUser) return;
             
-            const adminLinks = document.querySelectorAll('[href="admin.html"]');
-            adminLinks.forEach(link => {
-                if (!currentUser.isAdmin) {
-                    link.classList.add('hidden');
+            const adminLink = document.getElementById('admin-link');
+            if (adminLink) {
+                if (currentUser.isAdmin) {
+                    adminLink.classList.remove('hidden');
                 } else {
-                    link.classList.remove('hidden');
+                    adminLink.classList.add('hidden');
                 }
-            });
+            }
         }
 
-        // Run on load
-        const user = checkAuth();
-        if (user) {
-            loadNavbar('dashboard');
-            checkAdmin();
+        function logout() {
+            localStorage.removeItem('currentUser');
+            window.location.href = 'login.html';
         }
 
         function updateLiveMatch(match) {
@@ -446,40 +334,40 @@
                         color = event.team === 'home' ? 'text-pink-500' : 'text-purple-900';
                         borderColor = event.team === 'home' ? 'border-pink-500' : 'border-purple-900';
                         eventType = event.team === 'home' ? 'Goal - Home' : 'Goal - Away';
-                        text = `<h4 class="font-bold text-[#1a061e] text-lg mb-1 dashboard-text-primary">${event.player}</h4>
-                                <p class="text-gray-400 text-sm dashboard-text-secondary">${event.assist ? `Assist by ${event.assist}.` : 'Great goal!'}</p>`;
+                        text = `<h4 class="font-bold text-[#1a061e] text-lg mb-1">${event.player}</h4>
+                                <p class="text-gray-400 text-sm">${event.assist ? `Assist by ${event.assist}.` : 'Great goal!'}</p>`;
                         break;
                     case 'penalty-goal':
                         icon = 'fas fa-bullseye';
                         color = event.team === 'home' ? 'text-pink-500' : 'text-purple-900';
                         borderColor = event.team === 'home' ? 'border-pink-500' : 'border-purple-900';
                         eventType = event.team === 'home' ? 'Penalty Goal - Home' : 'Penalty Goal - Away';
-                        text = `<h4 class="font-bold text-[#1a061e] text-lg mb-1 dashboard-text-primary">${event.player}</h4>
-                                <p class="text-gray-400 text-sm dashboard-text-secondary">Penalty scored!</p>`;
+                        text = `<h4 class="font-bold text-[#1a061e] text-lg mb-1">${event.player}</h4>
+                                <p class="text-gray-400 text-sm">Penalty scored!</p>`;
                         break;
                     case 'penalty-miss':
                         icon = 'fas fa-times';
                         color = 'text-red-500';
                         borderColor = '';
                         eventType = event.team === 'home' ? 'Penalty Miss - Home' : 'Penalty Miss - Away';
-                        text = `<h4 class="font-bold text-[#1a061e] text-lg mb-1 dashboard-text-primary">${event.player}</h4>
-                                <p class="text-gray-400 text-sm dashboard-text-secondary">Penalty missed!</p>`;
+                        text = `<h4 class="font-bold text-[#1a061e] text-lg mb-1">${event.player}</h4>
+                                <p class="text-gray-400 text-sm">Penalty missed!</p>`;
                         break;
                     case 'yellow-card':
                         icon = 'fas fa-square';
                         color = 'text-yellow-500';
                         borderColor = '';
                         eventType = 'Yellow Card';
-                        text = `<h4 class="font-bold text-[#1a061e] mb-1 dashboard-text-primary">${event.player}</h4>
-                                <p class="text-gray-400 text-sm dashboard-text-secondary">Booked.</p>`;
+                        text = `<h4 class="font-bold text-[#1a061e] mb-1">${event.player}</h4>
+                                <p class="text-gray-400 text-sm">Booked.</p>`;
                         break;
                     case 'red-card':
                         icon = 'fas fa-square';
                         color = 'text-red-600';
                         borderColor = '';
                         eventType = 'Red Card';
-                        text = `<h4 class="font-bold text-[#1a061e] mb-1 dashboard-text-primary">${event.player}</h4>
-                                <p class="text-gray-400 text-sm dashboard-text-secondary">Sent off!</p>`;
+                        text = `<h4 class="font-bold text-[#1a061e] mb-1">${event.player}</h4>
+                                <p class="text-gray-400 text-sm">Sent off!</p>`;
                         break;
                     case 'substitution':
                         icon = 'fas fa-exchange-alt';
@@ -518,25 +406,25 @@
 
             container.innerHTML = `
                 <div class="space-y-2">
-                    <div class="flex justify-between"><span class="dashboard-text-secondary">${stats.homePossession}%</span><span class="dashboard-text-secondary">Possession</span><span class="dashboard-text-secondary">${stats.awayPossession}%</span></div>
+                    <div class="flex justify-between"><span class="text-gray-400">${stats.homePossession}%</span><span class="text-gray-400">Possession</span><span class="text-gray-400">${stats.awayPossession}%</span></div>
                     <div class="stat-bar-bg flex"><div class="bg-[#1a061e]" style="width: ${stats.homePossession}%"></div><div class="bg-pink-100" style="width: ${stats.awayPossession}%"></div></div>
                 </div>
                 <div class="space-y-2">
-                    <div class="flex justify-between"><span class="dashboard-text-secondary">${stats.homeShots}</span><span class="dashboard-text-secondary">Shots</span><span class="dashboard-text-secondary">${stats.awayShots}</span></div>
+                    <div class="flex justify-between"><span class="text-gray-400">${stats.homeShots}</span><span class="text-gray-400">Shots</span><span class="text-gray-400">${stats.awayShots}</span></div>
                     <div class="stat-bar-bg flex"><div class="bg-[#1a061e]" style="width: ${homeShotsPercent}%"></div><div class="bg-pink-100" style="width: ${awayShotsPercent}%"></div></div>
                 </div>
                 <div class="space-y-2">
-                    <div class="flex justify-between"><span class="dashboard-text-secondary">${stats.homeShotsOnTarget}</span><span class="dashboard-text-secondary">Shots on Target</span><span class="dashboard-text-secondary">${stats.awayShotsOnTarget}</span></div>
+                    <div class="flex justify-between"><span class="text-gray-400">${stats.homeShotsOnTarget}</span><span class="text-gray-400">Shots on Target</span><span class="text-gray-400">${stats.awayShotsOnTarget}</span></div>
                     <div class="stat-bar-bg flex"><div class="bg-[#1a061e]" style="width: 66.6%"></div><div class="bg-pink-100" style="width: 33.3%"></div></div>
                 </div>
             `;
         }
 
-        // Run on load
-        loadTheme();
-        checkAdmin();
+        const user = checkAuth();
+        if (user) {
+            checkAdmin();
+        }
 
-        // Subscribe to game manager updates
         if (typeof gameManager !== 'undefined') {
             gameManager.subscribe((standings, match) => {
                 updateLiveMatch(match);
