@@ -70,11 +70,60 @@
         
         #mobile-menu { transition: transform 0.3s ease-in-out; transform: translateX(-100%); }
         #mobile-menu.active { transform: translateX(0); }
+
+        /* Responsive styles */
+        @media (min-width: 768px) {
+            /* Desktop view - show desktop links, hide hamburger */
+            .desktop-links {
+                display: flex !important;
+            }
+            .mobile-menu-button {
+                display: none !important;
+            }
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col overflow-x-hidden">
-    <!-- Navbar Container -->
-    <div id="navbar-container"></div>
+    <!-- Simple Navigation -->
+    <nav style="background-color: #1a061e; padding: 1rem 2rem; position: sticky; top: 0; z-index: 50;">
+        <div style="display: flex; justify-content: space-between; align-items: center; max-width: 80rem; margin: 0 auto;">
+            <!-- Logo -->
+            <a href="index.html" style="font-size: 1.25rem; font-weight: bold; color: #fef2f8; text-decoration: none;">
+                CAMPUS <span style="color: #f472b6;">CUP</span>
+            </a>
+
+            <!-- Desktop Links -->
+            <div class="desktop-links" style="display: none; gap: 0.25rem; align-items: center;">
+                <a href="index.html" style="color: #fef2f8; text-decoration: none; padding: 0.5rem 1rem; font-size: 0.875rem; font-weight: 500;">Dashboard</a>
+                <a href="teams.html" style="color: #fef2f8; text-decoration: none; padding: 0.5rem 1rem; font-size: 0.875rem; font-weight: 500;">Teams</a>
+                <a href="standings.html" style="color: #fef2f8; text-decoration: none; padding: 0.5rem 1rem; font-size: 0.875rem; font-weight: 500;">Standings</a>
+                <a href="profile.html" style="color: #f472b6; text-decoration: none; padding: 0.5rem 1rem; font-size: 0.875rem; font-weight: 700;">Profile</a>
+                <a href="admin.html" id="admin-link" style="color: #fef2f8; text-decoration: none; padding: 0.5rem 1rem; font-size: 0.875rem; font-weight: 500; display: none;">Admin</a>
+                <button onclick="logout()" style="color: #fef2f8; padding: 0.5rem 1rem; font-size: 0.875rem; font-weight: 500; margin-left: 1rem; background: none; border: none; cursor: pointer;">Logout</button>
+            </div>
+
+            <!-- Mobile Hamburger Button -->
+            <div class="mobile-menu-button" style="display: flex;">
+                <button onclick="toggleMobileMenu()" style="color: #fef2f8; padding: 0.5rem; background: none; border: none; cursor: pointer;">
+                    <span id="menu-icon-text" style="font-size: 1.5rem;">☰</span>
+                    <span id="close-icon-text" style="font-size: 1.5rem; display: none;">✕</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" style="display: none; background-color: #2d0a33; border-top: 1px solid rgba(244, 114, 182, 0.2);">
+            <div style="padding: 1rem;">
+                <a href="index.html" style="display: block; color: #fef2f8; text-decoration: none; padding: 0.75rem 1rem; font-size: 0.875rem; font-weight: 500;">Dashboard</a>
+                <a href="teams.html" style="display: block; color: #fef2f8; text-decoration: none; padding: 0.75rem 1rem; font-size: 0.875rem; font-weight: 500;">Teams</a>
+                <a href="standings.html" style="display: block; color: #fef2f8; text-decoration: none; padding: 0.75rem 1rem; font-size: 0.875rem; font-weight: 500;">Standings</a>
+                <a href="profile.html" style="display: block; color: #f472b6; text-decoration: none; padding: 0.75rem 1rem; font-size: 0.875rem; font-weight: 700;">Profile</a>
+                <a href="admin.html" id="admin-link-mobile" style="display: block; color: #fef2f8; text-decoration: none; padding: 0.75rem 1rem; font-size: 0.875rem; font-weight: 500; display: none;">Admin</a>
+                <hr style="border-color: rgba(244, 114, 182, 0.2); margin: 1rem 0;">
+                <button onclick="logout()" style="display: block; width: 100%; text-align: left; color: #fef2f8; padding: 0.75rem 1rem; font-size: 0.875rem; font-weight: 500; background: none; border: none; cursor: pointer;">Logout</button>
+            </div>
+        </div>
+    </nav>
 
     <main class="flex-grow p-4 md:p-12 max-w-4xl mx-auto w-full">
         <div class="profile-card p-8 md:p-12 shadow-xl border border-pink-100">
@@ -117,7 +166,6 @@
         </div>
     </main>
 
-    <script src="navbar.js"></script>
     <script>
         function checkAuth() {
             const currentUser = JSON.parse(localStorage.getItem('currentUser'));
@@ -128,6 +176,53 @@
             return currentUser;
         }
 
+        function checkAdmin() {
+            const currentUser = checkAuth();
+            if (!currentUser) return;
+            
+            const adminLink = document.getElementById('admin-link');
+            const adminLinkMobile = document.getElementById('admin-link-mobile');
+            
+            if (adminLink) {
+                if (currentUser.isAdmin) {
+                    adminLink.classList.remove('hidden');
+                } else {
+                    adminLink.classList.add('hidden');
+                }
+            }
+            
+            if (adminLinkMobile) {
+                if (currentUser.isAdmin) {
+                    adminLinkMobile.classList.remove('hidden');
+                } else {
+                    adminLinkMobile.classList.add('hidden');
+                }
+            }
+        }
+        
+        function logout() {
+            localStorage.removeItem('currentUser');
+            window.location.href = 'login.html';
+        }
+        
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            const menuIconText = document.getElementById('menu-icon-text');
+            const closeIconText = document.getElementById('close-icon-text');
+            
+            if (menu && menuIconText && closeIconText) {
+                if (menu.style.display === 'none' || menu.style.display === '') {
+                    menu.style.display = 'block';
+                    menuIconText.style.display = 'none';
+                    closeIconText.style.display = 'inline';
+                } else {
+                    menu.style.display = 'none';
+                    menuIconText.style.display = 'inline';
+                    closeIconText.style.display = 'none';
+                }
+            }
+        }
+
         function loadProfile() {
             const currentUser = checkAuth();
             if (!currentUser) return;
@@ -136,21 +231,12 @@
             document.getElementById('profile-email').textContent = currentUser.email;
             document.getElementById('profile-username').textContent = currentUser.email.split('@')[0];
             document.getElementById('profile-avatar').textContent = (currentUser.firstName[0] + currentUser.lastName[0]).toUpperCase();
-            
-            const adminLinks = document.querySelectorAll('[href="admin.html"]');
-            adminLinks.forEach(link => {
-                if (!currentUser.isAdmin) {
-                    link.classList.add('hidden');
-                } else {
-                    link.classList.remove('hidden');
-                }
-            });
         }
 
         // Run on load
         const user = checkAuth();
         if (user) {
-            loadNavbar('profile');
+            checkAdmin();
             loadProfile();
         }
     </script>
