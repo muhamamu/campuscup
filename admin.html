@@ -142,8 +142,22 @@
     </style>
 </head>
 <body class="min-h-screen flex flex-col overflow-x-hidden">
-    <!-- Navbar Container -->
-    <div id="navbar-container"></div>
+    <!-- Simple Navigation -->
+    <nav class="simple-nav flex items-center justify-between" style="background-color: #1a061e; padding: 1rem 2rem;">
+        <div class="flex items-center space-x-2">
+            <a href="index.html" class="text-xl font-bold tracking-tight" style="color: #fef2f8;">
+                CAMPUS <span style="color: #f472b6;">CUP</span>
+            </a>
+        </div>
+        <div class="flex items-center space-x-1">
+            <a href="index.html" style="color: #fef2f8; text-decoration: none; padding: 0.5rem 1rem; font-size: 0.875rem; font-weight: 500;">Dashboard</a>
+            <a href="teams.html" style="color: #fef2f8; text-decoration: none; padding: 0.5rem 1rem; font-size: 0.875rem; font-weight: 500;">Teams</a>
+            <a href="standings.html" style="color: #fef2f8; text-decoration: none; padding: 0.5rem 1rem; font-size: 0.875rem; font-weight: 500;">Standings</a>
+            <a href="profile.html" style="color: #fef2f8; text-decoration: none; padding: 0.5rem 1rem; font-size: 0.875rem; font-weight: 500;">Profile</a>
+            <a href="admin.html" style="color: #f472b6; text-decoration: none; padding: 0.5rem 1rem; font-size: 0.875rem; font-weight: 700;">Admin</a>
+            <button onclick="logout()" style="color: #fef2f8; padding: 0.5rem 1rem; font-size: 0.875rem; font-weight: 500; margin-left: 1rem; background: none; border: none; cursor: pointer;">Logout</button>
+        </div>
+    </nav>
 
     <main class="flex-grow p-4 md:p-12 max-w-7xl mx-auto w-full">
         <header class="mb-12">
@@ -441,7 +455,6 @@
     </main>
 
     <script src="supabase.js"></script>
-    <script src="navbar.js"></script>
     <script src="game-manager.js"></script>
     <script>
         function checkAuth() {
@@ -460,21 +473,22 @@
                 return;
             }
             
-            const users = JSON.parse(localStorage.getItem('users') || '[]');
-            const userFromStorage = users.find(u => u.id === currentUser.id);
-            
-            if (!userFromStorage || !userFromStorage.isAdmin) {
+            if (!currentUser.isAdmin) {
                 window.location.href = 'index.html';
                 return;
             }
             
             return true;
         }
+        
+        function logout() {
+            localStorage.removeItem('currentUser');
+            window.location.href = 'login.html';
+        }
 
         // Run on load
         const user = checkAuth();
         if (user) {
-            loadNavbar('admin');
             checkAdmin();
         }
 
