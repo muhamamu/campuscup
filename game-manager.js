@@ -77,10 +77,19 @@ class GameManager {
     }
 
     loadFallbackData() {
-        const localStorageStandings = localStorage.getItem('standings');
-        const localStorageMatch = localStorage.getItem('liveMatch');
-        const localStorageScheduled = localStorage.getItem('scheduledMatches');
-        const localStorageHistory = localStorage.getItem('matchHistory');
+        let localStorageStandings = null;
+        let localStorageMatch = null;
+        let localStorageScheduled = null;
+        let localStorageHistory = null;
+
+        try {
+            localStorageStandings = localStorage.getItem('standings');
+            localStorageMatch = localStorage.getItem('liveMatch');
+            localStorageScheduled = localStorage.getItem('scheduledMatches');
+            localStorageHistory = localStorage.getItem('matchHistory');
+        } catch (e) {
+            console.warn('Storage access blocked:', e);
+        }
 
         let parsedStandings = null;
         if (localStorageStandings) {
@@ -233,11 +242,17 @@ class GameManager {
             }
 
             // Load Live Match
-            const { data: matchData } = await this.sb
+            const { data: matchRows, error: matchError } = await this.sb
                 .from('live_match')
                 .select('*')
                 .eq('id', 'current')
-                .single();
+                .limit(1);
+
+            if (matchError) {
+                console.warn('Error fetching live match:', matchError);
+            }
+
+            const matchData = matchRows && matchRows.length > 0 ? matchRows[0] : null;
 
             if (matchData) {
                 this.match = {
@@ -472,10 +487,14 @@ class GameManager {
     }
 
     saveData() {
-        localStorage.setItem('standings', JSON.stringify(this.standings));
-        localStorage.setItem('liveMatch', JSON.stringify(this.match));
-        localStorage.setItem('scheduledMatches', JSON.stringify(this.scheduledMatches));
-        localStorage.setItem('matchHistory', JSON.stringify(this.matchHistory));
+        try {
+            localStorage.setItem('standings', JSON.stringify(this.standings));
+            localStorage.setItem('liveMatch', JSON.stringify(this.match));
+            localStorage.setItem('scheduledMatches', JSON.stringify(this.scheduledMatches));
+            localStorage.setItem('matchHistory', JSON.stringify(this.matchHistory));
+        } catch (e) {
+            console.warn('Unable to save to local storage (possibly blocked):', e);
+        }
         this.saveToSupabase();
     }
 

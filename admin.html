@@ -331,7 +331,8 @@
             const sb = await getSupabase();
             const { data: { session } } = await sb.auth.getSession();
             if (!session) { window.location.href = 'login.html'; return null; }
-            const { data: profile } = await sb.from('profiles').select('*').eq('id', session.user.id).single();
+            const { data: profiles } = await sb.from('profiles').select('*').eq('id', session.user.id).limit(1);
+            const profile = profiles && profiles.length > 0 ? profiles[0] : null;
             if (!profile || !profile.is_admin) { window.location.href = 'index.html'; return null; }
             return profile;
         }

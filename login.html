@@ -76,7 +76,8 @@
                 const { data, error } = await sb.auth.signInWithPassword({ email, password });
                 if (error) throw error;
 
-                const { data: profile } = await sb.from('profiles').select('*').eq('id', data.user.id).single();
+                const { data: profiles } = await sb.from('profiles').select('*').eq('id', data.user.id).limit(1);
+                const profile = profiles && profiles.length > 0 ? profiles[0] : null;
 
                 const userData = {
                     id: data.user.id,

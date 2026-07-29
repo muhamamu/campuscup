@@ -12,7 +12,12 @@ function loadNavbar(currentPage) {
         { id: 'admin', label: 'Admin', href: 'admin.html', adminOnly: true }
     ];
 
-    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+    let currentUser = null;
+    try {
+        currentUser = JSON.parse(localStorage.getItem('currentUser'));
+    } catch (e) {
+        console.warn('LocalStorage access blocked');
+    }
 
     const navLinksHTML = navLinks.map(link => {
         const isActive = link.id === currentPage;
@@ -113,7 +118,12 @@ function loadTheme() {
 }
 
 async function updateAdminLinks() {
-    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+    let currentUser = null;
+    try {
+        currentUser = JSON.parse(localStorage.getItem('currentUser'));
+    } catch (e) {
+        console.warn('LocalStorage access blocked');
+    }
     const adminLinks = document.querySelectorAll('.admin-nav-link');
 
     if (!currentUser) {
@@ -123,13 +133,15 @@ async function updateAdminLinks() {
 
     try {
         const sb = await getSupabase();
-        const { data: profile, error } = await sb
+        const { data: profiles, error } = await sb
             .from('profiles')
             .select('is_admin')
             .eq('id', currentUser.id)
-            .single();
+            .limit(1);
 
-        if (error) {
+        const profile = profiles && profiles.length > 0 ? profiles[0] : null;
+
+        if (error || !profile) {
             console.warn('Could not verify admin status with Supabase, using local status.');
             // If we have local admin status, keep it showing
             if (currentUser.isAdmin) {
@@ -143,7 +155,11 @@ async function updateAdminLinks() {
         // Update local storage if status changed
         if (isAdmin !== currentUser.isAdmin) {
             const updatedUser = { ...currentUser, isAdmin: isAdmin };
-            localStorage.setItem('currentUser', JSON.stringify(updatedUser));
+            try {
+                localStorage.setItem('currentUser', JSON.stringify(updatedUser));
+            } catch (e) {
+                console.warn('LocalStorage access blocked');
+            }
         }
 
         // Final visibility toggle

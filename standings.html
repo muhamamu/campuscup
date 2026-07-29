@@ -172,11 +172,16 @@
             const sb = await getSupabase();
             const { data: { session } } = await sb.auth.getSession();
             if (!session) { window.location.href = 'login.html'; return null; }
-            const { data: profile } = await sb.from('profiles').select('*').eq('id', session.user.id).single();
+            const { data: profiles } = await sb.from('profiles').select('*').eq('id', session.user.id).limit(1);
+            const profile = profiles && profiles.length > 0 ? profiles[0] : null;
             if (!profile) return { id: session.user.id, email: session.user.email, isAdmin: false };
             
             const userData = { id: profile.id, firstName: profile.first_name, lastName: profile.last_name, email: profile.email, isAdmin: profile.is_admin };
-            localStorage.setItem('currentUser', JSON.stringify(userData));
+            try {
+                localStorage.setItem('currentUser', JSON.stringify(userData));
+            } catch (e) {
+                console.warn('LocalStorage access blocked');
+            }
             return profile;
         }
 
