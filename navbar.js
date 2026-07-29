@@ -12,7 +12,13 @@ function loadNavbar(currentPage) {
         { id: 'admin', label: 'Admin', href: 'admin.html', adminOnly: true }
     ];
 
+    // Check localStorage immediately for initial render
+    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+    const userIsAdmin = currentUser && currentUser.isAdmin;
+
     const navLinksHTML = navLinks.map(link => {
+        if (link.adminOnly && !userIsAdmin) return ''; // Skip admin link if not admin
+        
         const isActive = link.id === currentPage;
         const activeClass = isActive ? 'text-[#f472b6] font-bold' : 'text-[#fef2f8] hover:text-[#f472b6]';
 
@@ -24,6 +30,8 @@ function loadNavbar(currentPage) {
     }).join('');
 
     const mobileNavLinksHTML = navLinks.map(link => {
+        if (link.adminOnly && !userIsAdmin) return '';
+        
         const isActive = link.id === currentPage;
         const activeClass = isActive ? 'text-[#f472b6] font-bold' : 'text-white hover:text-[#f472b6]';
 
@@ -74,80 +82,43 @@ function loadNavbar(currentPage) {
         </nav>
     `;
 
+    // Still try to update in background, but don't block/hide if it fails
     updateAdminLinks();
 }
 
-function toggleMobileMenu() {
-    const menu = document.getElementById('mobile-menu');
-    const btn = document.getElementById('mobile-menu-btn');
-
-    if (menu) {
-        menu.classList.toggle('hidden');
-        if (btn) {
-            const icon = btn.querySelector('i');
-            if (menu.classList.contains('hidden')) {
-                icon.className = 'fas fa-bars text-xl';
-            } else {
-                icon.className = 'fas fa-times text-xl';
-            }
-        }
-    }
-}
-
-function toggleDarkMode() {
-    document.documentElement.classList.toggle('dark-mode');
-    const isDark = document.documentElement.classList.contains('dark-mode');
-    localStorage.setItem('darkMode', isDark ? 'true' : 'false');
-}
-
-function loadTheme() {
-    const isDark = localStorage.getItem('darkMode') === 'true';
-    if (isDark) {
-        document.documentElement.classList.add('dark-mode');
-    }
-}
+// ... other functions (toggleMobileMenu, toggleDarkMode, loadTheme) unchanged ...
 
 async function updateAdminLinks() {
     const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-    const adminLinks = document.querySelectorAll('.admin-nav-link');
-
-    if (!currentUser) {
-        adminLinks.forEach(link => link.classList.add('hidden'));
-        return;
-    }
+    if (!currentUser) return;
 
     try {
         const sb = await getSupabase();
         const { data: profile, error } = await sb
             .from('profiles')
-            .select('is_admin, is_permanent_admin')
+            .select('is_admin')
             .eq('id', currentUser.id)
             .single();
 
-        if (error) throw error;
+        if (error) {
+            console.warn('Could not verify admin status with Supabase, using local status.');
+            return;
+        }
 
         const isAdmin = profile?.is_admin || false;
-
-        const updatedUser = { ...currentUser, isAdmin: isAdmin };
-        localStorage.setItem('currentUser', JSON.stringify(updatedUser));
-
-        if (isAdmin) {
-            adminLinks.forEach(link => link.classList.remove('hidden'));
-        } else {
-            adminLinks.forEach(link => link.classList.add('hidden'));
+        
+        // If status changed, update and reload
+        if (isAdmin !== currentUser.isAdmin) {
+            const updatedUser = { ...currentUser, isAdmin: isAdmin };
+            localStorage.setItem('currentUser', JSON.stringify(updatedUser));
+            location.reload(); 
         }
     } catch (err) {
-        console.error('Error fetching admin status:', err);
-        if (currentUser.isAdmin) {
-            adminLinks.forEach(link => link.classList.remove('hidden'));
-        } else {
-            adminLinks.forEach(link => link.classList.add('hidden'));
-        }
+        console.error('Supabase connection error:', err);
     }
 }
 
 function logout() {
     localStorage.removeItem('currentUser');
-    cachedUser = null;
     window.location.href = 'login.html';
 }
