@@ -12,31 +12,28 @@ function loadNavbar(currentPage) {
         { id: 'admin', label: 'Admin', href: 'admin.html', adminOnly: true }
     ];
 
-    // Check localStorage immediately for initial render
     const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-    const userIsAdmin = currentUser && currentUser.isAdmin;
 
     const navLinksHTML = navLinks.map(link => {
-        if (link.adminOnly && !userIsAdmin) return ''; // Skip admin link if not admin
-        
         const isActive = link.id === currentPage;
         const activeClass = isActive ? 'text-[#f472b6] font-bold' : 'text-[#fef2f8] hover:text-[#f472b6]';
+        // Admin links start hidden unless already known to be admin
+        const hiddenClass = (link.adminOnly && (!currentUser || !currentUser.isAdmin)) ? 'hidden' : '';
 
         return `
-            <a href="${link.href}" class="${activeClass} ${link.adminOnly ? 'admin-nav-link' : ''} px-4 py-2 text-sm font-medium transition-colors">
+            <a href="${link.href}" class="${activeClass} ${link.adminOnly ? 'admin-nav-link' : ''} ${hiddenClass} px-4 py-2 text-sm font-medium transition-colors">
                 ${link.label}
             </a>
         `;
     }).join('');
 
     const mobileNavLinksHTML = navLinks.map(link => {
-        if (link.adminOnly && !userIsAdmin) return '';
-        
         const isActive = link.id === currentPage;
         const activeClass = isActive ? 'text-[#f472b6] font-bold' : 'text-white hover:text-[#f472b6]';
+        const hiddenClass = (link.adminOnly && (!currentUser || !currentUser.isAdmin)) ? 'hidden' : '';
 
         return `
-            <a href="${link.href}" class="${activeClass} ${link.adminOnly ? 'admin-nav-link' : ''} block px-4 py-3 text-sm font-medium transition-colors">
+            <a href="${link.href}" class="${activeClass} ${link.adminOnly ? 'admin-nav-link' : ''} ${hiddenClass} block px-4 py-3 text-sm font-medium transition-colors">
                 ${link.label}
             </a>
         `;
@@ -82,15 +79,47 @@ function loadNavbar(currentPage) {
         </nav>
     `;
 
-    // Still try to update in background, but don't block/hide if it fails
     updateAdminLinks();
 }
 
-// ... other functions (toggleMobileMenu, toggleDarkMode, loadTheme) unchanged ...
+function toggleMobileMenu() {
+    const menu = document.getElementById('mobile-menu');
+    const btn = document.getElementById('mobile-menu-btn');
+
+    if (menu) {
+        menu.classList.toggle('hidden');
+        if (btn) {
+            const icon = btn.querySelector('i');
+            if (menu.classList.contains('hidden')) {
+                icon.className = 'fas fa-bars text-xl';
+            } else {
+                icon.className = 'fas fa-times text-xl';
+            }
+        }
+    }
+}
+
+function toggleDarkMode() {
+    document.documentElement.classList.toggle('dark-mode');
+    const isDark = document.documentElement.classList.contains('dark-mode');
+    localStorage.setItem('darkMode', isDark ? 'true' : 'false');
+}
+
+function loadTheme() {
+    const isDark = localStorage.getItem('darkMode') === 'true';
+    if (isDark) {
+        document.documentElement.classList.add('dark-mode');
+    }
+}
 
 async function updateAdminLinks() {
     const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-    if (!currentUser) return;
+    const adminLinks = document.querySelectorAll('.admin-nav-link');
+
+    if (!currentUser) {
+        adminLinks.forEach(link => link.classList.add('hidden'));
+        return;
+    }
 
     try {
         const sb = await getSupabase();
@@ -102,19 +131,32 @@ async function updateAdminLinks() {
 
         if (error) {
             console.warn('Could not verify admin status with Supabase, using local status.');
+            // If we have local admin status, keep it showing
+            if (currentUser.isAdmin) {
+                adminLinks.forEach(link => link.classList.remove('hidden'));
+            }
             return;
         }
 
         const isAdmin = profile?.is_admin || false;
         
-        // If status changed, update and reload
+        // Update local storage if status changed
         if (isAdmin !== currentUser.isAdmin) {
             const updatedUser = { ...currentUser, isAdmin: isAdmin };
             localStorage.setItem('currentUser', JSON.stringify(updatedUser));
-            location.reload(); 
+        }
+
+        // Final visibility toggle
+        if (isAdmin) {
+            adminLinks.forEach(link => link.classList.remove('hidden'));
+        } else {
+            adminLinks.forEach(link => link.classList.add('hidden'));
         }
     } catch (err) {
-        console.error('Supabase connection error:', err);
+        console.error('Error fetching admin status:', err);
+        if (currentUser && currentUser.isAdmin) {
+            adminLinks.forEach(link => link.classList.remove('hidden'));
+        }
     }
 }
 
