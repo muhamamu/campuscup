@@ -275,16 +275,18 @@
                         <label class="label-text">Match Stats</label>
                         <div class="space-y-4">
                             <div class="grid grid-cols-2 gap-3">
-                                <button onclick="addYellowCard('home')" class="bg-yellow-400 text-white py-3 rounded-xl font-black text-[10px] uppercase shadow-md shadow-yellow-400/20"><i class="fas fa-square mr-1"></i> Yellow H</button>
-                                <button onclick="addYellowCard('away')" class="bg-yellow-400 text-white py-3 rounded-xl font-black text-[10px] uppercase shadow-md shadow-yellow-400/20"><i class="fas fa-square mr-1"></i> Yellow A</button>
-                                <button onclick="addRedCard('home')" class="bg-red-600 text-white py-3 rounded-xl font-black text-[10px] uppercase shadow-md shadow-red-600/20"><i class="fas fa-square mr-1"></i> Red H</button>
-                                <button onclick="addRedCard('away')" class="bg-red-600 text-white py-3 rounded-xl font-black text-[10px] uppercase shadow-md shadow-red-600/20"><i class="fas fa-square mr-1"></i> Red A</button>
+                                <button onclick="promptYellowCard('home')" class="bg-yellow-400 text-white py-3 rounded-xl font-black text-[10px] uppercase shadow-md shadow-yellow-400/20"><i class="fas fa-square mr-1"></i> Yellow H</button>
+                                <button onclick="promptYellowCard('away')" class="bg-yellow-400 text-white py-3 rounded-xl font-black text-[10px] uppercase shadow-md shadow-yellow-400/20"><i class="fas fa-square mr-1"></i> Yellow A</button>
+                                <button onclick="promptRedCard('home')" class="bg-red-600 text-white py-3 rounded-xl font-black text-[10px] uppercase shadow-md shadow-red-600/20"><i class="fas fa-square mr-1"></i> Red H</button>
+                                <button onclick="promptRedCard('away')" class="bg-red-600 text-white py-3 rounded-xl font-black text-[10px] uppercase shadow-md shadow-red-600/20"><i class="fas fa-square mr-1"></i> Red A</button>
                             </div>
                             <div class="grid grid-cols-2 gap-2">
                                 <button onclick="addCorner('home')" class="bg-purple-100 text-purple-700 py-2 rounded-lg font-bold text-[10px] uppercase">Corner H</button>
                                 <button onclick="addCorner('away')" class="bg-purple-100 text-purple-700 py-2 rounded-lg font-bold text-[10px] uppercase">Corner A</button>
                                 <button onclick="addFoul('home')" class="bg-orange-100 text-orange-700 py-2 rounded-lg font-bold text-[10px] uppercase">Foul H</button>
                                 <button onclick="addFoul('away')" class="bg-orange-100 text-orange-700 py-2 rounded-lg font-bold text-[10px] uppercase">Foul A</button>
+                                <button onclick="addOffTarget('home')" class="bg-gray-200 text-gray-700 py-2 rounded-lg font-bold text-[10px] uppercase">Off Target H</button>
+                                <button onclick="addOffTarget('away')" class="bg-gray-200 text-gray-700 py-2 rounded-lg font-bold text-[10px] uppercase">Off Target A</button>
                             </div>
                         </div>
                     </div>
@@ -471,13 +473,14 @@
             container.innerHTML = gameManager.teams.map(t => `
                 <div class="flex items-center justify-between p-3 bg-white rounded-xl border border-gray-100 shadow-sm">
                     <div class="flex items-center gap-3">
-                        ${t.logoUrl 
-                            ? `<img src="${t.logoUrl}" class="w-8 h-8 rounded-lg object-cover">`
+                        ${t.logoUrl
+                            ? `<img src="${t.logoUrl}" class="w-8 h-8 rounded-lg object-cover" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                               <div class="w-8 h-8 rounded-lg flex items-center justify-center text-[10px] font-black text-white hidden" style="background-color: ${t.logoBg}">${t.logoText}</div>`
                             : `<div class="w-8 h-8 rounded-lg flex items-center justify-center text-[10px] font-black text-white" style="background-color: ${t.logoBg}">${t.logoText}</div>`
                         }
                         <div>
                             <p class="font-black text-xs text-[#1a061e] uppercase">${t.name}</p>
-                            <p class="text-[9px] text-gray-400 font-bold uppercase">${t.shortCode}</p>
+                            <p class="text-[9px] text-gray-400 font-bold uppercase">${t.shortCode || 'N/A'}</p>
                         </div>
                     </div>
                     <button onclick="removeTeam('${t.id}')" class="text-red-400 hover:text-red-600 p-2">
@@ -506,6 +509,16 @@
             if (!scorer) return alert('Enter scorer');
             gameManager.addGoal(currentGoalTeam, scorer, document.getElementById('goal-assist').value, document.getElementById('goal-type').value);
             closeGoalModal();
+        }
+
+        function promptYellowCard(team) {
+            const player = prompt('Enter player name for yellow card:');
+            if (player) gameManager.addYellowCard(team, player);
+        }
+
+        function promptRedCard(team) {
+            const player = prompt('Enter player name for red card:');
+            if (player) gameManager.addRedCard(team, player);
         }
 
         function previewLogo(input) {
@@ -551,9 +564,16 @@
         }
 
         function removeTeam(id) {
-            if (confirm('Are you sure you want to remove this team? This will also remove them from standings.')) {
-                gameManager.removeTeam(id);
+            if (!confirm('Are you sure you want to remove this team? This will also remove them from standings.')) {
+                return;
             }
+            console.log('[admin] removeTeam called with:', id);
+            gameManager.removeTeam(id).then(() => {
+                console.log('[admin] removeTeam completed');
+            }).catch(err => {
+                console.error('[admin] removeTeam error:', err);
+                alert('Error removing team. Check console for details.');
+            });
         }
 
         // Initialize

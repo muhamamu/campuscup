@@ -291,7 +291,7 @@
             const container = document.getElementById('match-feed-container');
             if (!container || !events || events.length === 0) return;
 
-            const icons = { 'goal': '⚽', 'penalty-goal': '🎯', 'penalty-miss': '❌', 'yellow-card': '🟨', 'red-card': '🟥', 'substitution': '🔄', 'offside': '🚫', 'foul': '⚠️', 'save': '🧤' };
+            const icons = { 'goal': '⚽', 'penalty-goal': '🎯', 'penalty-miss': '❌', 'yellow-card': '🟨', 'red-card': '🟥', 'substitution': '🔄', 'offside': '🚫', 'foul': '⚠️', 'save': '🧤', 'corner': '📍', 'off-target': '🎯' };
 
             container.innerHTML = events.map(e => `
                 <div class="event-card shadow-sm flex items-center gap-4">
@@ -337,7 +337,7 @@
             container.innerHTML = `
                 ${renderBar('Possession', stats.homePossession || 0, stats.awayPossession || 0)}
                 ${renderBar('Shots', stats.homeShots || 0, stats.awayShots || 0)}
-                ${renderBar('On Target', stats.homeShotsTarget || 0, stats.awayShotsTarget || 0)}
+                ${renderBar('On Target', stats.homeShotsOnTarget || 0, stats.awayShotsOnTarget || 0)}
                 ${renderBar('Corners', stats.homeCorners || 0, stats.awayCorners || 0)}
                 ${renderBar('Fouls', stats.homeFouls || 0, stats.awayFouls || 0)}
                 ${renderBar('Saves', stats.homeSaves || 0, stats.awaySaves || 0)}

@@ -16,7 +16,9 @@ const EVENT_TYPES = {
     SUBSTITUTION: 'substitution',
     OFFSIDE: 'offside',
     FOUL: 'foul',
-    SAVE: 'save'
+    SAVE: 'save',
+    CORNER: 'corner',
+    OFF_TARGET: 'off-target'
 };
 
 const GOAL_TYPES = {
@@ -627,23 +629,45 @@ class GameManager {
     }
 
     async removeTeam(teamId) {
-        if (!this.sb) return;
-
-        // Remove from teams
-        this.teams = this.teams.filter(t => t.id !== teamId);
+        console.log('[removeTeam] Starting with teamId:', teamId);
         
-        // Remove from standings
-        this.standings = this.standings.filter(s => s.team.id !== teamId);
-        
-        // Re-calculate positions
-        this.sortStandings();
+        if (!this.sb) {
+            console.warn('[removeTeam] No Supabase connection, only removing locally');
+            this.teams = this.teams.filter(t => t.id !== teamId);
+            this.standings = this.standings.filter(s => s.team.id !== teamId);
+            this.sortStandings();
+            this.saveData();
+            this.notifySubscribers();
+            return;
+        }
 
-        // Delete from Supabase
-        await this.sb.from('teams').delete().eq('id', teamId);
-        await this.sb.from('standings').delete().eq('team_id', teamId);
+        try {
+            // Remove from teams
+            this.teams = this.teams.filter(t => t.id !== teamId);
+            console.log('[removeTeam] After filter, teams length:', this.teams.length);
 
-        this.saveData();
-        this.notifySubscribers();
+            // Remove from standings
+            this.standings = this.standings.filter(s => s.team.id !== teamId);
+            console.log('[removeTeam] After filter, standings length:', this.standings.length);
+
+            // Re-calculate positions
+            this.sortStandings();
+
+            // Delete from Supabase
+            console.log('[removeTeam] Deleting from Supabase...');
+            const { error: teamErr } = await this.sb.from('teams').delete().eq('id', teamId);
+            if (teamErr) console.error('[removeTeam] Error deleting team:', teamErr);
+
+            const { error: standErr } = await this.sb.from('standings').delete().eq('team_id', teamId);
+            if (standErr) console.error('[removeTeam] Error deleting standing:', standErr);
+
+            console.log('[removeTeam] Save and notify...');
+            this.saveData();
+            this.notifySubscribers();
+            console.log('[removeTeam] Done!');
+        } catch (err) {
+            console.error('[removeTeam] Exception:', err);
+        }
     }
 
     startStopwatch() {
@@ -864,11 +888,35 @@ class GameManager {
     }
 
     addCorner(team) {
+        const eventMinute = this.getNearestMinuteFromStopwatch();
         if (team === 'home') {
             this.match.stats.homeCorners++;
         } else {
             this.match.stats.awayCorners++;
         }
+        this.match.events.unshift({
+            minute: eventMinute,
+            stopwatchTime: this.match.stopwatch,
+            type: EVENT_TYPES.CORNER,
+            team
+        });
+        this.saveData();
+        this.notifySubscribers();
+    }
+
+    addOffTarget(team) {
+        const eventMinute = this.getNearestMinuteFromStopwatch();
+        if (team === 'home') {
+            this.match.stats.homeShots++;
+        } else {
+            this.match.stats.awayShots++;
+        }
+        this.match.events.unshift({
+            minute: eventMinute,
+            stopwatchTime: this.match.stopwatch,
+            type: EVENT_TYPES.OFF_TARGET,
+            team
+        });
         this.saveData();
         this.notifySubscribers();
     }
