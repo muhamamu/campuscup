@@ -57,6 +57,8 @@
                 </button>
             </form>
 
+            <div id="success-message" style="display: none;" class="mt-6"></div>
+
             <div class="mt-10 pt-8 border-t border-gray-50 text-center">
                 <p class="text-gray-400 font-bold text-xs">Already have an account?</p>
                 <a href="login.html" class="inline-block mt-2 text-[#1a061e] font-black uppercase tracking-widest text-xs border-b-2 border-pink-500 pb-1">Sign In Instead</a>
@@ -68,6 +70,8 @@
 
     <script src="supabase.js"></script>
     <script>
+        const REDIRECT_URL = 'https://campus-9foaruthb-mamus-projects-2ecace9c.vercel.app/api/auth/callback';
+
         async function doSignup() {
             const sb = await getSupabase();
             const firstName = document.getElementById('first-name').value;
@@ -88,25 +92,20 @@
                         data: {
                             first_name: firstName,
                             last_name: lastName
-                        }
+                        },
+                        emailRedirectTo: REDIRECT_URL
                     }
                 });
-                
+
                 if (error) throw error;
 
-                // Trigger creates profile automatically
-                setTimeout(async () => {
-                    const { data: profile } = await sb.from('profiles').select('*').eq('id', data.user.id).single();
-                    const userData = {
-                        id: data.user.id,
-                        firstName: firstName,
-                        lastName: lastName,
-                        email: email,
-                        isAdmin: profile?.is_admin || false
-                    };
-                    localStorage.setItem('currentUser', JSON.stringify(userData));
-                    window.location.href = 'index.html';
-                }, 1000);
+                document.getElementById('success-message').style.display = 'block';
+                document.getElementById('success-message').innerHTML = `
+                    <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-xl">
+                        <p class="font-bold">Verification email sent!</p>
+                        <p class="text-sm">Please check your email and click the verification link to continue.</p>
+                    </div>
+                `;
             } catch (err) {
                 alert(err.message);
             }
