@@ -525,14 +525,29 @@
             const logoInput = document.getElementById('new-team-logo');
 
             if (!nameInput.value) return alert('Enter team name');
-            
-            await gameManager.addTeam(nameInput.value, shortInput.value, logoInput.files[0]);
-            
-            // Reset form
-            nameInput.value = '';
-            shortInput.value = '';
-            logoInput.value = '';
-            document.getElementById('logo-preview').innerHTML = `<i class="fas fa-cloud-upload-alt text-xl"></i>`;
+
+            const addBtn = document.querySelector('button[onclick="addNewTeam()"]');
+            const originalText = addBtn.textContent;
+            addBtn.textContent = 'Creating...';
+            addBtn.disabled = true;
+
+            try {
+                await gameManager.addTeam(nameInput.value, shortInput.value, logoInput.files[0]);
+
+                // Reset form
+                nameInput.value = '';
+                shortInput.value = '';
+                logoInput.value = '';
+                document.getElementById('logo-preview').innerHTML = `<i class="fas fa-cloud-upload-alt text-xl"></i>`;
+
+                alert('Team created successfully!');
+            } catch (err) {
+                console.error('Error creating team:', err);
+                alert('Error creating team. Check console for details.');
+            } finally {
+                addBtn.textContent = originalText;
+                addBtn.disabled = false;
+            }
         }
 
         function removeTeam(id) {

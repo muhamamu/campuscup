@@ -400,131 +400,151 @@ class GameManager {
         try {
             // Save Teams
             for (const team of this.teams) {
-                await this.sb
-                    .from('teams')
-                    .upsert({
-                        id: team.id,
-                        name: team.name,
-                        short_code: team.shortCode,
-                        logo_bg: team.logoBg,
-                        logo_text: team.logoText,
-                        logo_url: team.logoUrl,
-                        updated_at: new Date().toISOString()
-                    });
+                try {
+                    await this.sb
+                        .from('teams')
+                        .upsert({
+                            id: team.id,
+                            name: team.name,
+                            short_code: team.shortCode,
+                            logo_bg: team.logoBg,
+                            logo_text: team.logoText,
+                            logo_url: team.logoUrl,
+                            updated_at: new Date().toISOString()
+                        });
+                } catch (teamErr) {
+                    console.error('Error saving team:', team.name, teamErr);
+                }
             }
 
             // Save Standings
             for (const standing of this.standings) {
-                await this.sb
-                    .from('standings')
-                    .upsert({
-                        team_id: standing.team.id,
-                        team_name: standing.team.name,
-                        team_short_code: standing.team.shortCode,
-                        team_logo_bg: standing.team.logoBg,
-                        team_logo_text: standing.team.logoText,
-                        team_logo_url: standing.team.logoUrl,
-                        pos: standing.pos,
-                        mp: standing.mp,
-                        w: standing.w,
-                        d: standing.d,
-                        l: standing.l,
-                        gf: standing.gf,
-                        ga: standing.ga,
-                        gd: standing.gd,
-                        pts: standing.pts,
-                        form: standing.form,
-                        updated_at: new Date().toISOString()
-                    });
+                try {
+                    await this.sb
+                        .from('standings')
+                        .upsert({
+                            team_id: standing.team.id,
+                            team_name: standing.team.name,
+                            team_short_code: standing.team.shortCode,
+                            team_logo_bg: standing.team.logoBg,
+                            team_logo_text: standing.team.logoText,
+                            team_logo_url: standing.team.logoUrl,
+                            pos: standing.pos,
+                            mp: standing.mp,
+                            w: standing.w,
+                            d: standing.d,
+                            l: standing.l,
+                            gf: standing.gf,
+                            ga: standing.ga,
+                            gd: standing.gd,
+                            pts: standing.pts,
+                            form: standing.form,
+                            updated_at: new Date().toISOString()
+                        });
+                } catch (standErr) {
+                    console.error('Error saving standing:', standing.team.name, standErr);
+                }
             }
 
             // Save Live Match
             if (this.match) {
-                await this.sb
-                    .from('live_match')
-                    .upsert({
-                        id: 'current',
-                        home_team_id: this.match.homeTeam.id,
-                        home_team_name: this.match.homeTeam.name,
-                        home_team_short_code: this.match.homeTeam.shortCode,
-                        home_team_logo_bg: this.match.homeTeam.logoBg,
-                        home_team_logo_text: this.match.homeTeam.logoText,
-                        home_team_logo_url: this.match.homeTeam.logoUrl,
-                        away_team_id: this.match.awayTeam.id,
-                        away_team_name: this.match.awayTeam.name,
-                        away_team_short_code: this.match.awayTeam.shortCode,
-                        away_team_logo_bg: this.match.awayTeam.logoBg,
-                        away_team_logo_text: this.match.awayTeam.logoText,
-                        away_team_logo_url: this.match.awayTeam.logoUrl,
-                        home_score: this.match.homeScore,
-                        away_score: this.match.awayScore,
-                        home_penalties: this.match.homePenalties,
-                        away_penalties: this.match.awayPenalties,
-                        home_penalty_attempts: this.match.homePenaltyAttempts,
-                        away_penalty_attempts: this.match.awayPenaltyAttempts,
-                        minute: this.match.minute,
-                        period: this.match.period,
-                        is_live: this.match.isLive,
-                        status: this.match.status,
-                        stopwatch: this.match.stopwatch,
-                        stopwatch_start_time: this.match.stopwatchStartTime,
-                        stats: this.match.stats,
-                        events: this.match.events,
-                        updated_at: new Date().toISOString()
-                    });
+                try {
+                    await this.sb
+                        .from('live_match')
+                        .upsert({
+                            id: 'current',
+                            home_team_id: this.match.homeTeam.id,
+                            home_team_name: this.match.homeTeam.name,
+                            home_team_short_code: this.match.homeTeam.shortCode,
+                            home_team_logo_bg: this.match.homeTeam.logoBg,
+                            home_team_logo_text: this.match.homeTeam.logoText,
+                            home_team_logo_url: this.match.homeTeam.logoUrl,
+                            away_team_id: this.match.awayTeam.id,
+                            away_team_name: this.match.awayTeam.name,
+                            away_team_short_code: this.match.awayTeam.shortCode,
+                            away_team_logo_bg: this.match.awayTeam.logoBg,
+                            away_team_logo_text: this.match.awayTeam.logoText,
+                            away_team_logo_url: this.match.awayTeam.logoUrl,
+                            home_score: this.match.homeScore,
+                            away_score: this.match.awayScore,
+                            home_penalties: this.match.homePenalties,
+                            away_penalties: this.match.awayPenalties,
+                            home_penalty_attempts: this.match.homePenaltyAttempts,
+                            away_penalty_attempts: this.match.awayPenaltyAttempts,
+                            minute: this.match.minute,
+                            period: this.match.period,
+                            is_live: this.match.isLive,
+                            status: this.match.status,
+                            stopwatch: this.match.stopwatch,
+                            stopwatch_start_time: this.match.stopwatchStartTime,
+                            stats: this.match.stats,
+                            events: this.match.events,
+                            updated_at: new Date().toISOString()
+                        });
+                } catch (matchErr) {
+                    console.error('Error saving live match:', matchErr);
+                }
             }
 
             // Save Match History
             for (const histMatch of this.matchHistory) {
-                await this.sb
-                    .from('match_history')
-                    .upsert({
-                        id: histMatch.id,
-                        home_team_id: histMatch.homeTeam?.id || histMatch.home_team_id,
-                        home_team_name: histMatch.homeTeam?.name || histMatch.home_team_name,
-                        home_team_short_code: histMatch.homeTeam?.shortCode || histMatch.home_team_short_code,
-                        home_team_logo_bg: histMatch.homeTeam?.logoBg || histMatch.home_team_logo_bg,
-                        home_team_logo_text: histMatch.homeTeam?.logoText || histMatch.home_team_logo_text,
-                        home_team_logo_url: histMatch.homeTeam?.logoUrl || histMatch.home_team_logo_url,
-                        away_team_id: histMatch.awayTeam?.id || histMatch.away_team_id,
-                        away_team_name: histMatch.awayTeam?.name || histMatch.away_team_name,
-                        away_team_short_code: histMatch.awayTeam?.shortCode || histMatch.away_team_short_code,
-                        away_team_logo_bg: histMatch.awayTeam?.logoBg || histMatch.away_team_logo_bg,
-                        away_team_logo_text: histMatch.awayTeam?.logoText || histMatch.away_team_logo_text,
-                        away_team_logo_url: histMatch.awayTeam?.logoUrl || histMatch.away_team_logo_url,
-                        home_score: histMatch.homeScore,
-                        away_score: histMatch.awayScore,
-                        home_penalties: histMatch.homePenalties,
-                        away_penalties: histMatch.awayPenalties,
-                        status: histMatch.status,
-                        events: histMatch.events,
-                        created_at: histMatch.createdAt || histMatch.created_at,
-                        updated_at: new Date().toISOString()
-                    });
+                try {
+                    await this.sb
+                        .from('match_history')
+                        .upsert({
+                            id: histMatch.id,
+                            home_team_id: histMatch.homeTeam?.id || histMatch.home_team_id,
+                            home_team_name: histMatch.homeTeam?.name || histMatch.home_team_name,
+                            home_team_short_code: histMatch.homeTeam?.shortCode || histMatch.home_team_short_code,
+                            home_team_logo_bg: histMatch.homeTeam?.logoBg || histMatch.home_team_logo_bg,
+                            home_team_logo_text: histMatch.homeTeam?.logoText || histMatch.home_team_logo_text,
+                            home_team_logo_url: histMatch.homeTeam?.logoUrl || histMatch.home_team_logo_url,
+                            away_team_id: histMatch.awayTeam?.id || histMatch.away_team_id,
+                            away_team_name: histMatch.awayTeam?.name || histMatch.away_team_name,
+                            away_team_short_code: histMatch.awayTeam?.shortCode || histMatch.away_team_short_code,
+                            away_team_logo_bg: histMatch.awayTeam?.logoBg || histMatch.away_team_logo_bg,
+                            away_team_logo_text: histMatch.awayTeam?.logoText || histMatch.away_team_logo_text,
+                            away_team_logo_url: histMatch.awayTeam?.logoUrl || histMatch.away_team_logo_url,
+                            home_score: histMatch.homeScore,
+                            away_score: histMatch.awayScore,
+                            home_penalties: histMatch.homePenalties,
+                            away_penalties: histMatch.awayPenalties,
+                            status: histMatch.status,
+                            events: histMatch.events,
+                            created_at: histMatch.createdAt || histMatch.created_at,
+                            updated_at: new Date().toISOString()
+                        });
+                } catch (histErr) {
+                    console.error('Error saving match history:', histErr);
+                }
             }
 
             // Save Scheduled Matches
             for (const sm of this.scheduledMatches) {
-                await this.sb
-                    .from('scheduled_matches')
-                    .upsert({
-                        id: sm.id,
-                        home_team_id: sm.homeTeam.id,
-                        home_team_name: sm.homeTeam.name,
-                        home_team_short_code: sm.homeTeam.shortCode,
-                        home_team_logo_bg: sm.homeTeam.logoBg,
-                        home_team_logo_text: sm.homeTeam.logoText,
-                        home_team_logo_url: sm.homeTeam.logoUrl,
-                        away_team_id: sm.awayTeam.id,
-                        away_team_name: sm.awayTeam.name,
-                        away_team_short_code: sm.awayTeam.shortCode,
-                        away_team_logo_bg: sm.awayTeam.logoBg,
-                        away_team_logo_text: sm.awayTeam.logoText,
-                        away_team_logo_url: sm.awayTeam.logoUrl,
-                        match_date: sm.matchDate,
-                        status: sm.status,
-                        updated_at: new Date().toISOString()
-                    });
+                try {
+                    await this.sb
+                        .from('scheduled_matches')
+                        .upsert({
+                            id: sm.id,
+                            home_team_id: sm.homeTeam.id,
+                            home_team_name: sm.homeTeam.name,
+                            home_team_short_code: sm.homeTeam.shortCode,
+                            home_team_logo_bg: sm.homeTeam.logoBg,
+                            home_team_logo_text: sm.homeTeam.logoText,
+                            home_team_logo_url: sm.homeTeam.logoUrl,
+                            away_team_id: sm.awayTeam.id,
+                            away_team_name: sm.awayTeam.name,
+                            away_team_short_code: sm.awayTeam.shortCode,
+                            away_team_logo_bg: sm.awayTeam.logoBg,
+                            away_team_logo_text: sm.awayTeam.logoText,
+                            away_team_logo_url: sm.awayTeam.logoUrl,
+                            match_date: sm.matchDate,
+                            status: sm.status,
+                            updated_at: new Date().toISOString()
+                        });
+                } catch (schedErr) {
+                    console.error('Error saving scheduled match:', schedErr);
+                }
             }
         } catch (error) {
             console.error('Error saving to Supabase:', error);
@@ -545,39 +565,48 @@ class GameManager {
     }
 
     async addTeam(name, shortCode, logoFile) {
-        if (!this.sb) return;
+        console.log('[addTeam] Starting with:', { name, shortCode, logoFile: logoFile?.name });
 
         let logoUrl = null;
-        if (logoFile) {
-            const fileExt = logoFile.name.split('.').pop();
-            const fileName = `${Math.random()}.${fileExt}`;
-            const filePath = `teams/${fileName}`;
+        if (logoFile && this.sb) {
+            try {
+                const fileExt = logoFile.name.split('.').pop();
+                const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
+                const filePath = `teams/${fileName}`;
 
-            const { data, error } = await this.sb.storage
-                .from('team-logos')
-                .upload(filePath, logoFile);
-
-            if (error) {
-                console.error('Error uploading logo:', error);
-            } else {
-                const { data: { publicUrl } } = this.sb.storage
+                console.log('[addTeam] Uploading logo to:', filePath);
+                const { data, error } = await this.sb.storage
                     .from('team-logos')
-                    .getPublicUrl(filePath);
-                logoUrl = publicUrl;
+                    .upload(filePath, logoFile);
+
+                if (error) {
+                    console.error('[addTeam] Logo upload error:', error);
+                } else {
+                    const { data: urlData } = this.sb.storage
+                        .from('team-logos')
+                        .getPublicUrl(filePath);
+                    logoUrl = urlData.publicUrl;
+                    console.log('[addTeam] Logo uploaded, URL:', logoUrl);
+                }
+            } catch (uploadErr) {
+                console.error('[addTeam] Logo upload exception:', uploadErr);
             }
         }
 
         const newTeam = {
             id: crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(),
             name,
-            shortCode,
-            logoBg: '#' + Math.floor(Math.random()*16777215).toString(16),
+            shortCode: shortCode || name.substring(0, 3).toUpperCase(),
+            logoBg: '#' + Math.floor(Math.random()*16777215).toString(16).padStart(6, '0'),
             logoText: shortCode || name.substring(0, 2).toUpperCase(),
             logoUrl
         };
 
+        console.log('[addTeam] New team object:', newTeam);
+
         this.teams.push(newTeam);
-        
+        console.log('[addTeam] teams array length:', this.teams.length);
+
         // Add to standings if not already there
         if (!this.standings.find(s => s.team.id === newTeam.id)) {
             this.standings.push({
@@ -587,10 +616,14 @@ class GameManager {
                 gf: 0, ga: 0, gd: 0, pts: 0,
                 form: []
             });
+            console.log('[addTeam] Added to standings, standings length:', this.standings.length);
         }
 
+        console.log('[addTeam] Calling saveData...');
         this.saveData();
+        console.log('[addTeam] Calling notifySubscribers...');
         this.notifySubscribers();
+        console.log('[addTeam] Done!');
     }
 
     async removeTeam(teamId) {
