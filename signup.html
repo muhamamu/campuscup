@@ -2,121 +2,113 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Sign Up - Campus Cup</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { font-family: 'Inter', sans-serif; background-color: #fdf2f8; }
-        .login-card { background-color: #fef2f2; border-top: 4px solid #1a061e; }
-        .input-field { background-color: #fae8ff; }
-        .btn-primary { background-color: #1a061e; }
-        .btn-primary:hover { background-color: #2d0a33; }
+        
+        .auth-card { background: white; border-radius: 40px; box-shadow: 0 10px 50px rgba(0,0,0,0.05); }
+        .input-box { background-color: #fce7f3; border-radius: 16px; padding: 14px 18px; font-weight: 700; color: #1a061e; border: 2px solid transparent; transition: all 0.2s; font-size: 16px; }
+        .input-box:focus { outline: none; border-color: #f472b6; background-color: white; }
+        
+        .btn-gradient { background: linear-gradient(135deg, #1a061e 0%, #2d0a34 100%); transition: transform 0.2s; }
+        .btn-gradient:active { transform: scale(0.98); }
     </style>
 </head>
-<body class="min-h-screen flex flex-col">
-    <nav class="bg-[#1a061e] text-white p-4 shadow-md">
-        <div class="container mx-auto flex justify-between items-center">
-            <div class="text-xl font-bold tracking-wider uppercase">CAMPUS CUP</div>
-            <button onclick="toggleDarkMode()" class="text-white hover:opacity-70" id="theme-toggle">
-                <i class="fas fa-moon text-xl"></i>
-            </button>
-        </div>
-    </nav>
-
-    <main class="flex-grow flex items-center justify-center p-6">
-        <div class="login-card w-full max-w-md p-8 rounded-lg shadow-xl">
-            <div class="text-center mb-10">
-                <h1 class="text-2xl md:text-3xl font-bold text-[#1a061e] mb-2 uppercase tracking-tight">Create Account</h1>
-                <p class="text-gray-500 text-sm">Join the Lion's Edge stadium experience.</p>
+<body class="min-h-screen flex flex-col items-center justify-center p-4">
+    <div class="w-full max-w-md">
+        <!-- Logo Area -->
+        <div class="text-center mb-10">
+            <div class="inline-block bg-[#1a061e] text-white px-6 py-2 rounded-2xl font-black tracking-tighter text-xl mb-4">
+                CAMPUS <span class="text-[#f472b6]">CUP</span>
             </div>
+            <h1 class="text-3xl font-black text-[#1a061e] uppercase tracking-tighter">Create Account</h1>
+            <p class="text-gray-400 font-bold text-sm mt-2">Join the ultimate campus football experience</p>
+        </div>
 
-            <form class="space-y-4" id="signup-form">
+        <!-- Signup Card -->
+        <div class="auth-card p-8 md:p-10">
+            <form class="space-y-4">
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-[#1a061e] text-xs font-bold mb-1">First Name</label>
-                        <input class="input-field w-full px-4 py-3 rounded-lg focus:outline-none text-gray-700 text-sm" id="first-name" type="text" placeholder="John" required>
+                        <label class="block text-[10px] font-black text-[#be185d] uppercase tracking-widest mb-2 ml-1">First Name</label>
+                        <input type="text" id="first-name" placeholder="John" class="input-box w-full">
                     </div>
                     <div>
-                        <label class="block text-[#1a061e] text-xs font-bold mb-1">Last Name</label>
-                        <input class="input-field w-full px-4 py-3 rounded-lg focus:outline-none text-gray-700 text-sm" id="last-name" type="text" placeholder="Davis" required>
+                        <label class="block text-[10px] font-black text-[#be185d] uppercase tracking-widest mb-2 ml-1">Last Name</label>
+                        <input type="text" id="last-name" placeholder="Davis" class="input-box w-full">
                     </div>
                 </div>
                 <div>
-                    <label class="block text-[#1a061e] text-xs font-bold mb-1">Email</label>
-                    <input class="input-field w-full px-4 py-3 rounded-lg focus:outline-none text-gray-700 text-sm" id="email" type="email" placeholder="user@lionsedge.com" required>
+                    <label class="block text-[10px] font-black text-[#be185d] uppercase tracking-widest mb-2 ml-1">Email Address</label>
+                    <input type="email" id="email" placeholder="user@example.com" class="input-box w-full">
                 </div>
                 <div>
-                    <label class="block text-[#1a061e] text-xs font-bold mb-1">Password</label>
-                    <input class="input-field w-full px-4 py-3 rounded-lg focus:outline-none text-gray-700 text-sm" id="password" type="password" placeholder="••••••••" required>
+                    <label class="block text-[10px] font-black text-[#be185d] uppercase tracking-widest mb-2 ml-1">Password</label>
+                    <input type="password" id="password" placeholder="••••••••" class="input-box w-full">
                 </div>
-                <button class="btn-primary w-full text-white font-bold py-4 rounded-lg shadow-lg hover:shadow-xl transition-all uppercase tracking-widest mt-4" type="button" onclick="doSignup()">Sign Up</button>
+
+                <button type="button" onclick="doSignup()" class="btn-gradient w-full text-white py-4 rounded-[20px] font-black uppercase tracking-widest shadow-xl shadow-[#1a061e]/20 mt-6">
+                    Join Stadium
+                </button>
             </form>
-            
-            <div class="mt-8 text-center">
-                <p class="text-sm text-gray-500">Already have an account? <a href="login.html" class="text-[#be185d] font-bold hover:underline">Login</a></p>
+
+            <div class="mt-10 pt-8 border-t border-gray-50 text-center">
+                <p class="text-gray-400 font-bold text-xs">Already have an account?</p>
+                <a href="login.html" class="inline-block mt-2 text-[#1a061e] font-black uppercase tracking-widest text-xs border-b-2 border-pink-500 pb-1">Sign In Instead</a>
             </div>
         </div>
-    </main>
+
+        <p class="text-center mt-8 text-gray-300 font-bold text-[10px] uppercase tracking-[0.2em]">&copy; 2026 Campus Cup Live</p>
+    </div>
 
     <script src="supabase.js"></script>
     <script>
-        let sb;
-
-        function toggleDarkMode() {
-            const isDark = document.documentElement.classList.toggle('dark-mode');
-            localStorage.setItem('darkMode', isDark ? 'true' : 'false');
-        }
-
         async function doSignup() {
-            alert('Starting signup...');
-
-            sb = await getSupabase();
-
+            const sb = await getSupabase();
             const firstName = document.getElementById('first-name').value;
             const lastName = document.getElementById('last-name').value;
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
 
-            try {
-                alert('Checking user count...');
-                const { data: users } = await sb.from('users').select('*');
-                const userCount = users ? users.length : 0;
-                const isAdmin = userCount === 0;
-                alert('User count: ' + userCount + ', isAdmin: ' + isAdmin);
+            if (!firstName || !lastName || !email || !password) {
+                alert('Please fill in all fields');
+                return;
+            }
 
-                alert('Signing up auth user...');
-                const { data, error } = await sb.auth.signUp({ email, password });
+            try {
+                const { data, error } = await sb.auth.signUp({
+                    email,
+                    password,
+                    options: {
+                        data: {
+                            first_name: firstName,
+                            last_name: lastName
+                        }
+                    }
+                });
+                
                 if (error) throw error;
 
-                alert('Saving to users table...');
-                await sb.from('users').insert({
-                    id: data.user.id,
-                    first_name: firstName,
-                    last_name: lastName,
-                    email: email,
-                    password: password,
-                    is_admin: isAdmin,
-                    is_permanent_admin: isAdmin
-                });
-
-                const userData = {
-                    id: data.user.id,
-                    firstName: firstName,
-                    lastName: lastName,
-                    email: email,
-                    isAdmin: isAdmin
-                };
-                localStorage.setItem('currentUser', JSON.stringify(userData));
-
-                alert('✅ DONE! Welcome!');
-                window.location.href = 'index.html';
-
+                // Trigger creates profile automatically
+                setTimeout(async () => {
+                    const { data: profile } = await sb.from('profiles').select('*').eq('id', data.user.id).single();
+                    const userData = {
+                        id: data.user.id,
+                        firstName: firstName,
+                        lastName: lastName,
+                        email: email,
+                        isAdmin: profile?.is_admin || false
+                    };
+                    localStorage.setItem('currentUser', JSON.stringify(userData));
+                    window.location.href = 'index.html';
+                }, 1000);
             } catch (err) {
-                console.error(err);
-                alert('❌ ERROR: ' + err.message);
+                alert(err.message);
             }
         }
     </script>

@@ -2,121 +2,94 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Login - Campus Cup</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { font-family: 'Inter', sans-serif; background-color: #fdf2f8; }
-        .login-card { background-color: #fef2f2; border-top: 4px solid #1a061e; }
-        .input-field { background-color: #fae8ff; }
-        .btn-primary { background-color: #1a061e; }
-        .btn-primary:hover { background-color: #2d0a33; }
+        
+        .auth-card { background: white; border-radius: 40px; box-shadow: 0 10px 50px rgba(0,0,0,0.05); }
+        .input-box { background-color: #fce7f3; border-radius: 16px; padding: 14px 18px; font-weight: 700; color: #1a061e; border: 2px solid transparent; transition: all 0.2s; font-size: 16px; }
+        .input-box:focus { outline: none; border-color: #f472b6; background-color: white; }
+        
+        .btn-gradient { background: linear-gradient(135deg, #1a061e 0%, #2d0a34 100%); transition: transform 0.2s; }
+        .btn-gradient:active { transform: scale(0.98); }
     </style>
 </head>
-<body class="min-h-screen flex flex-col">
-    <nav class="bg-[#1a061e] text-white p-4 shadow-md">
-        <div class="container mx-auto flex justify-between items-center">
-            <div class="text-xl font-bold tracking-wider uppercase">CAMPUS CUP</div>
-            <button onclick="toggleDarkMode()" class="text-white hover:opacity-70" id="theme-toggle">
-                <i class="fas fa-moon text-xl"></i>
-            </button>
-        </div>
-    </nav>
-
-    <main class="flex-grow flex items-center justify-center p-6">
-        <div class="login-card w-full max-w-md p-8 rounded-lg shadow-xl">
-            <div class="text-center mb-10">
-                <h1 class="text-2xl md:text-3xl font-bold text-[#1a061e] mb-2 uppercase tracking-tight">
-                    Secure Access Portal
-                </h1>
-                <p class="text-gray-500 text-sm">
-                    Enter your credentials to enter the stadium.
-                </p>
+<body class="min-h-screen flex flex-col items-center justify-center p-4">
+    <div class="w-full max-w-md">
+        <!-- Logo Area -->
+        <div class="text-center mb-10">
+            <div class="inline-block bg-[#1a061e] text-white px-6 py-2 rounded-2xl font-black tracking-tighter text-xl mb-4">
+                CAMPUS <span class="text-[#f472b6]">CUP</span>
             </div>
+            <h1 class="text-3xl font-black text-[#1a061e] uppercase tracking-tighter">Welcome Back</h1>
+            <p class="text-gray-400 font-bold text-sm mt-2">Sign in to access live scores & fan perks</p>
+        </div>
 
+        <!-- Login Card -->
+        <div class="auth-card p-8 md:p-10">
             <form class="space-y-6">
                 <div>
-                    <label class="block text-[#1a061e] text-sm font-semibold mb-2">Email</label>
-                    <div class="relative">
-                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
-                            <i class="far fa-user text-sm"></i>
-                        </span>
-                        <input class="input-field w-full pl-10 pr-4 py-3 rounded-lg focus:outline-none text-gray-700" id="email" type="email" placeholder="user@lionsedge.com" required>
-                    </div>
+                    <label class="block text-[10px] font-black text-[#be185d] uppercase tracking-widest mb-2 ml-1">Email Address</label>
+                    <input type="email" id="email" placeholder="user@example.com" class="input-box w-full">
                 </div>
-
                 <div>
-                    <label class="block text-[#1a061e] text-sm font-semibold mb-2">Password</label>
-                    <div class="relative">
-                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
-                            <i class="fas fa-lock text-sm"></i>
-                        </span>
-                        <input class="input-field w-full pl-10 pr-4 py-3 rounded-lg focus:outline-none text-gray-700" id="password" type="password" placeholder="••••••••" required>
-                    </div>
+                    <label class="block text-[10px] font-black text-[#be185d] uppercase tracking-widest mb-2 ml-1">Password</label>
+                    <input type="password" id="password" placeholder="••••••••" class="input-box w-full">
                 </div>
 
-                <button class="btn-primary w-full text-white font-bold py-4 rounded-lg shadow-lg hover:shadow-xl transition-all uppercase tracking-widest mt-4" type="button" onclick="doLogin()">
-                    Login
+                <div class="flex justify-end">
+                    <a href="#" class="text-xs font-bold text-pink-500 hover:text-pink-600">Forgot Password?</a>
+                </div>
+
+                <button type="button" onclick="doLogin()" class="btn-gradient w-full text-white py-4 rounded-[20px] font-black uppercase tracking-widest shadow-xl shadow-[#1a061e]/20 mt-4">
+                    Sign In
                 </button>
             </form>
-            
-            <div class="mt-8 text-center">
-                <p class="text-sm text-gray-500">Don't have an account? <a href="signup.html" class="text-[#be185d] font-bold hover:underline">Sign Up</a></p>
+
+            <div class="mt-10 pt-8 border-t border-gray-50 text-center">
+                <p class="text-gray-400 font-bold text-xs">New to Campus Cup?</p>
+                <a href="signup.html" class="inline-block mt-2 text-[#1a061e] font-black uppercase tracking-widest text-xs border-b-2 border-pink-500 pb-1">Create Account</a>
             </div>
         </div>
-    </main>
 
-    <footer class="text-center p-4 text-gray-400 text-xs">
-        &copy; 2026 Lionsedge Stadium. All rights reserved.
-    </footer>
+        <p class="text-center mt-8 text-gray-300 font-bold text-[10px] uppercase tracking-[0.2em]">&copy; 2026 Campus Cup Live</p>
+    </div>
 
     <script src="supabase.js"></script>
     <script>
-        let sb;
-
-        function toggleDarkMode() {
-            const isDark = document.documentElement.classList.toggle('dark-mode');
-            localStorage.setItem('darkMode', isDark ? 'true' : 'false');
-        }
-
         async function doLogin() {
-            sb = await getSupabase();
-            
+            const sb = await getSupabase();
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
 
+            if (!email || !password) {
+                alert('Please enter your credentials');
+                return;
+            }
+
             try {
-                alert('Logging in...');
                 const { data, error } = await sb.auth.signInWithPassword({ email, password });
                 if (error) throw error;
 
-                alert('Getting user data...');
-                const { data: usersData } = await sb.from('users').select('*').eq('email', email).single();
+                const { data: profile } = await sb.from('profiles').select('*').eq('id', data.user.id).single();
 
-                const userData = usersData ? {
-                    id: usersData.id,
-                    firstName: usersData.first_name,
-                    lastName: usersData.last_name,
-                    email: usersData.email,
-                    isAdmin: usersData.is_admin
-                } : {
+                const userData = {
                     id: data.user.id,
-                    firstName: email.split('@')[0],
-                    lastName: 'User',
-                    email,
-                    isAdmin: false
+                    firstName: profile?.first_name || 'User',
+                    lastName: profile?.last_name || '',
+                    email: email,
+                    isAdmin: profile?.is_admin || false
                 };
 
                 localStorage.setItem('currentUser', JSON.stringify(userData));
-                alert('✅ Login successful!');
                 window.location.href = 'index.html';
-
             } catch (err) {
-                console.error(err);
-                alert('❌ Login failed: ' + err.message);
+                alert(err.message);
             }
         }
     </script>

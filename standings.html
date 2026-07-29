@@ -2,140 +2,141 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>League Standings - Campus Cup</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Standings - Campus Cup</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
-        body { font-family: 'Inter', sans-serif; background-color: white; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        html, body { overflow-x: hidden; width: 100%; }
+        body { font-family: 'Inter', sans-serif; background-color: #fdf2f8; }
         
-        /* Dark Mode Styles */
-        .dark-mode body {
-            background-color: #000000;
-        }
+        .standings-card { background-color: white; border-radius: 32px; box-shadow: 0 4px 30px rgba(0,0,0,0.03); border: 1px solid rgba(255,255,255,0.8); }
         
-        .dark-mode .dark-bg-white {
-            background-color: #111111 !important;
-        }
-        
-        .dark-mode .dark-text-primary {
-            color: #ffffff !important;
-        }
-        
-        .dark-mode .dark-text-secondary {
-            color: #9ca3af !important;
-        }
-        
-        .dark-mode .dark-card-bg {
-            background-color: #1f1f1f !important;
-        }
-        
-        .dark-mode .standings-card {
-            background-color: #111111;
-        }
-        .dark-mode .standings-card td,
-        .dark-mode .standings-card span {
-            color: #ffffff !important;
-        }
-        .dark-mode .standings-card .text-gray-500 {
-            color: #9ca3af !important;
-        }
-        
-        .nav-link { color: #fef2f8; font-weight: 500; font-size: 0.875rem; padding: 0.5rem 1rem; transition: all 0.2s; cursor: pointer; border: 1px solid transparent; }
-        .nav-link:hover { color: #f472b6; }
-        .nav-link-active { color: #1a061e; border: 1px solid #f472b6; border-radius: 8px; background-color: white; }
-        
-        .dark-mode .nav-link {
-            color: #9ca3af;
-        }
-        .dark-mode .nav-link:hover {
-            color: #ffffff;
-        }
-        .dark-mode .nav-link-active {
-            color: #ffffff;
-            border-color: #f472b6;
-            background-color: #2a2a4a;
-        }
-        
-        .search-input { background-color: #fce7f3; }
-        .dark-mode .search-input { background-color: #2a2a4a; color: #ffffff; }
-        
-        .standings-card { background-color: #fce7f3; border-radius: 16px; overflow: hidden; }
-        .dark-mode .standings-card {
-            background-color: #1a1a2e;
-        }
-        
-        .form-dot { width: 24px; height: 24px; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 800; color: white; }
+        .table-row { transition: background-color 0.2s; }
+        .table-row:hover { background-color: #fff1f2; }
+
+        .form-dot { width: 22px; height: 22px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-black: 900; color: white; text-transform: uppercase; }
         .form-w { background-color: #10b981; }
         .form-d { background-color: #94a3b8; }
         .form-l { background-color: #ef4444; }
-        .table-header { color: #be185d; font-size: 11px; font-weight: 800; text-transform: uppercase; }
-        #mobile-menu { transition: transform 0.3s ease-in-out; transform: translateX(-100%); }
-        #mobile-menu.active { transform: translateX(0); }
+
+        #mobile-overlay { transition: opacity 0.3s ease; }
+        #mobile-menu-panel { transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { height: 4px; width: 6px; }
+        ::-webkit-scrollbar-track { background: #fdf2f8; }
+        ::-webkit-scrollbar-thumb { background: #f472b6; border-radius: 10px; }
     </style>
 </head>
-<body class="min-h-screen flex flex-col overflow-x-hidden">
-    <!-- Simple Navigation (Always Desktop View) -->
-    <nav class="sticky top-0 z-50" style="background-color: #1a061e;">
+<body class="min-h-screen flex flex-col">
+    <!-- Navigation -->
+    <nav class="sticky top-0 z-50 shadow-lg" style="background-color: #1a061e;">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16">
-                <!-- Logo -->
                 <div class="flex-shrink-0">
-                    <a href="index.html" class="text-xl font-bold tracking-tight" style="color: #fef2f8;">
+                    <a href="index.html" class="text-xl font-black tracking-tighter" style="color: #fef2f8;">
                         CAMPUS <span style="color: #f472b6;">CUP</span>
                     </a>
                 </div>
+                
+                <!-- Desktop Menu -->
+                <div class="hidden md:flex items-center space-x-1">
+                    <a href="index.html" class="text-[#fef2f8] hover:text-[#f472b6] text-sm font-bold px-4 py-2 transition-colors">Dashboard</a>
+                    <a href="teams.html" class="text-[#fef2f8] hover:text-[#f472b6] text-sm font-bold px-4 py-2 transition-colors">Teams</a>
+                    <a href="standings.html" class="bg-[#f472b6] text-[#1a061e] text-sm font-black px-4 py-2 rounded-lg">Standings</a>
+                    <a href="match-history.html" class="text-[#fef2f8] hover:text-[#f472b6] text-sm font-bold px-4 py-2 transition-colors">History</a>
+                    <a href="profile.html" class="text-[#fef2f8] hover:text-[#f472b6] text-sm font-bold px-4 py-2 transition-colors">Profile</a>
+                    <a href="admin.html" id="admin-link" class="text-[#fef2f8] hover:text-[#f472b6] text-sm font-bold px-4 py-2 hidden">Admin</a>
+                    <button onclick="logout()" class="text-white bg-red-500/20 hover:bg-red-500/40 px-4 py-2 rounded-lg text-sm font-bold ml-4 transition-all">Logout</button>
+                </div>
 
-                <!-- Desktop Links (Always Visible) -->
-                <div class="flex items-center space-x-1">
-                    <a href="index.html" class="text-[#fef2f8] hover:text-[#f472b6] text-sm font-medium px-4 py-2">Dashboard</a>
-                    <a href="teams.html" class="text-[#fef2f8] hover:text-[#f472b6] text-sm font-medium px-4 py-2">Teams</a>
-                    <a href="standings.html" class="text-[#f472b6] text-sm font-medium px-4 py-2 font-bold">Standings</a>
-                    <a href="match-history.html" class="text-[#fef2f8] hover:text-[#f472b6] text-sm font-medium px-4 py-2">Match History</a>
-                    <a href="profile.html" class="text-[#fef2f8] hover:text-[#f472b6] text-sm font-medium px-4 py-2">Profile</a>
-                    <a href="admin.html" id="admin-link" class="text-[#fef2f8] hover:text-[#f472b6] text-sm font-medium px-4 py-2 hidden">Admin</a>
-                    <button onclick="logout()" class="text-[#fef2f8] hover:text-[#f472b6] text-sm font-medium ml-4">Logout</button>
+                <!-- Mobile Menu Button -->
+                <div class="md:hidden flex items-center">
+                    <button onclick="toggleMobileMenu()" class="text-[#fef2f8] p-2 focus:outline-none">
+                        <i class="fas fa-bars text-2xl"></i>
+                    </button>
                 </div>
             </div>
         </div>
     </nav>
 
-    <main class="flex-grow p-4 md:p-12 max-w-7xl mx-auto w-full">
-        <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-10 gap-6">
-            <div>
-                <h1 class="text-4xl md:text-5xl font-black text-[#1a061e] uppercase tracking-tighter mb-2">LEAGUE STANDINGS</h1>
-                <p class="text-gray-400 font-bold">2026 Regular Season</p>
+    <!-- Mobile Menu Overlay -->
+    <div id="mobile-overlay" class="fixed inset-0 bg-black/60 z-[60] hidden opacity-0 pointer-events-none transition-opacity duration-300">
+        <div id="mobile-menu-panel" class="absolute right-0 top-0 h-full w-4/5 max-w-sm bg-[#1a061e] shadow-2xl translate-x-full transition-transform duration-300 p-6 flex flex-col">
+            <div class="flex justify-between items-center mb-10">
+                <span class="text-xl font-black text-white">MENU</span>
+                <button onclick="toggleMobileMenu()" class="text-[#f472b6] p-2">
+                    <i class="fas fa-times text-2xl"></i>
+                </button>
             </div>
-            <div class="flex space-x-4">
-                <button class="bg-white border border-pink-100 px-6 py-2 rounded-lg text-xs font-bold text-[#1a061e] shadow-sm hover:bg-pink-50 transition-colors">All Conferences</button>
-                <button class="bg-[#1a061e] text-white px-6 py-2 rounded-lg text-xs font-bold flex items-center space-x-2 shadow-lg hover:bg-black transition-colors"><i class="fas fa-file-export"></i><span>EXPORT</span></button>
+            <div class="flex flex-col space-y-4">
+                <a href="index.html" class="text-white text-lg font-bold p-3 rounded-xl hover:bg-white/10 transition-colors"><i class="fas fa-th-large mr-3 w-6"></i> Dashboard</a>
+                <a href="teams.html" class="text-white text-lg font-bold p-3 rounded-xl hover:bg-white/10 transition-colors"><i class="fas fa-users mr-3 w-6"></i> Teams</a>
+                <a href="standings.html" class="text-[#f472b6] text-lg font-black p-3 rounded-xl bg-white/5"><i class="fas fa-list-ol mr-3 w-6"></i> Standings</a>
+                <a href="match-history.html" class="text-white text-lg font-bold p-3 rounded-xl hover:bg-white/10 transition-colors"><i class="fas fa-history mr-3 w-6"></i> History</a>
+                <a href="profile.html" class="text-white text-lg font-bold p-3 rounded-xl hover:bg-white/10 transition-colors"><i class="fas fa-user mr-3 w-6"></i> Profile</a>
+                <a href="admin.html" id="admin-link-mobile" class="text-white text-lg font-bold p-3 rounded-xl hover:bg-white/10 transition-colors hidden"><i class="fas fa-user-shield mr-3 w-6"></i> Admin Panel</a>
+                <div class="pt-10">
+                    <button onclick="logout()" class="w-full bg-red-600 text-white py-4 rounded-2xl font-black shadow-lg shadow-red-600/20">
+                        <i class="fas fa-sign-out-alt mr-2"></i> LOGOUT
+                    </button>
+                </div>
             </div>
         </div>
+    </div>
 
-        <div class="standings-card shadow-xl overflow-x-auto">
-            <table class="w-full text-left min-w-[900px]">
-                <thead>
-                    <tr class="bg-pink-100/50">
-                        <th class="table-header px-6 py-6 w-16">POS</th>
-                        <th class="table-header px-6 py-6">CLUB</th>
-                        <th class="table-header px-4 py-6 text-center">MP</th>
-                        <th class="table-header px-4 py-6 text-center">W</th>
-                        <th class="table-header px-4 py-6 text-center">D</th>
-                        <th class="table-header px-4 py-6 text-center">L</th>
-                        <th class="table-header px-4 py-6 text-center">GF</th>
-                        <th class="table-header px-4 py-6 text-center">GA</th>
-                        <th class="table-header px-4 py-6 text-center">GD</th>
-                        <th class="table-header px-6 py-6 text-center">PTS</th>
-                        <th class="table-header px-6 py-6 text-center">FORM</th>
-                    </tr>
-                </thead>
-                <tbody id="standings-body" class="divide-y divide-pink-100/50 font-bold">
-                </tbody>
-            </table>
-            <div class="p-6 bg-pink-50/50 flex flex-wrap gap-6 border-t border-pink-100/50">
-                <div class="flex items-center space-x-2"><div class="w-3 h-3 rounded-full bg-red-500"></div><span class="text-[10px] font-bold text-gray-400 uppercase">Champions League Qualification</span></div>
-                <div class="flex items-center space-x-2"><div class="w-3 h-3 rounded-full bg-gray-300"></div><span class="text-[10px] font-bold text-gray-400 uppercase">Europa League Qualification</span></div>
+    <main class="flex-grow p-4 md:p-8 lg:p-12 max-w-7xl mx-auto w-full">
+        <header class="mb-8 md:mb-12 flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
+            <div>
+                <h1 class="text-3xl md:text-5xl font-black text-[#1a061e] uppercase tracking-tighter mb-2">LEAGUE TABLE</h1>
+                <p class="text-gray-400 font-bold text-sm">2026 Regular Season Standings</p>
+            </div>
+            <div class="flex gap-2 w-full md:w-auto">
+                <button class="flex-1 md:flex-none bg-white border border-pink-100 px-4 py-2 rounded-xl text-[10px] font-black uppercase text-[#1a061e] shadow-sm">Groups</button>
+                <button class="flex-1 md:flex-none bg-[#1a061e] text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-black/10">Full Stats</button>
+            </div>
+        </header>
+
+        <div class="standings-card overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left min-w-[700px]">
+                    <thead>
+                        <tr class="bg-gray-50 border-b border-gray-100">
+                            <th class="px-6 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">Pos</th>
+                            <th class="px-6 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">Club</th>
+                            <th class="px-3 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center">MP</th>
+                            <th class="px-3 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center">W</th>
+                            <th class="px-3 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center">D</th>
+                            <th class="px-3 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center">L</th>
+                            <th class="px-3 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center">GD</th>
+                            <th class="px-6 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center">Pts</th>
+                            <th class="px-6 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center">Form</th>
+                        </tr>
+                    </thead>
+                    <tbody id="standings-body" class="divide-y divide-gray-50">
+                        <!-- Content loaded via JS -->
+                        <tr><td colspan="9" class="p-20 text-center text-gray-300 font-bold">Loading table...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Legend -->
+            <div class="p-6 bg-gray-50/50 border-t border-gray-100 flex flex-wrap gap-4">
+                <div class="flex items-center gap-2">
+                    <div class="w-2 h-2 rounded-full bg-green-500"></div>
+                    <span class="text-[9px] font-black text-gray-400 uppercase tracking-tighter">Champions League</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <div class="w-2 h-2 rounded-full bg-blue-500"></div>
+                    <span class="text-[9px] font-black text-gray-400 uppercase tracking-tighter">Europa League</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <div class="w-2 h-2 rounded-full bg-red-500"></div>
+                    <span class="text-[9px] font-black text-gray-400 uppercase tracking-tighter">Relegation Zone</span>
+                </div>
             </div>
         </div>
     </main>
@@ -143,132 +144,117 @@
     <script src="supabase.js"></script>
     <script src="game-manager.js"></script>
     <script>
-        function checkAuth() {
-            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-            if (!currentUser) {
-                window.location.href = 'login.html';
-                return false;
+        function toggleMobileMenu() {
+            const overlay = document.getElementById('mobile-overlay');
+            const panel = document.getElementById('mobile-menu-panel');
+            const isHidden = overlay.classList.contains('hidden');
+            
+            if (isHidden) {
+                overlay.classList.remove('hidden');
+                setTimeout(() => {
+                    overlay.classList.remove('opacity-0');
+                    overlay.classList.add('opacity-100');
+                    overlay.classList.add('pointer-events-auto');
+                    panel.classList.remove('translate-x-full');
+                }, 10);
+            } else {
+                overlay.classList.add('opacity-0');
+                overlay.classList.remove('opacity-100');
+                overlay.classList.remove('pointer-events-auto');
+                panel.classList.add('translate-x-full');
+                setTimeout(() => {
+                    overlay.classList.add('hidden');
+                }, 300);
             }
-            return currentUser;
         }
 
-        function checkAdmin() {
-            const currentUser = checkAuth();
-            if (!currentUser) return;
+        async function checkAuth() {
+            const sb = await getSupabase();
+            const { data: { session } } = await sb.auth.getSession();
+            if (!session) { window.location.href = 'login.html'; return null; }
+            const { data: profile } = await sb.from('profiles').select('*').eq('id', session.user.id).single();
+            if (!profile) return { id: session.user.id, email: session.user.email, isAdmin: false };
             
-            const adminLink = document.getElementById('admin-link');
-            const adminLinkMobile = document.getElementById('admin-link-mobile');
-            
-            if (adminLink) {
-                if (currentUser.isAdmin) {
-                    adminLink.classList.remove('hidden');
-                } else {
-                    adminLink.classList.add('hidden');
-                }
-            }
-            
-            if (adminLinkMobile) {
-                if (currentUser.isAdmin) {
-                    adminLinkMobile.classList.remove('hidden');
-                } else {
-                    adminLinkMobile.classList.add('hidden');
-                }
+            const userData = { id: profile.id, firstName: profile.first_name, lastName: profile.last_name, email: profile.email, isAdmin: profile.is_admin };
+            localStorage.setItem('currentUser', JSON.stringify(userData));
+            return profile;
+        }
+
+        async function checkAdmin() {
+            const profile = await checkAuth();
+            if (!profile) return;
+            if (profile.is_admin) {
+                document.getElementById('admin-link')?.classList.remove('hidden');
+                document.getElementById('admin-link-mobile')?.classList.remove('hidden');
             }
         }
-        
-        function logout() {
+
+        async function logout() {
+            const sb = await getSupabase();
+            await sb.auth.signOut();
             localStorage.removeItem('currentUser');
             window.location.href = 'login.html';
-        }
-        
-        function toggleMobileMenu() {
-            const menu = document.getElementById('mobile-menu');
-            const menuIcon = document.getElementById('menu-icon');
-            const closeIcon = document.getElementById('close-icon');
-            
-            if (menu && menuIcon && closeIcon) {
-                menu.classList.toggle('hidden');
-                menuIcon.classList.toggle('hidden');
-                closeIcon.classList.toggle('hidden');
-            }
-        }
-
-        // Run on load
-        const user = checkAuth();
-        if (user) {
-            checkAdmin();
         }
 
         function renderStandings(standings) {
             const tbody = document.getElementById('standings-body');
-            if (!tbody) return;
+            if (!tbody || !standings) return;
 
-            tbody.innerHTML = standings.map(standing => {
-                const formDots = standing.form.map(f => {
-                    const className = f.result === 'W' ? 'form-w' : f.result === 'D' ? 'form-d' : 'form-l';
-                    return `<div class="form-dot ${className}">${f.result}</div>`;
-                }).join('');
-
-                const posColor = standing.pos <= 2 ? 'text-red-500' : 'text-[#1a061e]';
-                const gdColor = standing.gd > 0 ? 'text-green-500' : standing.gd < 0 ? 'text-red-500' : 'text-gray-500';
-
+            tbody.innerHTML = standings.map((s, idx) => {
+                const pos = idx + 1;
+                const posBg = pos <= 2 ? 'bg-green-500 text-white' : pos <= 4 ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-400';
+                
                 return `
-                    <tr class="hover:bg-pink-50/50 transition-colors">
-                        <td class="px-6 py-6 ${posColor} text-xl font-black">${standing.pos}</td>
-                        <td class="px-6 py-6 flex items-center space-x-4">
-                            <div class="w-10 h-10 rounded-full flex items-center justify-center border-2 border-orange-500 overflow-hidden">
-                                <div class="w-full h-full flex items-center justify-center text-[10px] text-white" style="background-color: ${standing.team.logoBg}">${standing.team.logoText}</div>
+                    <tr class="table-row">
+                        <td class="px-6 py-5">
+                            <div class="w-8 h-8 rounded-xl flex items-center justify-center font-black text-xs ${posBg}">
+                                ${pos}
                             </div>
-                            <span class="text-[#1a061e] text-lg">${standing.team.name}</span>
                         </td>
-                        <td class="px-4 py-6 text-center text-gray-500">${standing.mp}</td>
-                        <td class="px-4 py-6 text-center text-gray-500">${standing.w}</td>
-                        <td class="px-4 py-6 text-center text-gray-500">${standing.d}</td>
-                        <td class="px-4 py-6 text-center text-gray-500">${standing.l}</td>
-                        <td class="px-4 py-6 text-center text-gray-500">${standing.gf}</td>
-                        <td class="px-4 py-6 text-center text-gray-500">${standing.ga}</td>
-                        <td class="px-4 py-6 text-center ${gdColor}">${standing.gd > 0 ? '+' : ''}${standing.gd}</td>
-                        <td class="px-6 py-6 text-center text-[#1a061e] text-2xl font-black">${standing.pts}</td>
-                        <td class="px-6 py-6">
-                            <div class="flex space-x-1 justify-center">${formDots}</div>
+                        <td class="px-6 py-5">
+                            <div class="flex items-center gap-4">
+                                <div class="w-10 h-10 rounded-2xl flex items-center justify-center text-[10px] font-black text-white shadow-sm" style="background-color: ${s.team.logoBg}">
+                                    ${s.team.logoText}
+                                </div>
+                                <div class="min-w-0">
+                                    <p class="font-black text-sm text-[#1a061e] truncate uppercase tracking-tight">${s.team.name}</p>
+                                    <p class="text-[10px] font-bold text-gray-400">${s.team.shortCode || 'CLUB'}</p>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-3 py-5 text-center font-bold text-[#1a061e] text-sm">${s.mp}</td>
+                        <td class="px-3 py-5 text-center font-bold text-gray-500 text-sm">${s.w}</td>
+                        <td class="px-3 py-5 text-center font-bold text-gray-500 text-sm">${s.d}</td>
+                        <td class="px-3 py-5 text-center font-bold text-gray-500 text-sm">${s.l}</td>
+                        <td class="px-3 py-5 text-center font-black text-sm ${s.gd >= 0 ? 'text-green-500' : 'text-red-500'}">
+                            ${s.gd > 0 ? '+' : ''}${s.gd}
+                        </td>
+                        <td class="px-6 py-5 text-center font-black text-[#1a061e] text-lg">${s.pts}</td>
+                        <td class="px-6 py-5">
+                            <div class="flex gap-1 justify-center">
+                                ${(s.form || []).slice(-5).map(f => {
+                                    const res = f.result || f; // handle both object and string
+                                    const color = res === 'W' ? 'bg-green-500' : res === 'D' ? 'bg-gray-400' : 'bg-red-500';
+                                    return `<div class="w-5 h-5 rounded-md ${color} text-white flex items-center justify-center text-[8px] font-black">${res}</div>`;
+                                }).join('')}
+                            </div>
                         </td>
                     </tr>
                 `;
             }).join('');
         }
 
-        document.documentElement.classList.remove('dark-mode');
-        localStorage.removeItem('darkMode');
-
-        // Set test admin user for testing
-        const testUser = {
-            id: 'test-123',
-            firstName: 'Admin',
-            lastName: 'User',
-            email: 'admin@test.com',
-            isAdmin: true
-        };
-        localStorage.setItem('currentUser', JSON.stringify(testUser));
-
-        // Run on load
-        checkAdmin();
-
-        // Wait for game manager to be ready
-        function trySubscribeAndUpdate() {
-            if (typeof gameManager !== 'undefined') {
-                // First render with initial data
-                if (gameManager.standings) {
-                    renderStandings(gameManager.standings);
+        // Initialize
+        (async () => {
+            await checkAdmin();
+            let subInterval = setInterval(() => {
+                if (window.gameManager) {
+                    clearInterval(subInterval);
+                    gameManager.subscribe((s) => renderStandings(s));
+                    if (gameManager.standings) renderStandings(gameManager.standings);
                 }
-                // Then subscribe for updates
-                gameManager.subscribe((standings, match, history) => {
-                    renderStandings(standings);
-                });
-            } else {
-                setTimeout(trySubscribeAndUpdate, 100);
-            }
-        }
-        trySubscribeAndUpdate();
+            }, 100);
+        })();
     </script>
 </body>
 </html>

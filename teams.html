@@ -2,345 +2,251 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>League Teams - Campus Cup</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Teams - Campus Cup</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        html, body { overflow-x: hidden; width: 100%; }
         body { font-family: 'Inter', sans-serif; background-color: #fdf2f8; }
         
-        /* Dark Mode Styles */
-        .dark-mode body {
-            background-color: #000000;
-        }
+        .team-card { background: white; border-radius: 32px; overflow: hidden; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 4px 25px rgba(0,0,0,0.02); }
+        .team-card:hover { transform: translateY(-8px); }
         
-        .dark-mode .dark-bg-white {
-            background-color: #111111 !important;
-        }
-        
-        .dark-mode .dark-text-primary {
-            color: #ffffff !important;
-        }
-        
-        .dark-mode .dark-text-secondary {
-            color: #9ca3af !important;
-        }
-        
-        .dark-mode .dark-card-bg {
-            background-color: #1f1f1f !important;
-        }
-        
-        .dark-mode .dark-input-bg {
-            background-color: #2a2a2a !important;
-        }
-        
-        .dark-mode .team-card-v2 {
-            background: #111111;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-        }
-        
-        .dark-mode .team-logo-overlay {
-            background: #1f1f1f;
-        }
-        
-        .dark-mode .stats-grid-bg {
-            background-color: #1f1f1f;
-        }
-        
-        .nav-link { color: #64748b; font-weight: 500; font-size: 0.875rem; padding: 0.5rem 1rem; transition: all 0.2s; cursor: pointer; border: 1px solid transparent; }
-        .nav-link:hover { color: #1a061e; }
-        .nav-link-active { color: #1a061e; border: 1px solid #f472b6; border-radius: 8px; background-color: white; }
-        
-        .dark-mode .nav-link {
-            color: #9ca3af;
-        }
-        .dark-mode .nav-link:hover {
-            color: #ffffff;
-        }
-        .dark-mode .nav-link-active {
-            color: #ffffff;
-            border-color: #f472b6;
-            background-color: #2a2a4a;
-        }
-        
-        .search-input { background-color: #fce7f3; }
-        .dark-mode .search-input { background-color: #2a2a4a; color: #ffffff; }
+        .team-header { height: 120px; position: relative; }
+        .team-logo-float { width: 64px; height: 64px; border-radius: 20px; background: white; position: absolute; bottom: -32px; left: 24px; box-shadow: 0 8px 20px rgba(0,0,0,0.1); padding: 4px; }
 
-        /* Team Card Styles from Figma */
-        .team-card-v2 {
-            background: white;
-            border-radius: 20px;
-            overflow: hidden;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.03);
-            transition: transform 0.3s ease;
-        }
-        .team-card-v2:hover { transform: translateY(-5px); }
-        .dark-mode .team-card-v2 {
-            background: #1a1a2e;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-        }
-        
-        .card-gradient-software { background: linear-gradient(to bottom, #1a061e, #f472b6); height: 100px; }
-        .card-gradient-mechatronics { background: linear-gradient(to bottom, #fce7f3, #fae8ff); height: 100px; }
-        .card-gradient-civil { background: linear-gradient(to bottom, #fecaca, #ffffff); height: 100px; }
+        .stat-chip { background-color: #fce7f3; border-radius: 12px; padding: 12px; text-align: center; }
 
-        .team-logo-overlay {
-            width: 50px;
-            height: 50px;
-            border-radius: 12px;
-            background: white;
-            padding: 2px;
-            position: absolute;
-            top: 75px;
-            left: 20px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-        }
-        .dark-mode .team-logo-overlay {
-            background: #2a2a4a;
-        }
+        #mobile-overlay { transition: opacity 0.3s ease; }
+        #mobile-menu-panel { transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
 
-        .stats-grid-bg { background-color: #fff1f2; border-radius: 12px; }
-        .dark-mode .stats-grid-bg {
-            background-color: #2a2a4a;
-        }
-        
-        .rank-badge {
-            font-size: 9px;
-            font-weight: 900;
-            padding: 2px 8px;
-            border-radius: 10px;
-            text-transform: uppercase;
-        }
-        .rank-green { background-color: #dcfce7; color: #16a34a; }
-        .rank-purple { background-color: #f3e8ff; color: #9333ea; }
-        .rank-pink { background-color: #fce7f3; color: #db2777; }
-
-        .my-team-tag {
-            position: absolute;
-            top: 12px;
-            right: 12px;
-            background-color: #be185d;
-            color: white;
-            font-size: 8px;
-            font-weight: 900;
-            padding: 2px 8px;
-            border-radius: 4px;
-            text-transform: uppercase;
-        }
-
-        .filter-btn {
-            font-size: 11px;
-            font-weight: 700;
-            padding: 6px 16px;
-            border-radius: 20px;
-            transition: all 0.2s;
-        }
-        .filter-btn-active { background-color: #1a061e; color: white; }
-        .filter-btn-inactive { background-color: #f3e8ff; color: #9333ea; }
-
-        #mobile-menu { transition: transform 0.3s ease-in-out; transform: translateX(-100%); }
-        #mobile-menu.active { transform: translateX(0); }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #fdf2f8; }
+        ::-webkit-scrollbar-thumb { background: #f472b6; border-radius: 10px; }
     </style>
 </head>
-<body class="min-h-screen flex flex-col overflow-x-hidden">
-    <!-- Simple Navigation (Always Desktop View) -->
-    <nav class="sticky top-0 z-50" style="background-color: #1a061e;">
+<body class="min-h-screen flex flex-col">
+    <!-- Navigation -->
+    <nav class="sticky top-0 z-50 shadow-lg" style="background-color: #1a061e;">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16">
-                <!-- Logo -->
                 <div class="flex-shrink-0">
-                    <a href="index.html" class="text-xl font-bold tracking-tight" style="color: #fef2f8;">
+                    <a href="index.html" class="text-xl font-black tracking-tighter" style="color: #fef2f8;">
                         CAMPUS <span style="color: #f472b6;">CUP</span>
                     </a>
                 </div>
+                
+                <!-- Desktop Menu -->
+                <div class="hidden md:flex items-center space-x-1">
+                    <a href="index.html" class="text-[#fef2f8] hover:text-[#f472b6] text-sm font-bold px-4 py-2 transition-colors">Dashboard</a>
+                    <a href="teams.html" class="bg-[#f472b6] text-[#1a061e] text-sm font-black px-4 py-2 rounded-lg">Teams</a>
+                    <a href="standings.html" class="text-[#fef2f8] hover:text-[#f472b6] text-sm font-bold px-4 py-2 transition-colors">Standings</a>
+                    <a href="match-history.html" class="text-[#fef2f8] hover:text-[#f472b6] text-sm font-bold px-4 py-2 transition-colors">History</a>
+                    <a href="profile.html" class="text-[#fef2f8] hover:text-[#f472b6] text-sm font-bold px-4 py-2 transition-colors">Profile</a>
+                    <a href="admin.html" id="admin-link" class="text-[#fef2f8] hover:text-[#f472b6] text-sm font-bold px-4 py-2 hidden">Admin</a>
+                    <button onclick="logout()" class="text-white bg-red-500/20 hover:bg-red-500/40 px-4 py-2 rounded-lg text-sm font-bold ml-4 transition-all">Logout</button>
+                </div>
 
-                <!-- Desktop Links (Always Visible) -->
-                <div class="flex items-center space-x-1">
-                    <a href="index.html" class="text-[#fef2f8] hover:text-[#f472b6] text-sm font-medium px-4 py-2">Dashboard</a>
-                    <a href="teams.html" class="text-[#f472b6] text-sm font-medium px-4 py-2 font-bold">Teams</a>
-                    <a href="standings.html" class="text-[#fef2f8] hover:text-[#f472b6] text-sm font-medium px-4 py-2">Standings</a>
-                    <a href="match-history.html" class="text-[#fef2f8] hover:text-[#f472b6] text-sm font-medium px-4 py-2">Match History</a>
-                    <a href="profile.html" class="text-[#fef2f8] hover:text-[#f472b6] text-sm font-medium px-4 py-2">Profile</a>
-                    <a href="admin.html" id="admin-link" class="text-[#fef2f8] hover:text-[#f472b6] text-sm font-medium px-4 py-2 hidden">Admin</a>
-                    <button onclick="logout()" class="text-[#fef2f8] hover:text-[#f472b6] text-sm font-medium ml-4">Logout</button>
+                <!-- Mobile Menu Button -->
+                <div class="md:hidden flex items-center">
+                    <button onclick="toggleMobileMenu()" class="text-[#fef2f8] p-2 focus:outline-none">
+                        <i class="fas fa-bars text-2xl"></i>
+                    </button>
                 </div>
             </div>
         </div>
     </nav>
 
-    <main class="flex-grow p-4 md:p-12 max-w-7xl mx-auto w-full">
-        <!-- Header Section -->
+    <!-- Mobile Menu Overlay -->
+    <div id="mobile-overlay" class="fixed inset-0 bg-black/60 z-[60] hidden opacity-0 pointer-events-none transition-opacity duration-300">
+        <div id="mobile-menu-panel" class="absolute right-0 top-0 h-full w-4/5 max-w-sm bg-[#1a061e] shadow-2xl translate-x-full transition-transform duration-300 p-6 flex flex-col">
+            <div class="flex justify-between items-center mb-10">
+                <span class="text-xl font-black text-white">MENU</span>
+                <button onclick="toggleMobileMenu()" class="text-[#f472b6] p-2">
+                    <i class="fas fa-times text-2xl"></i>
+                </button>
+            </div>
+            <div class="flex flex-col space-y-4">
+                <a href="index.html" class="text-white text-lg font-bold p-3 rounded-xl hover:bg-white/10 transition-colors"><i class="fas fa-th-large mr-3 w-6"></i> Dashboard</a>
+                <a href="teams.html" class="text-[#f472b6] text-lg font-black p-3 rounded-xl bg-white/5"><i class="fas fa-users mr-3 w-6"></i> Teams</a>
+                <a href="standings.html" class="text-white text-lg font-bold p-3 rounded-xl hover:bg-white/10 transition-colors"><i class="fas fa-list-ol mr-3 w-6"></i> Standings</a>
+                <a href="match-history.html" class="text-white text-lg font-bold p-3 rounded-xl hover:bg-white/10 transition-colors"><i class="fas fa-history mr-3 w-6"></i> History</a>
+                <a href="profile.html" class="text-white text-lg font-bold p-3 rounded-xl hover:bg-white/10 transition-colors"><i class="fas fa-user mr-3 w-6"></i> Profile</a>
+                <a href="admin.html" id="admin-link-mobile" class="text-white text-lg font-bold p-3 rounded-xl hover:bg-white/10 transition-colors hidden"><i class="fas fa-user-shield mr-3 w-6"></i> Admin Panel</a>
+                <div class="pt-10">
+                    <button onclick="logout()" class="w-full bg-red-600 text-white py-4 rounded-2xl font-black shadow-lg shadow-red-600/20">
+                        <i class="fas fa-sign-out-alt mr-2"></i> LOGOUT
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <main class="flex-grow p-4 md:p-8 lg:p-12 max-w-7xl mx-auto w-full">
         <header class="mb-10">
-            <h1 class="text-5xl md:text-6xl font-black text-[#1a061e] uppercase tracking-tighter mb-4">
+            <h1 class="text-4xl md:text-6xl font-black text-[#1a061e] uppercase tracking-tighter mb-4">
                 LEAGUE <span class="text-[#be185d]">TEAMS</span>
             </h1>
-            <p class="text-gray-500 max-w-2xl font-medium leading-relaxed">
-                Explore the current roster of teams competing in the Lion's Edge premier league. Analyze performance, view standings, and track your favorites.
+            <p class="text-gray-500 max-w-2xl font-bold text-sm md:text-base leading-relaxed">
+                Discover the powerhouses competing in the 2026 Campus Cup. Analyze their performance, record, and current standing.
             </p>
         </header>
 
-        <!-- Filters & Sorting Bar -->
-        <div class="bg-white/50 backdrop-blur-sm p-4 rounded-2xl flex flex-col md:flex-row justify-between items-center mb-10 gap-4 shadow-sm">
-            <div class="flex space-x-3">
-                <button class="filter-btn filter-btn-active">All Teams</button>
-                <button class="filter-btn filter-btn-inactive">Group A</button>
-                <button class="filter-btn filter-btn-inactive">Group B</button>
+        <!-- Search & Filter -->
+        <div class="mb-10 flex flex-col md:flex-row gap-4">
+            <div class="flex-1 relative">
+                <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                <input type="text" id="team-search" oninput="filterTeams()" placeholder="Search team by name..." class="w-full bg-white border-2 border-gray-100 rounded-2xl py-4 pl-12 pr-4 font-bold text-sm focus:outline-none focus:border-pink-300 transition-all">
             </div>
-            <div class="flex items-center space-x-4 text-xs font-bold text-gray-400">
-                <span>Sort by:</span>
-                <div class="flex items-center space-x-2 text-[#1a061e] cursor-pointer">
-                    <span>Rank</span>
-                    <i class="fas fa-chevron-down text-[10px]"></i>
-                </div>
+            <div class="flex gap-2">
+                <button class="bg-[#1a061e] text-white px-6 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-lg shadow-black/10">All Groups</button>
+                <button class="bg-white border-2 border-gray-100 text-gray-400 px-6 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest">Sort: Rank</button>
             </div>
         </div>
 
         <!-- Teams Grid -->
-        <div id="teams-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div id="teams-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+            <!-- Loading State -->
+            <div class="col-span-full text-center py-20">
+                <i class="fas fa-circle-notch fa-spin text-pink-500 text-3xl mb-4"></i>
+                <p class="text-gray-400 font-bold uppercase tracking-widest text-[10px]">Loading Competitors...</p>
+            </div>
         </div>
     </main>
 
     <script src="supabase.js"></script>
     <script src="game-manager.js"></script>
     <script>
-        function checkAuth() {
-            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-            if (!currentUser) {
-                window.location.href = 'login.html';
-                return false;
+        function toggleMobileMenu() {
+            const overlay = document.getElementById('mobile-overlay');
+            const panel = document.getElementById('mobile-menu-panel');
+            const isHidden = overlay.classList.contains('hidden');
+            
+            if (isHidden) {
+                overlay.classList.remove('hidden');
+                setTimeout(() => {
+                    overlay.classList.remove('opacity-0');
+                    overlay.classList.add('opacity-100');
+                    overlay.classList.add('pointer-events-auto');
+                    panel.classList.remove('translate-x-full');
+                }, 10);
+            } else {
+                overlay.classList.add('opacity-0');
+                overlay.classList.remove('opacity-100');
+                overlay.classList.remove('pointer-events-auto');
+                panel.classList.add('translate-x-full');
+                setTimeout(() => {
+                    overlay.classList.add('hidden');
+                }, 300);
             }
-            return currentUser;
         }
 
-        function checkAdmin() {
-            const currentUser = checkAuth();
-            if (!currentUser) return;
+        async function checkAuth() {
+            const sb = await getSupabase();
+            const { data: { session } } = await sb.auth.getSession();
+            if (!session) { window.location.href = 'login.html'; return null; }
+            const { data: profile } = await sb.from('profiles').select('*').eq('id', session.user.id).single();
+            if (!profile) return { id: session.user.id, email: session.user.email, isAdmin: false };
             
-            const adminLink = document.getElementById('admin-link');
-            const adminLinkMobile = document.getElementById('admin-link-mobile');
-            
-            if (adminLink) {
-                if (currentUser.isAdmin) {
-                    adminLink.classList.remove('hidden');
-                } else {
-                    adminLink.classList.add('hidden');
-                }
-            }
-            
-            if (adminLinkMobile) {
-                if (currentUser.isAdmin) {
-                    adminLinkMobile.classList.remove('hidden');
-                } else {
-                    adminLinkMobile.classList.add('hidden');
-                }
+            const userData = { id: profile.id, firstName: profile.first_name, lastName: profile.last_name, email: profile.email, isAdmin: profile.is_admin };
+            localStorage.setItem('currentUser', JSON.stringify(userData));
+            return profile;
+        }
+
+        async function checkAdmin() {
+            const profile = await checkAuth();
+            if (!profile) return;
+            if (profile.is_admin) {
+                document.getElementById('admin-link')?.classList.remove('hidden');
+                document.getElementById('admin-link-mobile')?.classList.remove('hidden');
             }
         }
-        
-        function logout() {
+
+        async function logout() {
+            const sb = await getSupabase();
+            await sb.auth.signOut();
             localStorage.removeItem('currentUser');
             window.location.href = 'login.html';
         }
-        
-        function toggleMobileMenu() {
-            const menu = document.getElementById('mobile-menu');
-            const menuIcon = document.getElementById('menu-icon');
-            const closeIcon = document.getElementById('close-icon');
-            
-            if (menu && menuIcon && closeIcon) {
-                menu.classList.toggle('hidden');
-                menuIcon.classList.toggle('hidden');
-                closeIcon.classList.toggle('hidden');
-            }
-        }
 
-        function renderTeamCard(standing) {
-            const rankColors = ['rank-green', 'rank-purple', 'rank-pink', 'rank-pink', 'rank-pink', 'rank-pink', 'rank-pink', 'rank-pink'];
-            const rankColor = rankColors[standing.pos - 1] || 'rank-pink';
-            const gradientColor = standing.team.logoBg || '#1a061e';
-            
-            return `
-                <div class="team-card-v2 relative">
-                    <div style="background: linear-gradient(to bottom, ${gradientColor}, #f472b6); height: 100px;"></div>
-                    <div class="team-logo-overlay">
-                        <div class="w-full h-full rounded-full flex items-center justify-center text-white font-black text-xs" style="background-color: ${gradientColor};">
-                            ${standing.team.shortCode || standing.team.name.substring(0, 2).toUpperCase()}
-                        </div>
-                    </div>
-                    <div class="px-6 pt-12 pb-6">
-                        <div class="flex justify-between items-start mb-2">
-                            <h3 class="text-xl font-black text-[#1a061e] dashboard-text-primary">${standing.team.name}</h3>
-                            <span class="rank-badge ${rankColor}">Rank #${standing.pos}</span>
-                        </div>
-                        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-6">
-                            Division • ${standing.w}-${standing.d}-${standing.l}
-                        </p>
-                        
-                        <div class="stats-grid-bg p-4 flex justify-between text-center">
-                            <div>
-                                <p class="text-[9px] font-bold text-gray-400 uppercase mb-1">PTS</p>
-                                <p class="text-lg font-black text-[#1a061e] dashboard-text-primary">${standing.pts}</p>
-                            </div>
-                            <div>
-                                <p class="text-[9px] font-bold text-gray-400 uppercase mb-1">GF</p>
-                                <p class="text-lg font-black text-[#1a061e] dashboard-text-primary">${standing.gf}</p>
-                            </div>
-                            <div>
-                                <p class="text-[9px] font-bold text-gray-400 uppercase mb-1">GA</p>
-                                <p class="text-lg font-black text-[#1a061e] dashboard-text-primary">${standing.ga}</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
+        let allStandings = [];
 
         function renderTeams(standings) {
             const grid = document.getElementById('teams-grid');
-            if (!grid) return;
-            
-            grid.innerHTML = standings.map(standing => renderTeamCard(standing)).join('');
-        }
+            if (!grid || !standings) return;
+            allStandings = standings;
 
-        document.documentElement.classList.remove('dark-mode');
-        localStorage.removeItem('darkMode');
+            const query = document.getElementById('team-search').value.toLowerCase();
+            const filtered = standings.filter(s => s.team.name.toLowerCase().includes(query));
 
-        // Set default account (your account)
-        const testUser = {
-            id: 'default-123',
-            firstName: 'Muhammad',
-            lastName: 'User',
-            email: 'muhammad@example.com',
-            isAdmin: true
-        };
-        localStorage.setItem('currentUser', JSON.stringify(testUser));
-
-        // Run on load
-        const user = checkAuth();
-        if (user) {
-            checkAdmin();
-        }
-
-        // Wait for game manager to be ready
-        function trySubscribeAndUpdate() {
-            if (typeof gameManager !== 'undefined') {
-                // First render with initial data
-                if (gameManager.getStandings()) {
-                    renderTeams(gameManager.getStandings());
-                }
-                // Then subscribe for updates
-                gameManager.subscribe((standings, match) => {
-                    renderTeams(standings);
-                });
-            } else {
-                setTimeout(trySubscribeAndUpdate, 100);
+            if (filtered.length === 0) {
+                grid.innerHTML = `<div class="col-span-full text-center py-20"><p class="text-gray-400 font-bold uppercase">No teams found matching "${query}"</p></div>`;
+                return;
             }
+
+            grid.innerHTML = filtered.map(s => {
+                const color = s.team.logoBg || '#1a061e';
+                return `
+                    <div class="team-card group">
+                        <div class="team-header" style="background: linear-gradient(to bottom right, ${color}, #f472b6);">
+                            <div class="team-logo-float flex items-center justify-center font-black text-xl text-white shadow-xl" style="background-color: ${color}">
+                                ${s.team.logoText}
+                            </div>
+                        </div>
+                        <div class="p-6 pt-10">
+                            <div class="flex justify-between items-start mb-4">
+                                <div>
+                                    <h3 class="text-lg font-black text-[#1a061e] uppercase tracking-tight">${s.team.name}</h3>
+                                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">${s.team.shortCode || 'CLUB'}</p>
+                                </div>
+                                <div class="bg-pink-100 text-pink-600 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter">
+                                    Rank #${s.pos}
+                                </div>
+                            </div>
+                            
+                            <div class="grid grid-cols-3 gap-3">
+                                <div class="stat-chip">
+                                    <p class="text-[8px] font-black text-gray-400 uppercase mb-1">PTS</p>
+                                    <p class="text-sm font-black text-[#1a061e]">${s.pts}</p>
+                                </div>
+                                <div class="stat-chip">
+                                    <p class="text-[8px] font-black text-gray-400 uppercase mb-1">W-D-L</p>
+                                    <p class="text-sm font-black text-[#1a061e]">${s.w}-${s.d}-${s.l}</p>
+                                </div>
+                                <div class="stat-chip">
+                                    <p class="text-[8px] font-black text-gray-400 uppercase mb-1">GD</p>
+                                    <p class="text-sm font-black ${s.gd >= 0 ? 'text-green-500' : 'text-red-500'}">${s.gd > 0 ? '+' : ''}${s.gd}</p>
+                                </div>
+                            </div>
+
+                            <button onclick="window.location.href='standings.html'" class="w-full mt-6 bg-gray-50 hover:bg-pink-50 text-gray-400 hover:text-pink-600 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all">
+                                View Full Stats <i class="fas fa-arrow-right ml-1"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
         }
-        trySubscribeAndUpdate();
+
+        function filterTeams() {
+            renderTeams(allStandings);
+        }
+
+        // Initialize
+        (async () => {
+            await checkAdmin();
+            let subInterval = setInterval(() => {
+                if (window.gameManager) {
+                    clearInterval(subInterval);
+                    gameManager.subscribe((s) => renderTeams(s));
+                    if (gameManager.standings) renderTeams(gameManager.standings);
+                }
+            }, 100);
+        })();
     </script>
 </body>
 </html>

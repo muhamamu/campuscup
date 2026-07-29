@@ -2,65 +2,118 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Match History - Campus Cup</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        html, body { overflow-x: hidden; width: 100%; }
         body { font-family: 'Inter', sans-serif; background-color: #fdf2f8; }
         
-        .nav-link { color: #fef2f8; font-weight: 500; font-size: 0.875rem; padding: 0.5rem 1rem; transition: all 0.2s; cursor: pointer; border: 1px solid transparent; }
-        .nav-link:hover { color: #f472b6; }
-        .nav-link-active { color: #1a061e; border: 1px solid #f472b6; border-radius: 8px; background-color: white; }
-
-        .card { background-color: white; border-radius: 24px; padding: 32px; box-shadow: 0 4px 20px rgba(0,0,0,0.02); }
+        .match-card { background: white; border-radius: 32px; overflow: hidden; border: 1px solid rgba(255,255,255,0.8); box-shadow: 0 4px 25px rgba(0,0,0,0.02); transition: transform 0.2s; }
+        .match-card:active { transform: scale(0.98); }
         
-        #mobile-menu { transition: transform 0.3s ease-in-out; transform: translateX(-100%); }
-        #mobile-menu.active { transform: translateX(0); }
+        .fixture-gradient { background: linear-gradient(135deg, #1a061e 0%, #2d0a34 100%); color: white; }
+        .past-gradient { background: white; border-left: 6px solid #f472b6; }
+
+        #mobile-overlay { transition: opacity 0.3s ease; }
+        #mobile-menu-panel { transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #fdf2f8; }
+        ::-webkit-scrollbar-thumb { background: #f472b6; border-radius: 10px; }
     </style>
 </head>
 <body class="min-h-screen flex flex-col">
-    <!-- Simple Navigation (Always Desktop View) -->
-    <nav class="sticky top-0 z-50" style="background-color: #1a061e;">
+    <!-- Navigation -->
+    <nav class="sticky top-0 z-50 shadow-lg" style="background-color: #1a061e;">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16">
                 <div class="flex-shrink-0">
-                    <a href="index.html" class="text-xl font-bold tracking-tight" style="color: #fef2f8;">
+                    <a href="index.html" class="text-xl font-black tracking-tighter" style="color: #fef2f8;">
                         CAMPUS <span style="color: #f472b6;">CUP</span>
                     </a>
                 </div>
-                <div class="flex items-center space-x-1">
-                    <a href="index.html" class="text-[#fef2f8] hover:text-[#f472b6] text-sm font-medium px-4 py-2">Dashboard</a>
-                    <a href="teams.html" class="text-[#fef2f8] hover:text-[#f472b6] text-sm font-medium px-4 py-2">Teams</a>
-                    <a href="standings.html" class="text-[#fef2f8] hover:text-[#f472b6] text-sm font-medium px-4 py-2">Standings</a>
-                    <a href="match-history.html" class="text-[#f472b6] text-sm font-medium px-4 py-2 font-bold">Match History</a>
-                    <a href="profile.html" class="text-[#fef2f8] hover:text-[#f472b6] text-sm font-medium px-4 py-2">Profile</a>
-                    <button onclick="logout()" class="text-[#fef2f8] hover:text-[#f472b6] text-sm font-medium ml-4">Logout</button>
+                
+                <!-- Desktop Menu -->
+                <div class="hidden md:flex items-center space-x-1">
+                    <a href="index.html" class="text-[#fef2f8] hover:text-[#f472b6] text-sm font-bold px-4 py-2 transition-colors">Dashboard</a>
+                    <a href="teams.html" class="text-[#fef2f8] hover:text-[#f472b6] text-sm font-bold px-4 py-2 transition-colors">Teams</a>
+                    <a href="standings.html" class="text-[#fef2f8] hover:text-[#f472b6] text-sm font-bold px-4 py-2 transition-colors">Standings</a>
+                    <a href="match-history.html" class="bg-[#f472b6] text-[#1a061e] text-sm font-black px-4 py-2 rounded-lg">History</a>
+                    <a href="profile.html" class="text-[#fef2f8] hover:text-[#f472b6] text-sm font-bold px-4 py-2 transition-colors">Profile</a>
+                    <a href="admin.html" id="admin-link" class="text-[#fef2f8] hover:text-[#f472b6] text-sm font-bold px-4 py-2 hidden">Admin</a>
+                    <button onclick="logout()" class="text-white bg-red-500/20 hover:bg-red-500/40 px-4 py-2 rounded-lg text-sm font-bold ml-4 transition-all">Logout</button>
+                </div>
+
+                <!-- Mobile Menu Button -->
+                <div class="md:hidden flex items-center">
+                    <button onclick="toggleMobileMenu()" class="text-[#fef2f8] p-2 focus:outline-none">
+                        <i class="fas fa-bars text-2xl"></i>
+                    </button>
                 </div>
             </div>
         </div>
     </nav>
 
-    <main class="flex-grow p-4 md:p-12 max-w-7xl mx-auto w-full">
+    <!-- Mobile Menu Overlay -->
+    <div id="mobile-overlay" class="fixed inset-0 bg-black/60 z-[60] hidden opacity-0 pointer-events-none transition-opacity duration-300">
+        <div id="mobile-menu-panel" class="absolute right-0 top-0 h-full w-4/5 max-w-sm bg-[#1a061e] shadow-2xl translate-x-full transition-transform duration-300 p-6 flex flex-col">
+            <div class="flex justify-between items-center mb-10">
+                <span class="text-xl font-black text-white">MENU</span>
+                <button onclick="toggleMobileMenu()" class="text-[#f472b6] p-2">
+                    <i class="fas fa-times text-2xl"></i>
+                </button>
+            </div>
+            <div class="flex flex-col space-y-4">
+                <a href="index.html" class="text-white text-lg font-bold p-3 rounded-xl hover:bg-white/10 transition-colors"><i class="fas fa-th-large mr-3 w-6"></i> Dashboard</a>
+                <a href="teams.html" class="text-white text-lg font-bold p-3 rounded-xl hover:bg-white/10 transition-colors"><i class="fas fa-users mr-3 w-6"></i> Teams</a>
+                <a href="standings.html" class="text-white text-lg font-bold p-3 rounded-xl hover:bg-white/10 transition-colors"><i class="fas fa-list-ol mr-3 w-6"></i> Standings</a>
+                <a href="match-history.html" class="text-[#f472b6] text-lg font-black p-3 rounded-xl bg-white/5"><i class="fas fa-history mr-3 w-6"></i> History</a>
+                <a href="profile.html" class="text-white text-lg font-bold p-3 rounded-xl hover:bg-white/10 transition-colors"><i class="fas fa-user mr-3 w-6"></i> Profile</a>
+                <a href="admin.html" id="admin-link-mobile" class="text-white text-lg font-bold p-3 rounded-xl hover:bg-white/10 transition-colors hidden"><i class="fas fa-user-shield mr-3 w-6"></i> Admin Panel</a>
+                <div class="pt-10">
+                    <button onclick="logout()" class="w-full bg-red-600 text-white py-4 rounded-2xl font-black shadow-lg shadow-red-600/20">
+                        <i class="fas fa-sign-out-alt mr-2"></i> LOGOUT
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <main class="flex-grow p-4 md:p-8 lg:p-12 max-w-7xl mx-auto w-full">
         <header class="mb-12">
-            <h1 class="text-4xl md:text-5xl font-black text-[#1a061e] uppercase tracking-tighter mb-2">Match History</h1>
-            <p class="text-gray-500 font-medium">View all upcoming fixtures and past matches</p>
+            <h1 class="text-4xl md:text-6xl font-black text-[#1a061e] uppercase tracking-tighter mb-2">MATCH <span class="text-[#be185d]">HISTORY</span></h1>
+            <p class="text-gray-500 font-bold text-sm md:text-base">Track upcoming fixtures and relive past glories</p>
         </header>
 
-        <!-- Upcoming Fixtures -->
-        <div class="card mb-8">
-            <h2 class="text-2xl font-black text-[#1a061e] mb-6"><i class="fas fa-calendar-check mr-2 text-blue-500"></i> Upcoming Fixture</h2>
-            <div id="upcoming-fixture">
-                <p class="text-gray-500 text-sm">Loading...</p>
+        <!-- Section: Upcoming -->
+        <div class="mb-12">
+            <h2 class="text-xl font-black text-[#1a061e] mb-6 flex items-center uppercase tracking-widest">
+                <i class="fas fa-calendar-alt mr-3 text-pink-500"></i> Upcoming Fixtures
+            </h2>
+            <div id="upcoming-fixture" class="space-y-4">
+                <!-- Content via JS -->
+                <div class="text-center py-10 bg-white rounded-3xl border border-gray-100">
+                    <i class="fas fa-circle-notch fa-spin text-pink-500 mb-2"></i>
+                    <p class="text-gray-400 font-bold text-[10px] uppercase">Syncing Schedule...</p>
+                </div>
             </div>
         </div>
 
-        <!-- Past Games -->
-        <div class="card">
-            <h2 class="text-2xl font-black text-[#1a061e] mb-6"><i class="fas fa-history mr-2 text-green-500"></i> Past Games</h2>
+        <!-- Section: Past -->
+        <div>
+            <h2 class="text-xl font-black text-[#1a061e] mb-6 flex items-center uppercase tracking-widest">
+                <i class="fas fa-history mr-3 text-pink-500"></i> Match Archives
+            </h2>
             <div id="past-games" class="space-y-4">
-                <p class="text-gray-500 text-sm">No past games yet</p>
+                <!-- Content via JS -->
+                <div class="text-center py-10 bg-white rounded-3xl border border-gray-100">
+                    <p class="text-gray-400 font-bold text-[10px] uppercase tracking-widest">Loading Archives...</p>
+                </div>
             </div>
         </div>
     </main>
@@ -68,71 +121,118 @@
     <script src="supabase.js"></script>
     <script src="game-manager.js"></script>
     <script>
-        function checkAuth() {
-            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-            if (!currentUser) {
-                window.location.href = 'login.html';
-                return false;
+        function toggleMobileMenu() {
+            const overlay = document.getElementById('mobile-overlay');
+            const panel = document.getElementById('mobile-menu-panel');
+            const isHidden = overlay.classList.contains('hidden');
+            
+            if (isHidden) {
+                overlay.classList.remove('hidden');
+                setTimeout(() => {
+                    overlay.classList.remove('opacity-0');
+                    overlay.classList.add('opacity-100');
+                    overlay.classList.add('pointer-events-auto');
+                    panel.classList.remove('translate-x-full');
+                }, 10);
+            } else {
+                overlay.classList.add('opacity-0');
+                overlay.classList.remove('opacity-100');
+                overlay.classList.remove('pointer-events-auto');
+                panel.classList.add('translate-x-full');
+                setTimeout(() => {
+                    overlay.classList.add('hidden');
+                }, 300);
             }
-            return currentUser;
         }
 
-        function logout() {
+        async function checkAuth() {
+            const sb = await getSupabase();
+            const { data: { session } } = await sb.auth.getSession();
+            if (!session) { window.location.href = 'login.html'; return null; }
+            const { data: profile } = await sb.from('profiles').select('*').eq('id', session.user.id).single();
+            if (!profile) return { id: session.user.id, email: session.user.email, isAdmin: false };
+            
+            const userData = { id: profile.id, firstName: profile.first_name, lastName: profile.last_name, email: profile.email, isAdmin: profile.is_admin };
+            localStorage.setItem('currentUser', JSON.stringify(userData));
+            return profile;
+        }
+
+        async function checkAdmin() {
+            const profile = await checkAuth();
+            if (!profile) return;
+            if (profile.is_admin) {
+                document.getElementById('admin-link')?.classList.remove('hidden');
+                document.getElementById('admin-link-mobile')?.classList.remove('hidden');
+            }
+        }
+
+        async function logout() {
+            const sb = await getSupabase();
+            await sb.auth.signOut();
             localStorage.removeItem('currentUser');
             window.location.href = 'login.html';
         }
 
-        function toggleMobileMenu() {
-            const menu = document.getElementById('mobile-menu');
-            const menuIcon = document.getElementById('menu-icon');
-            const closeIcon = document.getElementById('close-icon');
-            if (menu && menuIcon && closeIcon) {
-                menu.classList.toggle('hidden');
-                menuIcon.classList.toggle('hidden');
-                closeIcon.classList.toggle('hidden');
-            }
+        function formatDate(d) {
+            if (!d) return 'TBD';
+            const date = new Date(d);
+            return date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }).toUpperCase();
         }
 
-        function formatDate(dateStr) {
-            if (!dateStr) return '';
-            const date = new Date(dateStr);
-            return date.toLocaleDateString('en-US', { 
-                year: 'numeric', 
-                month: 'short', 
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-            });
-        }
-
-        function renderUpcomingFixture(match) {
+        function renderUpcomingFixtures(active, scheduled) {
             const container = document.getElementById('upcoming-fixture');
             if (!container) return;
             
-            if (!match) {
-                container.innerHTML = '<p class="text-gray-400 text-sm">No upcoming fixture scheduled</p>';
-                return;
+            let html = '';
+            
+            // Active match (Scheduled or Live)
+            if (active && (active.status === 'SCHEDULED' || active.status === 'LIVE')) {
+                const isLive = active.status === 'LIVE';
+                html += `
+                    <div class="match-card fixture-gradient p-8 relative overflow-hidden shadow-2xl">
+                        <div class="absolute -right-10 -top-10 w-40 h-40 bg-white/5 rounded-full"></div>
+                        <div class="flex justify-between items-center relative z-10">
+                            <div class="text-center flex-1">
+                                <p class="text-[10px] font-black text-pink-400 mb-2 tracking-widest uppercase">Home</p>
+                                <h3 class="text-sm md:text-xl font-black uppercase tracking-tight truncate">${active.homeTeam?.name || 'TBD'}</h3>
+                            </div>
+                            <div class="flex flex-col items-center px-4">
+                                <span class="text-xs font-black text-white/20 mb-1">VS</span>
+                                ${isLive ? '<span class="bg-pink-500 text-white px-3 py-1 rounded-full text-[8px] font-black animate-pulse">LIVE</span>' : ''}
+                            </div>
+                            <div class="text-center flex-1">
+                                <p class="text-[10px] font-black text-pink-400 mb-2 tracking-widest uppercase">Away</p>
+                                <h3 class="text-sm md:text-xl font-black uppercase tracking-tight truncate">${active.awayTeam?.name || 'TBD'}</h3>
+                            </div>
+                        </div>
+                        <div class="mt-8 pt-6 border-t border-white/10 text-center">
+                            <p class="text-[10px] font-black tracking-[0.2em] text-pink-400">${formatDate(active.matchDate || active.createdAt)}</p>
+                        </div>
+                    </div>
+                `;
             }
 
-            container.innerHTML = `
-                <div class="bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl p-8">
-                    <div class="flex justify-between items-center">
-                        <div class="text-center flex-1">
-                            <h3 class="text-xl font-bold text-[#1a061e]">${match.homeTeam?.name || match.home_team_name}</h3>
+            // Scheduled matches
+            if (scheduled && scheduled.length > 0) {
+                scheduled.forEach(m => {
+                    html += `
+                        <div class="match-card p-6 border border-gray-100 flex justify-between items-center gap-4">
+                            <div class="flex-1 flex flex-col items-center text-center">
+                                <h4 class="text-xs font-black text-[#1a061e] uppercase tracking-tight truncate w-full">${m.homeTeam?.name}</h4>
+                            </div>
+                            <div class="flex flex-col items-center">
+                                <span class="text-[8px] font-black text-gray-300 mb-1">VS</span>
+                                <div class="bg-gray-50 px-3 py-1 rounded-lg text-[9px] font-black text-gray-400">${formatDate(m.matchDate).split(',')[1] || 'TBD'}</div>
+                            </div>
+                            <div class="flex-1 flex flex-col items-center text-center">
+                                <h4 class="text-xs font-black text-[#1a061e] uppercase tracking-tight truncate w-full">${m.awayTeam?.name}</h4>
+                            </div>
                         </div>
-                        <div class="text-3xl font-black text-gray-400 px-4">VS</div>
-                        <div class="text-center flex-1">
-                            <h3 class="text-xl font-bold text-[#1a061e]">${match.awayTeam?.name || match.away_team_name}</h3>
-                        </div>
-                    </div>
-                    <div class="text-center mt-4">
-                        <span class="text-blue-600 font-bold text-sm uppercase">
-                            <i class="fas fa-clock mr-1"></i> ${match.status || 'SCHEDULED'}
-                        </span>
-                        ${match.createdAt || match.created_at ? `<p class="text-gray-500 text-xs mt-2">${formatDate(match.createdAt || match.created_at)}</p>` : ''}
-                    </div>
-                </div>
-            `;
+                    `;
+                });
+            }
+
+            container.innerHTML = html || `<div class="text-center py-10 bg-white rounded-3xl border border-gray-100"><p class="text-gray-400 font-bold text-[10px] uppercase">No upcoming fixtures</p></div>`;
         }
 
         function renderPastGames(history) {
@@ -140,66 +240,50 @@
             if (!container) return;
             
             if (!history || history.length === 0) {
-                container.innerHTML = '<p class="text-gray-400 text-sm">No past games yet</p>';
+                container.innerHTML = `<div class="text-center py-10 bg-white rounded-3xl border border-gray-100"><p class="text-gray-400 font-bold text-[10px] uppercase">No past match results</p></div>`;
                 return;
             }
 
-            container.innerHTML = history.map(match => `
-                <div class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl p-6">
-                    <div class="flex justify-between items-center">
-                        <div class="text-center flex-1">
-                            <h3 class="text-lg font-bold text-[#1a061e]">${match.homeTeam?.name || match.home_team_name}</h3>
-                            <div class="text-3xl font-black text-[#1a061e]">${match.homeScore}</div>
-                        </div>
-                        <div class="text-center px-4">
-                            <span class="text-gray-500 font-bold text-sm">${match.status || 'FULL TIME'}</span>
-                            <p class="text-gray-400 text-xs mt-1">${formatDate(match.createdAt || match.created_at)}</p>
-                        </div>
-                        <div class="text-center flex-1">
-                            <h3 class="text-lg font-bold text-[#1a061e]">${match.awayTeam?.name || match.away_team_name}</h3>
-                            <div class="text-3xl font-black text-[#1a061e]">${match.awayScore}</div>
+            container.innerHTML = history.map(m => `
+                <div class="match-card past-gradient p-6 flex justify-between items-center">
+                    <div class="flex-1">
+                        <p class="text-[8px] font-black text-gray-400 mb-1">${formatDate(m.createdAt)}</p>
+                        <div class="flex items-center gap-3">
+                            <div class="flex-1 text-right">
+                                <span class="text-xs font-black text-[#1a061e] uppercase truncate block">${m.homeTeam?.name || m.home_team_name}</span>
+                            </div>
+                            <div class="bg-[#1a061e] text-white px-3 py-1 rounded-xl text-sm font-black flex gap-2">
+                                <span>${m.homeScore}</span>
+                                <span class="text-white/30">-</span>
+                                <span>${m.awayScore}</span>
+                            </div>
+                            <div class="flex-1 text-left">
+                                <span class="text-xs font-black text-[#1a061e] uppercase truncate block">${m.awayTeam?.name || m.away_team_name}</span>
+                            </div>
                         </div>
                     </div>
+                    <button onclick="window.location.href='index.html'" class="ml-4 w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-300 hover:text-pink-500 transition-colors">
+                        <i class="fas fa-chevron-right text-xs"></i>
+                    </button>
                 </div>
             `).join('');
         }
 
-        document.documentElement.classList.remove('dark-mode');
-        localStorage.removeItem('darkMode');
-
-        // Set test admin user for testing
-        const testUser = {
-            id: 'test-123',
-            firstName: 'Admin',
-            lastName: 'User',
-            email: 'admin@test.com',
-            isAdmin: true
-        };
-        localStorage.setItem('currentUser', JSON.stringify(testUser));
-
-        checkAuth();
-
-        let initInterval = setInterval(() => {
-            if (window.gameManager) {
-                clearInterval(initInterval);
-                // First render initial data
-                if (gameManager.match && (gameManager.match.status === 'SCHEDULED' || gameManager.match.status === 'LIVE')) {
-                    renderUpcomingFixture(gameManager.match);
-                } else {
-                    renderUpcomingFixture(null);
+        // Initialize
+        (async () => {
+            await checkAdmin();
+            let subInterval = setInterval(() => {
+                if (window.gameManager) {
+                    clearInterval(subInterval);
+                    const update = (standings, match, history, scheduled) => {
+                        renderUpcomingFixtures(match, scheduled);
+                        renderPastGames(history);
+                    };
+                    gameManager.subscribe(update);
+                    update(null, gameManager.match, gameManager.matchHistory, gameManager.scheduledMatches);
                 }
-                renderPastGames(gameManager.matchHistory);
-                // Then subscribe for updates
-                gameManager.subscribe((standings, match, history) => {
-                    if (match && (match.status === 'SCHEDULED' || match.status === 'LIVE')) {
-                        renderUpcomingFixture(match);
-                    } else {
-                        renderUpcomingFixture(null);
-                    }
-                    renderPastGames(history);
-                });
-            }
-        }, 100);
+            }, 100);
+        })();
     </script>
 </body>
 </html>

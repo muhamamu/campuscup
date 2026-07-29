@@ -42,6 +42,7 @@ class GameManager {
     constructor() {
         this.standings = [];
         this.match = null;
+        this.scheduledMatches = [];
         this.matchHistory = [];
         this.subscribers = [];
         this.sb = null;
@@ -54,10 +55,15 @@ class GameManager {
     async init() {
         try {
             this.sb = await getSupabase();
+            if (this.sb) {
+                await this.loadFromSupabase();
+            } else {
+                this.loadFallbackData();
+            }
         } catch (error) {
             console.error('Error initializing Supabase:', error);
+            this.loadFallbackData();
         }
-        this.loadFallbackData();
     }
 
     getDefaultStandings() {
@@ -73,6 +79,7 @@ class GameManager {
     loadFallbackData() {
         const localStorageStandings = localStorage.getItem('standings');
         const localStorageMatch = localStorage.getItem('liveMatch');
+        const localStorageScheduled = localStorage.getItem('scheduledMatches');
         const localStorageHistory = localStorage.getItem('matchHistory');
 
         let parsedStandings = null;
@@ -101,6 +108,16 @@ class GameManager {
             }
         } else {
             this.match = this.createDefaultMatch();
+        }
+
+        if (localStorageScheduled) {
+            try {
+                this.scheduledMatches = JSON.parse(localStorageScheduled);
+            } catch (e) {
+                this.scheduledMatches = [];
+            }
+        } else {
+            this.scheduledMatches = [];
         }
 
         if (localStorageHistory) {
@@ -183,6 +200,7 @@ class GameManager {
 
     async loadFromSupabase() {
         try {
+            // Load Standings
             const { data: standingsData } = await this.sb
                 .from('standings')
                 .select('*')
@@ -196,9 +214,9 @@ class GameManager {
                     team: {
                         id: row.team_id,
                         name: row.team_name,
-                        shortCode: row.team_short_code,
-                        logoBg: row.team_logo_bg,
-                        logoText: row.team_logo_text
+                        shortCode: row.team_short_code || teams.find(t => t.id === row.team_id)?.shortCode,
+                        logoBg: row.team_logo_bg || teams.find(t => t.id === row.team_id)?.logoBg,
+                        logoText: row.team_logo_text || teams.find(t => t.id === row.team_id)?.logoText
                     },
                     mp: row.mp,
                     w: row.w,
@@ -211,14 +229,14 @@ class GameManager {
                     form: row.form || []
                 }));
             } else {
-                this.loadFallbackData();
-                return;
+                this.standings = this.getDefaultStandings();
             }
 
+            // Load Live Match
             const { data: matchData } = await this.sb
                 .from('live_match')
                 .select('*')
-                .limit(1)
+                .eq('id', 'current')
                 .single();
 
             if (matchData) {
@@ -256,13 +274,66 @@ class GameManager {
                 this.match = this.createDefaultMatch();
             }
 
+            // Load Match History
             const { data: historyData } = await this.sb
                 .from('match_history')
                 .select('*')
                 .order('created_at', { ascending: false });
 
             if (historyData) {
-                this.matchHistory = historyData;
+                this.matchHistory = historyData.map(histMatch => ({
+                    id: histMatch.id,
+                    homeTeam: {
+                        id: histMatch.home_team_id,
+                        name: histMatch.home_team_name,
+                        shortCode: histMatch.home_team_short_code,
+                        logoBg: histMatch.home_team_logo_bg,
+                        logoText: histMatch.home_team_logo_text
+                    },
+                    awayTeam: {
+                        id: histMatch.away_team_id,
+                        name: histMatch.away_team_name,
+                        shortCode: histMatch.away_team_short_code,
+                        logoBg: histMatch.away_team_logo_bg,
+                        logoText: histMatch.away_team_logo_text
+                    },
+                    homeScore: histMatch.home_score,
+                    awayScore: histMatch.away_score,
+                    homePenalties: histMatch.home_penalties,
+                    awayPenalties: histMatch.away_penalties,
+                    status: histMatch.status,
+                    events: histMatch.events || [],
+                    createdAt: histMatch.created_at
+                }));
+            }
+
+            // Load Scheduled Matches
+            const { data: scheduledData } = await this.sb
+                .from('scheduled_matches')
+                .select('*')
+                .order('match_date', { ascending: true });
+
+            if (scheduledData) {
+                this.scheduledMatches = scheduledData.map(sm => ({
+                    id: sm.id,
+                    homeTeam: {
+                        id: sm.home_team_id,
+                        name: sm.home_team_name,
+                        shortCode: sm.home_team_short_code,
+                        logoBg: sm.home_team_logo_bg,
+                        logoText: sm.home_team_logo_text
+                    },
+                    awayTeam: {
+                        id: sm.away_team_id,
+                        name: sm.away_team_name,
+                        shortCode: sm.away_team_short_code,
+                        logoBg: sm.away_team_logo_bg,
+                        logoText: sm.away_team_logo_text
+                    },
+                    matchDate: sm.match_date,
+                    status: sm.status,
+                    createdAt: sm.created_at
+                }));
             }
 
             this.notifySubscribers();
@@ -276,19 +347,20 @@ class GameManager {
     subscribe(callback) {
         this.subscribers.push(callback);
         if (this.standings.length > 0 && this.match) {
-            callback(this.standings, this.match, this.matchHistory);
+            callback(this.standings, this.match, this.matchHistory, this.scheduledMatches);
         }
     }
 
     notifySubscribers() {
         console.log('notifySubscribers called! this.standings:', this.standings);
-        this.subscribers.forEach(callback => callback(this.standings, this.match, this.matchHistory));
+        this.subscribers.forEach(callback => callback(this.standings, this.match, this.matchHistory, this.scheduledMatches));
     }
 
     async saveToSupabase() {
         if (!this.sb) return;
 
         try {
+            // Save Standings
             for (const standing of this.standings) {
                 await this.sb
                     .from('standings')
@@ -312,11 +384,12 @@ class GameManager {
                     });
             }
 
+            // Save Live Match
             if (this.match) {
                 await this.sb
                     .from('live_match')
                     .upsert({
-                        id: 1,
+                        id: 'current',
                         home_team_id: this.match.homeTeam.id,
                         home_team_name: this.match.homeTeam.name,
                         home_team_short_code: this.match.homeTeam.shortCode,
@@ -345,6 +418,7 @@ class GameManager {
                     });
             }
 
+            // Save Match History
             for (const histMatch of this.matchHistory) {
                 await this.sb
                     .from('match_history')
@@ -370,6 +444,28 @@ class GameManager {
                         updated_at: new Date().toISOString()
                     });
             }
+
+            // Save Scheduled Matches
+            for (const sm of this.scheduledMatches) {
+                await this.sb
+                    .from('scheduled_matches')
+                    .upsert({
+                        id: sm.id,
+                        home_team_id: sm.homeTeam.id,
+                        home_team_name: sm.homeTeam.name,
+                        home_team_short_code: sm.homeTeam.shortCode,
+                        home_team_logo_bg: sm.homeTeam.logoBg,
+                        home_team_logo_text: sm.homeTeam.logoText,
+                        away_team_id: sm.awayTeam.id,
+                        away_team_name: sm.awayTeam.name,
+                        away_team_short_code: sm.awayTeam.shortCode,
+                        away_team_logo_bg: sm.awayTeam.logoBg,
+                        away_team_logo_text: sm.awayTeam.logoText,
+                        match_date: sm.matchDate,
+                        status: sm.status,
+                        updated_at: new Date().toISOString()
+                    });
+            }
         } catch (error) {
             console.error('Error saving to Supabase:', error);
         }
@@ -378,6 +474,7 @@ class GameManager {
     saveData() {
         localStorage.setItem('standings', JSON.stringify(this.standings));
         localStorage.setItem('liveMatch', JSON.stringify(this.match));
+        localStorage.setItem('scheduledMatches', JSON.stringify(this.scheduledMatches));
         localStorage.setItem('matchHistory', JSON.stringify(this.matchHistory));
         this.saveToSupabase();
     }
@@ -428,18 +525,25 @@ class GameManager {
             minute = this.match.minute;
         }
 
+        // Cap at 135 minutes total
+        minute = Math.min(minute, 135);
+
         this.match.minute = minute + "'";
     }
 
     getCurrentStopwatchTime() {
+        const MAX_STOPWATCH_MS = 135 * 60 * 1000; // 135 minutes in ms
         if (this.match && this.match.isLive && this.match.stopwatchStartTime && this.match.period !== MATCH_PERIODS.PENALTIES) {
-            return Date.now() - this.match.stopwatchStartTime;
+            const elapsed = Date.now() - this.match.stopwatchStartTime;
+            return Math.min(elapsed, MAX_STOPWATCH_MS);
         }
-        return this.match ? this.match.stopwatch : 0;
+        return this.match ? Math.min(this.match.stopwatch, MAX_STOPWATCH_MS) : 0;
     }
 
     formatStopwatch(ms) {
-        const totalSeconds = Math.floor(ms / 1000);
+        const MAX_STOPWATCH_MS = 135 * 60 * 1000;
+        const cappedMs = Math.min(ms, MAX_STOPWATCH_MS);
+        const totalSeconds = Math.floor(cappedMs / 1000);
         const minutes = Math.floor(totalSeconds / 60).toString().padStart(2, '0');
         const seconds = (totalSeconds % 60).toString().padStart(2, '0');
         return `${minutes}:${seconds}`;
@@ -448,7 +552,7 @@ class GameManager {
     getNearestMinuteFromStopwatch() {
         const stopwatchTime = this.getCurrentStopwatchTime();
         const totalSeconds = Math.floor(stopwatchTime / 1000);
-        const minutes = Math.floor(totalSeconds / 60);
+        const minutes = Math.min(Math.floor(totalSeconds / 60), 135);
         return `${minutes}'`;
     }
 
@@ -658,18 +762,52 @@ class GameManager {
         this.notifySubscribers();
     }
 
-    scheduleMatch(homeTeamId, awayTeamId) {
+    scheduleMatch(homeTeamId, awayTeamId, matchDate) {
+        console.log('[GameManager scheduleMatch] called with:', { homeTeamId, awayTeamId, matchDate });
         const homeTeam = teams.find(t => t.id === homeTeamId);
         const awayTeam = teams.find(t => t.id === awayTeamId);
+        console.log('[GameManager scheduleMatch] teams:', { homeTeam, awayTeam });
         if (homeTeam && awayTeam) {
-            this.match = {
+            const newMatch = {
+                id: Date.now().toString(),
                 ...this.createDefaultMatch(),
                 homeTeam,
                 awayTeam,
+                matchDate: matchDate || new Date().toISOString(),
                 createdAt: new Date().toISOString()
             };
+            this.scheduledMatches.push(newMatch);
+            console.log('[GameManager scheduleMatch] scheduledMatches after push:', this.scheduledMatches);
             this.saveData();
             this.notifySubscribers();
+        }
+    }
+
+    removeScheduledMatch(matchId) {
+        console.log('[GameManager removeScheduledMatch] called with:', matchId);
+        this.scheduledMatches = this.scheduledMatches.filter(m => m.id !== matchId);
+        console.log('[GameManager removeScheduledMatch] scheduledMatches after:', this.scheduledMatches);
+        this.saveData();
+        this.notifySubscribers();
+    }
+
+    startScheduledMatch(matchId) {
+        console.log('[GameManager startScheduledMatch] called with:', matchId);
+        const matchToStart = this.scheduledMatches.find(m => m.id === matchId);
+        console.log('[GameManager startScheduledMatch] matchToStart:', matchToStart);
+        if (matchToStart) {
+            this.match = {
+                ...matchToStart,
+                isLive: true,
+                status: 'LIVE',
+                period: MATCH_PERIODS.FIRST_HALF,
+                stopwatch: 0,
+                stopwatchStartTime: Date.now()
+            };
+            this.scheduledMatches = this.scheduledMatches.filter(m => m.id !== matchId);
+            this.saveData();
+            this.notifySubscribers();
+            this.resumeStopwatchIfNeeded();
         }
     }
 
