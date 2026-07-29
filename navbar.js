@@ -1,3 +1,5 @@
+let cachedUser = null;
+
 function loadNavbar(currentPage) {
     const navbarContainer = document.getElementById('navbar-container');
     if (!navbarContainer) return;
@@ -13,7 +15,7 @@ function loadNavbar(currentPage) {
     const navLinksHTML = navLinks.map(link => {
         const isActive = link.id === currentPage;
         const activeClass = isActive ? 'text-[#f472b6] font-bold' : 'text-[#fef2f8] hover:text-[#f472b6]';
-        
+
         return `
             <a href="${link.href}" class="${activeClass} ${link.adminOnly ? 'admin-nav-link' : ''} px-4 py-2 text-sm font-medium transition-colors">
                 ${link.label}
@@ -24,7 +26,7 @@ function loadNavbar(currentPage) {
     const mobileNavLinksHTML = navLinks.map(link => {
         const isActive = link.id === currentPage;
         const activeClass = isActive ? 'text-[#f472b6] font-bold' : 'text-white hover:text-[#f472b6]';
-        
+
         return `
             <a href="${link.href}" class="${activeClass} ${link.adminOnly ? 'admin-nav-link' : ''} block px-4 py-3 text-sm font-medium transition-colors">
                 ${link.label}
@@ -78,7 +80,7 @@ function loadNavbar(currentPage) {
 function toggleMobileMenu() {
     const menu = document.getElementById('mobile-menu');
     const btn = document.getElementById('mobile-menu-btn');
-    
+
     if (menu) {
         menu.classList.toggle('hidden');
         if (btn) {
@@ -105,20 +107,47 @@ function loadTheme() {
     }
 }
 
-function updateAdminLinks() {
+async function updateAdminLinks() {
     const currentUser = JSON.parse(localStorage.getItem('currentUser'));
     const adminLinks = document.querySelectorAll('.admin-nav-link');
-    
-    adminLinks.forEach(link => {
-        if (currentUser && currentUser.isAdmin) {
-            link.classList.remove('hidden');
+
+    if (!currentUser) {
+        adminLinks.forEach(link => link.classList.add('hidden'));
+        return;
+    }
+
+    try {
+        const sb = await getSupabase();
+        const { data: profile, error } = await sb
+            .from('profiles')
+            .select('is_admin, is_permanent_admin')
+            .eq('id', currentUser.id)
+            .single();
+
+        if (error) throw error;
+
+        const isAdmin = profile?.is_admin || false;
+
+        const updatedUser = { ...currentUser, isAdmin: isAdmin };
+        localStorage.setItem('currentUser', JSON.stringify(updatedUser));
+
+        if (isAdmin) {
+            adminLinks.forEach(link => link.classList.remove('hidden'));
         } else {
-            link.classList.add('hidden');
+            adminLinks.forEach(link => link.classList.add('hidden'));
         }
-    });
+    } catch (err) {
+        console.error('Error fetching admin status:', err);
+        if (currentUser.isAdmin) {
+            adminLinks.forEach(link => link.classList.remove('hidden'));
+        } else {
+            adminLinks.forEach(link => link.classList.add('hidden'));
+        }
+    }
 }
 
 function logout() {
     localStorage.removeItem('currentUser');
+    cachedUser = null;
     window.location.href = 'login.html';
 }
