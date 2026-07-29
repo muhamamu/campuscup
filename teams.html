@@ -195,11 +195,15 @@
 
             grid.innerHTML = filtered.map(s => {
                 const color = s.team.logoBg || '#1a061e';
+                const logoContent = s.team.logoUrl 
+                    ? `<img src="${s.team.logoUrl}" class="w-full h-full object-cover">`
+                    : s.team.logoText;
+                
                 return `
                     <div class="team-card group">
                         <div class="team-header" style="background: linear-gradient(to bottom right, ${color}, #f472b6);">
-                            <div class="team-logo-float flex items-center justify-center font-black text-xl text-white shadow-xl" style="background-color: ${color}">
-                                ${s.team.logoText}
+                            <div class="team-logo-float flex items-center justify-center font-black text-xl text-white shadow-xl overflow-hidden" style="background-color: ${color}">
+                                ${logoContent}
                             </div>
                         </div>
                         <div class="p-6 pt-10">

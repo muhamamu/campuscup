@@ -1,14 +1,3 @@
-const teams = [
-    { id: 'software200l', name: 'Software 200L', shortCode: 'S2', logoBg: '#1a061e', logoText: 'S2' },
-    { id: 'software100l', name: 'Software 100L', shortCode: 'S1', logoBg: '#c2410c', logoText: 'S1' },
-    { id: 'chinedu', name: "Chinedu's Team", shortCode: 'CT', logoBg: '#991b1b', logoText: 'CT' },
-    { id: 'electrical', name: 'Electrical Engineering 200L', shortCode: 'EE', logoBg: '#1e3a8a', logoText: 'EE' },
-    { id: 'mechatronics', name: 'Mechatronics 200L', shortCode: 'MEC', logoBg: '#0891b2', logoText: 'MEC' },
-    { id: 'civil', name: 'Civil Engineering 100L', shortCode: 'CIV', logoBg: '#059669', logoText: 'CIV' },
-    { id: 'architecture', name: 'Architecture 100L', shortCode: 'ARC', logoBg: '#7c3aed', logoText: 'ARC' },
-    { id: 'theatre', name: 'Theatre Art 200L', shortCode: 'EAG', logoBg: '#581c87', logoText: 'EAG' }
-];
-
 const MATCH_PERIODS = {
     FIRST_HALF: 'FIRST_HALF',
     SECOND_HALF: 'SECOND_HALF',
@@ -40,6 +29,7 @@ const GOAL_TYPES = {
 
 class GameManager {
     constructor() {
+        this.teams = [];
         this.standings = [];
         this.match = null;
         this.scheduledMatches = [];
@@ -67,7 +57,7 @@ class GameManager {
     }
 
     getDefaultStandings() {
-        return teams.map((team, index) => ({
+        return this.teams.map((team, index) => ({
             team,
             pos: index + 1,
             mp: 0, w: 0, d: 0, l: 0,
@@ -77,18 +67,28 @@ class GameManager {
     }
 
     loadFallbackData() {
+        let localStorageTeams = null;
         let localStorageStandings = null;
         let localStorageMatch = null;
         let localStorageScheduled = null;
         let localStorageHistory = null;
 
         try {
+            localStorageTeams = localStorage.getItem('teams');
             localStorageStandings = localStorage.getItem('standings');
             localStorageMatch = localStorage.getItem('liveMatch');
             localStorageScheduled = localStorage.getItem('scheduledMatches');
             localStorageHistory = localStorage.getItem('matchHistory');
         } catch (e) {
             console.warn('Storage access blocked:', e);
+        }
+
+        if (localStorageTeams) {
+            try {
+                this.teams = JSON.parse(localStorageTeams);
+            } catch (e) {
+                this.teams = [];
+            }
         }
 
         let parsedStandings = null;
@@ -100,7 +100,7 @@ class GameManager {
             }
         }
 
-        if (parsedStandings && Array.isArray(parsedStandings) && parsedStandings.length === teams.length) {
+        if (parsedStandings && Array.isArray(parsedStandings)) {
             this.standings = parsedStandings;
         } else {
             this.standings = this.getDefaultStandings();
@@ -109,9 +109,6 @@ class GameManager {
         if (localStorageMatch) {
             try {
                 this.match = JSON.parse(localStorageMatch);
-                if (!this.match.homePenaltyAttempts) this.match.homePenaltyAttempts = [];
-                if (!this.match.awayPenaltyAttempts) this.match.awayPenaltyAttempts = [];
-                if (!this.match.stopwatchStartTime) this.match.stopwatchStartTime = null;
             } catch (e) {
                 this.match = this.createDefaultMatch();
             }
@@ -174,9 +171,11 @@ class GameManager {
     }
 
     createDefaultMatch() {
+        const home = this.teams.length > 0 ? this.teams[0] : { name: 'Home', logoBg: '#ccc', logoText: 'H' };
+        const away = this.teams.length > 1 ? this.teams[1] : { name: 'Away', logoBg: '#ddd', logoText: 'A' };
         return {
-            homeTeam: teams[1],
-            awayTeam: teams[3],
+            homeTeam: home,
+            awayTeam: away,
             homeScore: 0,
             awayScore: 0,
             homePenalties: 0,
@@ -209,6 +208,23 @@ class GameManager {
 
     async loadFromSupabase() {
         try {
+            // Load Teams
+            const { data: teamsData } = await this.sb
+                .from('teams')
+                .select('*')
+                .order('name');
+            
+            if (teamsData) {
+                this.teams = teamsData.map(t => ({
+                    id: t.id,
+                    name: t.name,
+                    shortCode: t.short_code,
+                    logoBg: t.logo_bg,
+                    logoText: t.logo_text,
+                    logoUrl: t.logo_url
+                }));
+            }
+
             // Load Standings
             const { data: standingsData } = await this.sb
                 .from('standings')
@@ -223,9 +239,10 @@ class GameManager {
                     team: {
                         id: row.team_id,
                         name: row.team_name,
-                        shortCode: row.team_short_code || teams.find(t => t.id === row.team_id)?.shortCode,
-                        logoBg: row.team_logo_bg || teams.find(t => t.id === row.team_id)?.logoBg,
-                        logoText: row.team_logo_text || teams.find(t => t.id === row.team_id)?.logoText
+                        shortCode: row.team_short_code,
+                        logoBg: row.team_logo_bg,
+                        logoText: row.team_logo_text,
+                        logoUrl: row.team_logo_url
                     },
                     mp: row.mp,
                     w: row.w,
@@ -261,14 +278,16 @@ class GameManager {
                         name: matchData.home_team_name,
                         shortCode: matchData.home_team_short_code,
                         logoBg: matchData.home_team_logo_bg,
-                        logoText: matchData.home_team_logo_text
+                        logoText: matchData.home_team_logo_text,
+                        logoUrl: matchData.home_team_logo_url
                     },
                     awayTeam: {
                         id: matchData.away_team_id,
                         name: matchData.away_team_name,
                         shortCode: matchData.away_team_short_code,
                         logoBg: matchData.away_team_logo_bg,
-                        logoText: matchData.away_team_logo_text
+                        logoText: matchData.away_team_logo_text,
+                        logoUrl: matchData.away_team_logo_url
                     },
                     homeScore: matchData.home_score,
                     awayScore: matchData.away_score,
@@ -303,14 +322,16 @@ class GameManager {
                         name: histMatch.home_team_name,
                         shortCode: histMatch.home_team_short_code,
                         logoBg: histMatch.home_team_logo_bg,
-                        logoText: histMatch.home_team_logo_text
+                        logoText: histMatch.home_team_logo_text,
+                        logoUrl: histMatch.home_team_logo_url
                     },
                     awayTeam: {
                         id: histMatch.away_team_id,
                         name: histMatch.away_team_name,
                         shortCode: histMatch.away_team_short_code,
                         logoBg: histMatch.away_team_logo_bg,
-                        logoText: histMatch.away_team_logo_text
+                        logoText: histMatch.away_team_logo_text,
+                        logoUrl: histMatch.away_team_logo_url
                     },
                     homeScore: histMatch.home_score,
                     awayScore: histMatch.away_score,
@@ -336,14 +357,16 @@ class GameManager {
                         name: sm.home_team_name,
                         shortCode: sm.home_team_short_code,
                         logoBg: sm.home_team_logo_bg,
-                        logoText: sm.home_team_logo_text
+                        logoText: sm.home_team_logo_text,
+                        logoUrl: sm.home_team_logo_url
                     },
                     awayTeam: {
                         id: sm.away_team_id,
                         name: sm.away_team_name,
                         shortCode: sm.away_team_short_code,
                         logoBg: sm.away_team_logo_bg,
-                        logoText: sm.away_team_logo_text
+                        logoText: sm.away_team_logo_text,
+                        logoUrl: sm.away_team_logo_url
                     },
                     matchDate: sm.match_date,
                     status: sm.status,
@@ -375,6 +398,21 @@ class GameManager {
         if (!this.sb) return;
 
         try {
+            // Save Teams
+            for (const team of this.teams) {
+                await this.sb
+                    .from('teams')
+                    .upsert({
+                        id: team.id,
+                        name: team.name,
+                        short_code: team.shortCode,
+                        logo_bg: team.logoBg,
+                        logo_text: team.logoText,
+                        logo_url: team.logoUrl,
+                        updated_at: new Date().toISOString()
+                    });
+            }
+
             // Save Standings
             for (const standing of this.standings) {
                 await this.sb
@@ -385,6 +423,7 @@ class GameManager {
                         team_short_code: standing.team.shortCode,
                         team_logo_bg: standing.team.logoBg,
                         team_logo_text: standing.team.logoText,
+                        team_logo_url: standing.team.logoUrl,
                         pos: standing.pos,
                         mp: standing.mp,
                         w: standing.w,
@@ -410,11 +449,13 @@ class GameManager {
                         home_team_short_code: this.match.homeTeam.shortCode,
                         home_team_logo_bg: this.match.homeTeam.logoBg,
                         home_team_logo_text: this.match.homeTeam.logoText,
+                        home_team_logo_url: this.match.homeTeam.logoUrl,
                         away_team_id: this.match.awayTeam.id,
                         away_team_name: this.match.awayTeam.name,
                         away_team_short_code: this.match.awayTeam.shortCode,
                         away_team_logo_bg: this.match.awayTeam.logoBg,
                         away_team_logo_text: this.match.awayTeam.logoText,
+                        away_team_logo_url: this.match.awayTeam.logoUrl,
                         home_score: this.match.homeScore,
                         away_score: this.match.awayScore,
                         home_penalties: this.match.homePenalties,
@@ -444,11 +485,13 @@ class GameManager {
                         home_team_short_code: histMatch.homeTeam?.shortCode || histMatch.home_team_short_code,
                         home_team_logo_bg: histMatch.homeTeam?.logoBg || histMatch.home_team_logo_bg,
                         home_team_logo_text: histMatch.homeTeam?.logoText || histMatch.home_team_logo_text,
+                        home_team_logo_url: histMatch.homeTeam?.logoUrl || histMatch.home_team_logo_url,
                         away_team_id: histMatch.awayTeam?.id || histMatch.away_team_id,
                         away_team_name: histMatch.awayTeam?.name || histMatch.away_team_name,
                         away_team_short_code: histMatch.awayTeam?.shortCode || histMatch.away_team_short_code,
                         away_team_logo_bg: histMatch.awayTeam?.logoBg || histMatch.away_team_logo_bg,
                         away_team_logo_text: histMatch.awayTeam?.logoText || histMatch.away_team_logo_text,
+                        away_team_logo_url: histMatch.awayTeam?.logoUrl || histMatch.away_team_logo_url,
                         home_score: histMatch.homeScore,
                         away_score: histMatch.awayScore,
                         home_penalties: histMatch.homePenalties,
@@ -471,11 +514,13 @@ class GameManager {
                         home_team_short_code: sm.homeTeam.shortCode,
                         home_team_logo_bg: sm.homeTeam.logoBg,
                         home_team_logo_text: sm.homeTeam.logoText,
+                        home_team_logo_url: sm.homeTeam.logoUrl,
                         away_team_id: sm.awayTeam.id,
                         away_team_name: sm.awayTeam.name,
                         away_team_short_code: sm.awayTeam.shortCode,
                         away_team_logo_bg: sm.awayTeam.logoBg,
                         away_team_logo_text: sm.awayTeam.logoText,
+                        away_team_logo_url: sm.awayTeam.logoUrl,
                         match_date: sm.matchDate,
                         status: sm.status,
                         updated_at: new Date().toISOString()
@@ -488,6 +533,7 @@ class GameManager {
 
     saveData() {
         try {
+            localStorage.setItem('teams', JSON.stringify(this.teams));
             localStorage.setItem('standings', JSON.stringify(this.standings));
             localStorage.setItem('liveMatch', JSON.stringify(this.match));
             localStorage.setItem('scheduledMatches', JSON.stringify(this.scheduledMatches));
@@ -496,6 +542,75 @@ class GameManager {
             console.warn('Unable to save to local storage (possibly blocked):', e);
         }
         this.saveToSupabase();
+    }
+
+    async addTeam(name, shortCode, logoFile) {
+        if (!this.sb) return;
+
+        let logoUrl = null;
+        if (logoFile) {
+            const fileExt = logoFile.name.split('.').pop();
+            const fileName = `${Math.random()}.${fileExt}`;
+            const filePath = `teams/${fileName}`;
+
+            const { data, error } = await this.sb.storage
+                .from('team-logos')
+                .upload(filePath, logoFile);
+
+            if (error) {
+                console.error('Error uploading logo:', error);
+            } else {
+                const { data: { publicUrl } } = this.sb.storage
+                    .from('team-logos')
+                    .getPublicUrl(filePath);
+                logoUrl = publicUrl;
+            }
+        }
+
+        const newTeam = {
+            id: crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(),
+            name,
+            shortCode,
+            logoBg: '#' + Math.floor(Math.random()*16777215).toString(16),
+            logoText: shortCode || name.substring(0, 2).toUpperCase(),
+            logoUrl
+        };
+
+        this.teams.push(newTeam);
+        
+        // Add to standings if not already there
+        if (!this.standings.find(s => s.team.id === newTeam.id)) {
+            this.standings.push({
+                team: newTeam,
+                pos: this.standings.length + 1,
+                mp: 0, w: 0, d: 0, l: 0,
+                gf: 0, ga: 0, gd: 0, pts: 0,
+                form: []
+            });
+        }
+
+        this.saveData();
+        this.notifySubscribers();
+    }
+
+    async removeTeam(teamId) {
+        if (!this.sb) return;
+
+        // Remove from teams
+        this.teams = this.teams.filter(t => t.id !== teamId);
+        
+        // Remove from standings
+        this.standings = this.standings.filter(s => s.team.id !== teamId);
+        
+        // Re-calculate positions
+        this.sortStandings();
+
+        // Delete from Supabase
+        await this.sb.from('teams').delete().eq('id', teamId);
+        await this.sb.from('standings').delete().eq('team_id', teamId);
+
+        this.saveData();
+        this.notifySubscribers();
     }
 
     startStopwatch() {
@@ -783,8 +898,8 @@ class GameManager {
 
     scheduleMatch(homeTeamId, awayTeamId, matchDate) {
         console.log('[GameManager scheduleMatch] called with:', { homeTeamId, awayTeamId, matchDate });
-        const homeTeam = teams.find(t => t.id === homeTeamId);
-        const awayTeam = teams.find(t => t.id === awayTeamId);
+        const homeTeam = this.teams.find(t => t.id === homeTeamId);
+        const awayTeam = this.teams.find(t => t.id === awayTeamId);
         console.log('[GameManager scheduleMatch] teams:', { homeTeam, awayTeam });
         if (homeTeam && awayTeam) {
             const newMatch = {

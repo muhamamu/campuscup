@@ -218,9 +218,12 @@
                         </td>
                         <td class="px-6 py-5">
                             <div class="flex items-center gap-4">
-                                <div class="w-10 h-10 rounded-2xl flex items-center justify-center text-[10px] font-black text-white shadow-sm" style="background-color: ${s.team.logoBg}">
-                                    ${s.team.logoText}
-                                </div>
+                                ${s.team.logoUrl 
+                                    ? `<img src="${s.team.logoUrl}" class="w-10 h-10 rounded-2xl object-cover shadow-sm">`
+                                    : `<div class="w-10 h-10 rounded-2xl flex items-center justify-center text-[10px] font-black text-white shadow-sm" style="background-color: ${s.team.logoBg}">
+                                        ${s.team.logoText}
+                                       </div>`
+                                }
                                 <div class="min-w-0">
                                     <p class="font-black text-sm text-[#1a061e] truncate uppercase tracking-tight">${s.team.name}</p>
                                     <p class="text-[10px] font-bold text-gray-400">${s.team.shortCode || 'CLUB'}</p>
