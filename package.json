@@ -1,4 +1,8 @@
 {
+  "scripts": {
+    "start": "serve .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
   "dependencies": {
     "firebase": "^12.13.0",
     "@vercel/postgres": "^0.10.0"
